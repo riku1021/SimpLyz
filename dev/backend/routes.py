@@ -72,15 +72,33 @@ def setup_routes(app):
     # データの削除
     @app.route('/clear-uploads', methods=['POST'])
     def clear_uploads():
+        """
+        説明
+        ----------
+        アップロードされているcsvを消すapi
+
+        Request
+        ----------
+        None
+
+        Response
+        ----------
+        {"message": "Uploads directory cleared"}
+
+        """
+
+        # csvファイルの削除
         if os.path.exists(UPLOAD_PATH):
             shutil.rmtree(UPLOAD_PATH)
         os.makedirs(UPLOAD_PATH)
+
         # 空の辞書を作成
         empty_json = {}
 
-        # ファイルに書き込む
+        # データの型を管理するjsonファイルの初期化
         with open('dtypes.json', 'w') as file:
             json.dump(empty_json, file)
+
         return jsonify({"message": "Uploads directory cleared"}), 200    
 
     

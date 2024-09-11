@@ -19,40 +19,62 @@ load_dotenv()
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 GEMINI.configure(api_key=GEMINI_API_KEY)
 
+# データアップロード先の定義
+UPLOAD_PATH = './uploads'
+
 def setup_routes(app):
+
+    # テスト
     @app.route('/', methods=['GET'])
     def index():
         return {'message': True}
 
     @app.route('/upload', methods=['POST'])
-    def upload_file():
-        UPLOAD_FOLDER = './uploads'
-        if not os.path.exists(UPLOAD_FOLDER):
-            os.makedirs(UPLOAD_FOLDER)
-        
+    def upload_csv():
+        """
+        説明
+        ----------
+        csvをアップロードするapi
+
+        Request
+        ----------
+        ImmutableMultiDict([('file', <FileStorage: 'DA_04.csv' ('text/csv')>)])
+
+        Response
+        ----------
+        {"message": f"File {file.filename} uploaded successfully"}
+
+        """
+
+        if not os.path.exists(UPLOAD_PATH):
+            os.makedirs(UPLOAD_PATH)
+
         if 'file' not in request.files:
             return jsonify({"error": "No file part"}), 400
-        
-        file = request.files['file']
+
         if file.filename == '':
             return jsonify({"error": "No selected file"}), 400
-        
-        file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+
+        file = request.files['file']
+
+        # csvファイルの保存
+        file_path = os.path.join(UPLOAD_PATH, file.filename)
         file.save(file_path)
-        # 空の辞書を作成
+
         empty_json = {}
 
-        # ファイルに書き込む
+        # データの型を管理するjsonファイルの作成
         with open('dtypes.json', 'w') as json_file:
             json.dump(empty_json, json_file)
+
         return jsonify({"message": f"File {file.filename} uploaded successfully"}), 200
 
+    # データの削除
     @app.route('/clear-uploads', methods=['POST'])
     def clear_uploads():
-        UPLOAD_FOLDER = './uploads'
-        if os.path.exists(UPLOAD_FOLDER):
-            shutil.rmtree(UPLOAD_FOLDER)
-        os.makedirs(UPLOAD_FOLDER)
+        if os.path.exists(UPLOAD_PATH):
+            shutil.rmtree(UPLOAD_PATH)
+        os.makedirs(UPLOAD_PATH)
         # 空の辞書を作成
         empty_json = {}
 

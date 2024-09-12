@@ -2,7 +2,9 @@ import os
 import shutil
 from flask import request, jsonify, send_file
 from data_plt import *
-from data_utils import get_data_info, get_miss_columns, change_umeric_to_categorical, make_pie, make_feature_value, feature_value_analysis, impute_numeric, impute_categorical
+from data_utils import get_data_info, get_miss_columns, \
+    change_umeric_to_categorical, make_pie, make_feature_value, \
+    feature_value_analysis, impute_numeric, impute_categorical
 
 from read_CSV import read
 
@@ -22,8 +24,8 @@ GEMINI.configure(api_key=GEMINI_API_KEY)
 # データアップロード先の定義
 UPLOAD_PATH = './uploads'
 
-def setup_routes(app):
 
+def setup_routes(app):
     # テスト
     @app.route('/', methods=['GET'])
     def index():
@@ -52,7 +54,7 @@ def setup_routes(app):
         if 'file' not in request.files:
             return jsonify({"error": "No file part"}), 400
 
-        if file.filename == '':
+        if request.files.filename == '':
             return jsonify({"error": "No selected file"}), 400
 
         file = request.files['file']
@@ -67,9 +69,9 @@ def setup_routes(app):
         with open('dtypes.json', 'w') as json_file:
             json.dump(empty_json, json_file)
 
-        return jsonify({"message": f"File {file.filename} uploaded successfully"}), 200
+        return jsonify(
+            {"message": f"File {file.filename} uploaded successfully"}), 200
 
-    # データの削除
     @app.route('/clear-uploads', methods=['POST'])
     def clear_uploads():
         """
@@ -99,16 +101,30 @@ def setup_routes(app):
         with open('dtypes.json', 'w') as file:
             json.dump(empty_json, file)
 
-        return jsonify({"message": "Uploads directory cleared"}), 200    
+        return jsonify({"message": "Uploads directory cleared"}), 200
 
-    
-    # 質的変数のカラムをリストで取得
     @app.route('/get_quantitative', methods=['POST'])
     def get_quantitative():
+        """
+        説明
+        ----------
+        質的変数のカラムをリストで取得するapi
+
+        Request
+        ----------
+        None
+
+        Response
+        ----------
+        quantitative_list : List[str]
+            量的変数のカラム名がリストとして管理している。
+
+        """
+
         quantitative_list = read_quantitative()
-        print(quantitative_list)
-        return jsonify({'quantitative_variables': quantitative_list})
-    
+
+        return jsonify({'quantitative_variables': quantitative_list}), 200
+
     # 量的変数のカラムをリストで取得
     @app.route('/get_qualitative', methods=['GET'])
     def get_qualitative():
@@ -122,7 +138,7 @@ def setup_routes(app):
         print('data', data)
         image_data = plot_scatter(data)
         return jsonify({'image_data': image_data})
-    
+
     # ヒストグラム
     @app.route('/hist', methods=['POST'])
     def make_hist():
@@ -130,7 +146,7 @@ def setup_routes(app):
         print('data', data)
         image_data = plot_hist(data)
         return jsonify({'image_data': image_data})
-    
+
     # 箱ひげ図
     @app.route('/box', methods=['POST'])
     def make_box():
@@ -138,26 +154,26 @@ def setup_routes(app):
         print('data', data)
         image_data = plot_box(data)
         return jsonify({'image_data': image_data})
-    
+
     # データの基本情報の取得
     @app.route('/get_data_info', methods=['GET'])
     def get_data():
         send_data = get_data_info()
         return jsonify(send_data)
-    
+
     # 欠損値があるカラムを取得
     @app.route('/get_miss_columns', methods=['GET'])
     def get_miss():
         send_data = get_miss_columns()
         return jsonify(send_data)
-    
+
     # カテゴリカルデータへ変換
     @app.route('/change_numeric_to_categorical', methods=['POST'])
     def change_to_categorical():
         data = request.get_json()
         change_umeric_to_categorical(data)
         return jsonify({'message': 'change successfully'})
-    
+
     # 円グラフの取得
     @app.route('/get_pie', methods=['POST'])
     def get_pie():
@@ -170,7 +186,7 @@ def setup_routes(app):
     def read_csv():
         read()
         return jsonify({"message": "read csv"}), 200
-    
+
     # チャット機能
     @app.route('/api/chat', methods=['POST'])
     def chat():
@@ -185,21 +201,20 @@ def setup_routes(app):
         except Exception as e:
             return jsonify({'reply': f'エラーが発生しました: {str(e)}'}), 500
 
-
     # 特徴量の作成
     @app.route('/make_feature', methods=['POST'])
     def make_feature():
         data = request.get_json()
         make_feature_value(data)
         return jsonify({'message': 'make successfully'})
-    
+
     # 特定の特徴量についての分析
     @app.route('/feature_analysis', methods=['POST'])
     def feature_analysis():
         data = request.get_json()
         image_data = feature_value_analysis(data)
         return jsonify({'image_data': image_data})
-    
+
     # 数値データの欠損値の補完
     @app.route('/complement/numeric', methods=['POST'])
     def complement_numeric():
@@ -217,7 +232,7 @@ def setup_routes(app):
         methods = data['complementary_methods']
         impute_categorical(column, methods)
         return jsonify({'message': 'complement categorical successfully'})
-    
+
     # geminiの画像分析
     @app.route('/gemini/image', methods=['POST'])
     def gemini_image():
@@ -237,7 +252,7 @@ def setup_routes(app):
             )
         )
         return jsonify({'text': response.text})
-    
+
     # # geminiの分析
     # @app.route('/gemini/text', methods=['POST'])
     # def gemini_text():

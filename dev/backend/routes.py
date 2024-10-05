@@ -243,13 +243,12 @@ def setup_routes(app):
 
         return jsonify(send_data)
 
-    # 欠損値があるカラムを取得
     @app.route("/get_miss_columns", methods=["GET"])
     def get_miss():
         """
         説明
         ----------
-        データの基本情報を取得するapi
+        欠損値があるカラムを取得するapi
 
         Request
         ----------
@@ -257,39 +256,106 @@ def setup_routes(app):
 
         Response
         ----------
-        send_data : str
-            各カラムの基本情報
+        send_data : dict[str, list]
+            欠損値があるカラムの情報
 
         """
 
         send_data = get_miss_columns()
+
         return jsonify(send_data)
 
-    # カテゴリカルデータへ変換
     @app.route("/change_numeric_to_categorical", methods=["POST"])
     def change_to_categorical():
-        data = request.get_json()
+        """
+        説明
+        ----------
+        カテゴリカルデータへ変換するapi
+
+        Request
+        ----------
+        Dict[str, str]
+
+        Response
+        ----------
+        send_data : dict[str, list]
+            欠損値があるカラムの情報
+
+        """
+
+        data: Dict[str, str] = request.get_json()
+
         change_umeric_to_categorical(data)
+
         return jsonify({"message": "change successfully"})
 
-    # 円グラフの取得
     @app.route("/get_pie", methods=["POST"])
     def get_pie():
-        data = request.get_json()
+        """
+        説明
+        ----------
+        円グラフを取得するapi
+
+        Request
+        ----------
+        Dict[str, str]
+
+        Response
+        ----------
+        send_data : dict[str, str]
+            バイナリデータ
+
+        """
+        data: Dict[str, str] = request.get_json()
+
         image_data = make_pie(data)
+
         return jsonify({"image_data": image_data})
 
-    # CSVファイルの読み込み
     @app.route("/read-csv", methods=["GET"])
     def read_csv():
+        """
+        説明
+        ----------
+        CSVファイルを読み込むapi
+
+        Request
+        ----------
+        None
+
+        Response
+        ----------
+        send_data : dict[str, str]
+            読み込んだことを教えるもの
+
+        """
+
         read()
+
         return jsonify({"message": "read csv"}), 200
 
-    # チャット機能
     @app.route("/api/chat", methods=["POST"])
     def chat():
+        """
+        説明
+        ----------
+        チャット機能のapi
+
+        Request
+        ----------
+        Dict[str, List[Dict[str, str]]]
+
+        Response
+        ----------
+        send_data : str
+            回答文章
+
+        """
+
         model = GEMINI.GenerativeModel("gemini-pro")
-        data = request.json
+
+        data: Dict[str, List[Dict[str, str]]] = request.get_json()
+
         message = data.get("message")
         if not message:
             return jsonify({"reply": "メッセージが空です。"}), 400
@@ -299,45 +365,132 @@ def setup_routes(app):
         except Exception as e:
             return jsonify({"reply": f"エラーが発生しました: {str(e)}"}), 500
 
-    # 特徴量の作成
     @app.route("/make_feature", methods=["POST"])
     def make_feature():
-        data = request.get_json()
+        """
+        説明
+        ----------
+        特徴量作成のapi
+
+        Request
+        ----------
+        Dict[str, Any]
+
+        Response
+        ----------
+        send_data : dict[str, str]
+            新しい特徴量が作成されたことを教えるメッセージ
+
+        """
+
+        data: Dict[str, Any] = request.get_json()
+
         make_feature_value(data)
+
         return jsonify({"message": "make successfully"})
 
-    # 特定の特徴量についての分析
     @app.route("/feature_analysis", methods=["POST"])
     def feature_analysis():
-        data = request.get_json()
+        """
+        説明
+        ----------
+        特定の特徴量についての分析するapi
+
+        Request
+        ----------
+        Dict[str, str]
+
+        Response
+        ----------
+        send_data : dict[str, str]
+            ランダムフォレストで特徴量を分析する
+
+        """
+
+        data: Dict[str, str] = request.get_json()
+
         image_data = feature_value_analysis(data)
+
         return jsonify({"image_data": image_data})
 
-    # 数値データの欠損値の補完
     @app.route("/complement/numeric", methods=["POST"])
     def complement_numeric():
-        data = request.get_json()
+        """
+        説明
+        ----------
+        数値データの欠損値の補完をするapi
+
+        Request
+        ----------
+        Dict[str, str]
+
+        Response
+        ----------
+        send_data : dict[str, str]
+            補完が完了したことを伝えるメッセージ
+
+        """
+
+        data: Dict[str, str] = request.get_json()
+
         column = data["column_name"]
         methods = data["complementary_methods"]
+
         impute_numeric(column, methods)
+
         return jsonify({"message": "complement numeric successfully"})
 
-    # カテゴリカルデータの欠損値の補完
     @app.route("/complement/categorical", methods=["POST"])
     def complement_categorical():
-        data = request.get_json()
+        """
+        説明
+        ----------
+        カテゴリカルデータの欠損値の補完をするapi
+
+        Request
+        ----------
+        Dict[str, str]
+
+        Response
+        ----------
+        send_data : dict[str, str]
+            補完が完了したことを伝えるメッセージ
+
+        """
+
+        data: Dict[str, str] = request.get_json()
+
         column = data["column_name"]
         methods = data["complementary_methods"]
+
         impute_categorical(column, methods)
+
         return jsonify({"message": "complement categorical successfully"})
 
-    # geminiの画像分析
     @app.route("/gemini/image", methods=["POST"])
     def gemini_image():
+        """
+        説明
+        ----------
+        geminiの画像分析をするapi
+
+        Request
+        ----------
+        Dict[str, str]
+
+        Response
+        ----------
+        send_data : dict[str, str]
+            画像解析結果の回答
+
+        """
+
         model = GEMINI.GenerativeModel("gemini-1.5-flash")
-        data = request.get_json()
+        data: Dict[str, str] = request.get_json()
+
         image_data = data["image_data"]
         cookie_picture = {"mime_type": "image/png", "data": image_data}
+
         prompt = "この写真について教えて(日本語で)\n"
         response = model.generate_content(
             contents=[prompt, cookie_picture],
@@ -345,18 +498,5 @@ def setup_routes(app):
                 candidate_count=1, temperature=1.0
             ),
         )
-        return jsonify({"text": response.text})
 
-    # # geminiの分析
-    # @app.route('/gemini/text', methods=['POST'])
-    # def gemini_text():
-    #     data = request.get_json()
-    #     message = data['message']
-    #     response = model.generate_content(
-    #         contents=message,
-    #         generation_config=GEMINI.types.GenerationConfig(
-    #             candidate_count=1,
-    #             temperature=1.0
-    #         )
-    #     )
-    #     return jsonify({'text': response.text})
+        return jsonify({"text": response.text})

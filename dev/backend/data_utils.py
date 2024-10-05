@@ -1,11 +1,12 @@
 import base64
 import io
-from typing import Dict, List
+from typing import Dict, List, Any, Tuple, Optional
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from pandas import DataFrame, Series
 import seaborn as sns
 
 matplotlib.use("Agg")
@@ -15,9 +16,16 @@ from scipy import interpolate
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer, KNNImputer
-from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,
-                             mean_absolute_error, mean_squared_error,
-                             precision_score, r2_score, recall_score)
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    f1_score,
+    mean_absolute_error,
+    mean_squared_error,
+    precision_score,
+    r2_score,
+    recall_score,
+)
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 
@@ -40,9 +48,26 @@ def convert_to_serializable(obj):
     return obj
 
 
-def get_df():
+def get_df() -> DataFrame:
+    """
+    説明
+    ----------
+    データフレームを取得する関数
+
+    Parameter
+    ----------
+    None
+
+    Return
+    ----------
+    df : DataFrame
+        csvファイルをデータフレームとして保存したもの
+
+    """
+
     df = pd.read_csv("./uploads/demo.csv")
     load_dtype(df, "./uploads/dtypes.json")
+
     return df
 
 
@@ -118,12 +143,29 @@ def get_data_info() -> Dict[str, List]:
     return send_data
 
 
-# 欠損値があるカラムを取得
-def get_miss_columns():
+def get_miss_columns() -> Dict[str, List]:
+    """
+    説明
+    ----------
+    欠損値があるカラムを取得する関数
+
+    Parameter
+    ----------
+    None
+
+    Return
+    ----------
+    Dict[str, List]
+        量的変数と質的変数がkeyでvalueがそれぞれのカラム名をリストとして保存したもの
+
+    """
+
     df = get_df()
+
     quantitative_miss_list = []
     qualitative_miss_list = []
 
+    # 欠損値があるカラムについて調べ、量的か質的かで各リストに入れる
     for col in df.columns:
         if df[col].isnull().any():
             if df[col].dtype == "int64" or df[col].dtype == "float64":
@@ -139,21 +181,58 @@ def get_miss_columns():
     return send_data
 
 
-# 数値データからカテゴリカルデータへ変換
-def change_umeric_to_categorical(data):
+def change_umeric_to_categorical(data: Dict[str, str]) -> None:
+    """
+    説明
+    ----------
+    数値データからカテゴリカルデータへ変換する関数
+
+    Parameter
+    ----------
+    data : Dict[str, str]
+        データフレーム
+
+    Return
+    ----------
+    None
+
+    """
+
     column = data["column_name"]
+
     df = get_df()
+
     df[column] = df[column].astype(str)
+
     save_dtype(df, "./uploads/dtypes.json")
+
     df.to_csv("./uploads/demo2.csv", index=False)
 
 
-# 円グラフの可視化
-def make_pie(data):
+def make_pie(data) -> str:
+    """
+    説明
+    ----------
+    円グラフの可視化をする関数
+
+    Parameter
+    ----------
+    data : Dict[str, str]
+        データフレーム
+
+    Return
+    ----------
+    str
+
+    """
+
     # 初期化
     plt.clf()
+
     column = data["column_name"]
+
     df = get_df()
+
     value_counts = df[column].value_counts()
     percentages = value_counts / len(df) * 100
 
@@ -182,18 +261,35 @@ def make_pie(data):
     # タイトルの表示
     title = f"Distribution of {column}"
     fig.suptitle(title, fontsize=16)
-    # plt.tight_layout()
+
     # バイナリデータにエンコード
     buf = io.BytesIO()
     plt.savefig(buf, format="png")
     buf.seek(0)
     plot_url = base64.b64encode(buf.getvalue()).decode()
+
     return plot_url
 
 
-# 特徴量の作成
-def make_feature_value(data):
+def make_feature_value(data: Dict[str, Any]) -> None:
+    """
+    説明
+    ----------
+    特徴量の作成する関数
+
+    Parameter
+    ----------
+    data : Dict[str, Any]
+        データフレーム
+
+    Return
+    ----------
+    str
+
+    """
+
     df = get_df()
+
     formula_list = data["formula"]
     new_column_name = data["new_column_name"]
 
@@ -261,11 +357,34 @@ def make_feature_value(data):
                     left_formula = left_formula / right_formula
 
     df[new_column_name] = left_formula
+
     df.to_csv("./uploads/demo.csv", index=False)
 
 
-# 特徴量分析に必要な関数
-def prepare_data(df, target_column, exclude_columns=None):
+def prepare_data(
+    df: DataFrame, target_column: str, exclude_columns: Optional[List[str]] = None
+) -> Tuple[DataFrame, Series]:
+    """
+    説明
+    ----------
+    特徴量分析に必要な関数
+
+    Parameter
+    ----------
+    df : DataFrame
+        データフレーム
+    target_column : str
+        目的変数のカラム名
+    exclude_columns : Optional[List[str]]
+        特徴量分析に使用しないカラムのリスト
+
+    Return
+    ----------
+    str
+        分析結果のバイナリデータ
+
+    """
+
     if exclude_columns is None:
         exclude_columns = []
 
@@ -280,33 +399,97 @@ def prepare_data(df, target_column, exclude_columns=None):
     return X, y
 
 
-def calculate_feature_importance(model, X):
+def calculate_feature_importance(model, X: DataFrame) -> DataFrame:
+    """
+    説明
+    ----------
+    特徴量のカラムを取り出す
+
+    Parameter
+    ----------
+    model
+        ランダムフォレストのモデル
+    X : DataFrame
+        データフレーム
+
+    Return
+    ----------
+    DataFrame
+        特徴量を保存したデータフレーム
+
+    """
+
     importances = model.feature_importances_
     feature_importance = pd.DataFrame({"feature": X.columns, "importance": importances})
     feature_importance = feature_importance.sort_values(
         "importance", ascending=False
     ).reset_index(drop=True)
+
     return feature_importance
 
 
-def plot_feature_importance(feature_importance, top_n=20):
+def plot_feature_importance(feature_importance: DataFrame, top_n: int = 20) -> str:
+    """
+    説明
+    ----------
+    特徴量の重量度を表にし、バイナリデータとして返す関数
+
+    Parameter
+    ----------
+    feature_importance : DataFrame
+        データフレーム
+    top_n : int
+        上位いくつまで表に表示するか
+
+    Return
+    ----------
+    str
+        分析結果のバイナリデータ
+
+    """
+
     plt.figure(figsize=(12, 8))
     top_n = min(top_n, len(feature_importance))
     sns.barplot(x="importance", y="feature", data=feature_importance.head(top_n))
     plt.title(f"Top {top_n} Feature Importance")
     plt.xlabel("Importance")
     plt.ylabel("Feature")
-    # plt.tight_layout()
-    # plt.show()
+
     # バイナリデータにエンコード
     buf = io.BytesIO()
     plt.savefig(buf, format="png", dpi=100, bbox_inches="tight")
     buf.seek(0)
     plot_url = base64.b64encode(buf.getvalue()).decode()
+
     return plot_url
 
 
-def evaluate_classification_model(X, y, test_size=0.2, random_state=42):
+def evaluate_classification_model(
+    X: DataFrame, y: Series, test_size: float = 0.2, random_state: int = 42
+) -> str:
+    """
+    説明
+    ----------
+    分類モデルの処理とその結果を返す関数
+
+    Parameter
+    ----------
+    X : DataFrame
+        データフレーム
+    y : Series
+        目的変数のデータ
+    test_size : float
+        テストサイズ
+    random_state : int
+        乱数
+
+    Return
+    ----------
+    str
+        分析結果のバイナリデータ
+
+    """
+
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=test_size, random_state=random_state
     )
@@ -328,12 +511,6 @@ def evaluate_classification_model(X, y, test_size=0.2, random_state=42):
     print(f"F1-score: {f1:.4f}")
 
     cm = confusion_matrix(y_test, y_pred)
-    # plt.figure(figsize=(8, 6))
-    # sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
-    # plt.title('Confusion Matrix')
-    # plt.xlabel('Predicted')
-    # plt.ylabel('Actual')
-    # plt.show()
 
     # 特徴量の重要度を計算して表示
     feature_importance = calculate_feature_importance(model, X)
@@ -344,7 +521,32 @@ def evaluate_classification_model(X, y, test_size=0.2, random_state=42):
     return plot_url
 
 
-def evaluate_regression_model(X, y, test_size=0.2, random_state=42):
+def evaluate_regression_model(
+    X: DataFrame, y: Series, test_size: float = 0.2, random_state: int = 42
+) -> str:
+    """
+    説明
+    ----------
+    回帰モデルの処理とその結果を返す関数
+
+    Parameter
+    ----------
+    X : DataFrame
+        データフレーム
+    y : Series
+        目的変数のデータ
+    test_size : float
+        テストサイズ
+    random_state : int
+        乱数
+
+    Return
+    ----------
+    str
+        分析結果のバイナリデータ
+
+    """
+
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=test_size, random_state=random_state
     )
@@ -365,14 +567,6 @@ def evaluate_regression_model(X, y, test_size=0.2, random_state=42):
     print(f"Mean Absolute Error: {mae:.4f}")
     print(f"R-squared: {r2:.4f}")
 
-    # plt.figure(figsize=(8, 6))
-    # plt.scatter(y_test, y_pred, alpha=0.5)
-    # plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', lw=2)
-    # plt.xlabel('Actual')
-    # plt.ylabel('Predicted')
-    # plt.title('Actual vs Predicted')
-    # plt.show()
-
     # 特徴量の重要度を計算して表示
     feature_importance = calculate_feature_importance(model, X)
     print("\n特徴量の重要度:")
@@ -382,23 +576,61 @@ def evaluate_regression_model(X, y, test_size=0.2, random_state=42):
     return plot_url
 
 
-# 特定の特徴量についての分析
-def feature_value_analysis(data):
+def feature_value_analysis(data: Dict[str, str]) -> str:
+    """
+    説明
+    ----------
+    特定の特徴量についての分析する関数
+
+    Parameter
+    ----------
+    data : Dict[str, Any]
+        データフレーム
+
+    Return
+    ----------
+    str
+        分析結果のバイナリデータ
+
+    """
+
     # 初期化
     plt.clf()
+
     df = get_df()
+
     column_name = data["column_name"]
-    exclude_columns = []  # 使わないカラムを指定
+    exclude_columns: List[str] = []  # 使わないカラムを指定
+
     X, y = prepare_data(df, column_name, exclude_columns)
+
     if df[column_name].dtype == "int64" or df[column_name].dtype == "float64":
         plot_url = evaluate_regression_model(X, y)
     else:
         plot_url = evaluate_classification_model(X, y)
+
     return plot_url
 
 
-# 補完機能
-def impute_numeric(column, method="mean"):
+def impute_numeric(column: str, method: str = "mean") -> None:
+    """
+    説明
+    ----------
+    数値変数の補完する関数
+
+    Parameter
+    ----------
+    column : str
+        カラム名
+    method : str
+        補完の方法について
+
+    Return
+    ----------
+    None
+
+    """
+
     df_imputed = get_df()
 
     # 指定されたカラムが数値型かどうかをチェック
@@ -454,10 +686,29 @@ def impute_numeric(column, method="mean"):
             df_imputed[column] = imputer.fit_transform(df_imputed[[column]])
     else:
         print(f"警告: カラム '{column}' は数値型ではありません。補完は行われません。")
+
     df_imputed.to_csv("./uploads/demo.csv", index=False)
 
 
-def impute_categorical(column, method="mode"):
+def impute_categorical(column: str, method: str = "mode"):
+    """
+    説明
+    ----------
+    カテゴリカル変数の補完する関数
+
+    Parameter
+    ----------
+    column : str
+        カラム名
+    method : str
+        補完の方法について
+
+    Return
+    ----------
+    None
+
+    """
+
     df_imputed = get_df()
 
     # 指定されたカラムがカテゴリカル型または文字列型かどうかをチェック
@@ -492,18 +743,54 @@ def impute_categorical(column, method="mode"):
             )
     else:
         print(f"警告: カラム '{column}' はカテゴリカル型または文字列型ではありません。補完は行われません。")
+
     df_imputed.to_csv("./uploads/demo.csv", index=False)
 
 
-# データ型情報を保存する関数
-def save_dtype(df, filename):
+def save_dtype(df: DataFrame, filename: str) -> None:
+    """
+    説明
+    ----------
+    データ型情報を保存する関数
+
+    Parameter
+    ----------
+    df : DataFrame
+        データフレーム
+    filename : str
+        データフレームの型情報を保存しているファイルのpath
+
+    Return
+    ----------
+    None
+
+    """
+
     dtypes = {col: str(dtype) for col, dtype in df.dtypes.items()}
+
     with open(filename, "w") as f:
         json.dump(dtypes, f)
 
 
-# データ型情報を読み込む関数
-def load_dtype(df, filename):
+def load_dtype(df: DataFrame, filename: str) -> None:
+    """
+    説明
+    ----------
+    データ型情報を読み込む関数
+
+    Parameter
+    ----------
+    df : DataFrame
+        データフレーム
+    filename : str
+        データフレームの型情報を保存しているファイルのpath
+
+    Return
+    ----------
+    None
+
+    """
+
     try:
         with open(filename, "r") as f:
             dtypes = json.load(f)

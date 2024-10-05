@@ -1,5 +1,6 @@
 # import
 import base64
+
 # import chardet
 import codecs
 import glob
@@ -206,7 +207,7 @@ def plot_scatter(jsons: Dict[str, Any]) -> str:
             y=list_columns["variable2"],
             data=df,
             fit_reg=list_columns["fit_reg"],
-            order=int(list_columns["order"]),
+            order=list_columns["order"],
         )
     else:
         sns_plot = sns.lmplot(
@@ -215,7 +216,7 @@ def plot_scatter(jsons: Dict[str, Any]) -> str:
             hue=list_columns["target"],
             data=df,
             fit_reg=list_columns["fit_reg"],
-            order=int(list_columns["order"]),
+            order=list_columns["order"],
         )
 
     buf = io.BytesIO()

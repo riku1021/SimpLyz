@@ -4,9 +4,16 @@ import shutil
 
 import google.generativeai as GEMINI
 from data_plt import *
-from data_utils import (change_umeric_to_categorical, feature_value_analysis,
-                        get_data_info, get_miss_columns, impute_categorical,
-                        impute_numeric, make_feature_value, make_pie)
+from data_utils import (
+    change_umeric_to_categorical,
+    feature_value_analysis,
+    get_data_info,
+    get_miss_columns,
+    impute_categorical,
+    impute_numeric,
+    make_feature_value,
+    make_pie,
+)
 from dotenv import load_dotenv
 from flask import jsonify, request, send_file
 from flask_cors import CORS
@@ -239,6 +246,22 @@ def setup_routes(app):
     # 欠損値があるカラムを取得
     @app.route("/get_miss_columns", methods=["GET"])
     def get_miss():
+        """
+        説明
+        ----------
+        データの基本情報を取得するapi
+
+        Request
+        ----------
+        None
+
+        Response
+        ----------
+        send_data : str
+            各カラムの基本情報
+
+        """
+
         send_data = get_miss_columns()
         return jsonify(send_data)
 

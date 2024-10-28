@@ -1,13 +1,13 @@
 import base64
 import io
-from typing import Dict, List, Any, Tuple, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from pandas import DataFrame, Series
 import seaborn as sns
+from pandas import DataFrame, Series
 
 matplotlib.use("Agg")
 import json
@@ -99,8 +99,12 @@ def get_data_info() -> Dict[str, List]:
                 "標準偏差": format_value(convert_to_serializable(df[col].std())),
                 "最小値": format_value(convert_to_serializable(df[col].min())),
                 "最大値": format_value(convert_to_serializable(df[col].max())),
-                "第1四分位数": format_value(convert_to_serializable(df[col].quantile(0.25))),
-                "第3四分位数": format_value(convert_to_serializable(df[col].quantile(0.75))),
+                "第1四分位数": format_value(
+                    convert_to_serializable(df[col].quantile(0.25))
+                ),
+                "第3四分位数": format_value(
+                    convert_to_serializable(df[col].quantile(0.75))
+                ),
                 "歪度": format_value(convert_to_serializable(df[col].skew())),
                 "尖度": format_value(convert_to_serializable(df[col].kurtosis())),
                 "変動係数": format_value(
@@ -167,6 +171,8 @@ def get_miss_columns() -> Dict[str, List]:
 
     # 欠損値があるカラムについて調べ、量的か質的かで各リストに入れる
     for col in df.columns:
+        if col == "JobRole":
+            print(col, df["JobRole"][3], type(df[col][3]))
         if df[col].isnull().any():
             if df[col].dtype == "int64" or df[col].dtype == "float64":
                 quantitative_miss_list.append(col)
@@ -206,7 +212,7 @@ def change_umeric_to_categorical(data: Dict[str, str]) -> None:
 
     save_dtype(df, "./uploads/dtypes.json")
 
-    df.to_csv("./uploads/demo2.csv", index=False)
+    df.to_csv("./uploads/demo.csv", index=False)
 
 
 def make_pie(data) -> str:
@@ -742,7 +748,9 @@ def impute_categorical(column: str, method: str = "mode"):
                 non_null_values, size=null_mask.sum()
             )
     else:
-        print(f"警告: カラム '{column}' はカテゴリカル型または文字列型ではありません。補完は行われません。")
+        print(
+            f"警告: カラム '{column}' はカテゴリカル型または文字列型ではありません。補完は行われません。"
+        )
 
     df_imputed.to_csv("./uploads/demo.csv", index=False)
 
@@ -797,6 +805,7 @@ def load_dtype(df: DataFrame, filename: str) -> None:
         for col, dtype in dtypes.items():
             if dtype == "object":
                 df[col] = df[col].astype(str)
+                df[col] = df[col].replace("nan", np.nan)
             elif dtype == "int64":
                 df[col] = df[col].astype(int)
     except:

@@ -300,7 +300,7 @@ def make_feature_value(data: Dict[str, Any]) -> None:
     new_column_name = data["new_column_name"]
 
     basic_arithmetic_list = ["addition", "subtraction", "multiplication", "division"]
-    basic_number = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    basic_number = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
     left_formula = None
     middle_formula = None

@@ -385,6 +385,8 @@ def setup_routes(app):
 
         data: Dict[str, Any] = request.get_json()
 
+        print(data)
+
         make_feature_value(data)
 
         return jsonify({"message": "make successfully"})

@@ -59,7 +59,7 @@ def setup_routes(app):
         if "file" not in request.files:
             return jsonify({"error": "No file part"}), 400
 
-        if request.files.filename == "":
+        if request.files["file"].filename == "":
             return jsonify({"error": "No selected file"}), 400
 
         file = request.files["file"]
@@ -384,6 +384,8 @@ def setup_routes(app):
         """
 
         data: Dict[str, Any] = request.get_json()
+
+        print(data)
 
         make_feature_value(data)
 

@@ -1,13 +1,13 @@
 import base64
 import io
-from typing import Dict, List, Any, Tuple, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from pandas import DataFrame, Series
 import seaborn as sns
+from pandas import DataFrame, Series
 
 matplotlib.use("Agg")
 import json
@@ -99,8 +99,12 @@ def get_data_info() -> Dict[str, List]:
                 "標準偏差": format_value(convert_to_serializable(df[col].std())),
                 "最小値": format_value(convert_to_serializable(df[col].min())),
                 "最大値": format_value(convert_to_serializable(df[col].max())),
-                "第1四分位数": format_value(convert_to_serializable(df[col].quantile(0.25))),
-                "第3四分位数": format_value(convert_to_serializable(df[col].quantile(0.75))),
+                "第1四分位数": format_value(
+                    convert_to_serializable(df[col].quantile(0.25))
+                ),
+                "第3四分位数": format_value(
+                    convert_to_serializable(df[col].quantile(0.75))
+                ),
                 "歪度": format_value(convert_to_serializable(df[col].skew())),
                 "尖度": format_value(convert_to_serializable(df[col].kurtosis())),
                 "変動係数": format_value(
@@ -167,6 +171,8 @@ def get_miss_columns() -> Dict[str, List]:
 
     # 欠損値があるカラムについて調べ、量的か質的かで各リストに入れる
     for col in df.columns:
+        if col == "JobRole":
+            print(col, df["JobRole"][3], type(df[col][3]))
         if df[col].isnull().any():
             if df[col].dtype == "int64" or df[col].dtype == "float64":
                 quantitative_miss_list.append(col)
@@ -206,7 +212,7 @@ def change_umeric_to_categorical(data: Dict[str, str]) -> None:
 
     save_dtype(df, "./uploads/dtypes.json")
 
-    df.to_csv("./uploads/demo2.csv", index=False)
+    df.to_csv("./uploads/demo.csv", index=False)
 
 
 def make_pie(data) -> str:
@@ -271,6 +277,53 @@ def make_pie(data) -> str:
     return plot_url
 
 
+def calculate(formula_list: List, row: Series) -> int:
+    """
+    説明
+    ----------
+    計算を行う関数
+
+    Parameter
+    ----------
+    formula_list : List
+        計算式を保管しているリスト
+    row : Series
+        シリーズ型
+
+    Return
+    ----------
+    int
+
+    """
+
+    operator_map = {
+        "addition": "+",
+        "subtraction": "-",
+        "multiplication": "*",
+        "division": "/",
+        "(": "(",
+        ")": ")"
+    }
+
+    # 式を構築するために、演算子リストの要素を対応する記号に変換
+    converted_expression = ""
+    for item in formula_list:
+        if item in operator_map:
+            # 演算子の場合は記号に置き換え
+            converted_expression += operator_map[item]
+        elif item in row:
+            # カラム名の場合は行の値を使用
+            converted_expression += str(row[item])
+        else:
+            # それ以外はそのまま追加
+            converted_expression += str(item)
+
+    # 計算式を評価
+    result = eval(converted_expression)
+
+    return result
+
+
 def make_feature_value(data: Dict[str, Any]) -> None:
     """
     説明
@@ -284,7 +337,7 @@ def make_feature_value(data: Dict[str, Any]) -> None:
 
     Return
     ----------
-    str
+    None
 
     """
 
@@ -293,70 +346,7 @@ def make_feature_value(data: Dict[str, Any]) -> None:
     formula_list = data["formula"]
     new_column_name = data["new_column_name"]
 
-    basic_arithmetic_list = ["addition", "subtraction", "multiplication", "division"]
-    basic_number = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-
-    left_formula = None
-    middle_formula = None
-    right_formula = None
-
-    for formula in formula_list:
-        if formula in basic_arithmetic_list:
-            middle_formula = formula
-        elif formula in basic_number:
-            if left_formula is None:
-                left_formula = formula
-            else:
-                right_formula = formula
-        else:
-            if left_formula is None:
-                left_formula = df[formula]
-            else:
-                right_formula = df[formula]
-        if (
-            left_formula is not None
-            and middle_formula is not None
-            and right_formula is not None
-        ):
-            if not isinstance(left_formula, pd.Series):
-                if not isinstance(right_formula, pd.Series):
-                    if middle_formula == "addition":
-                        left_formula = int(left_formula) + int(right_formula)
-                    elif middle_formula == "subtraction":
-                        left_formula = int(left_formula) - int(right_formula)
-                    elif middle_formula == "multiplication":
-                        left_formula = int(left_formula) * int(right_formula)
-                    elif middle_formula == "division":
-                        left_formula = int(left_formula) / int(right_formula)
-                else:
-                    if middle_formula == "addition":
-                        left_formula = int(left_formula) + right_formula
-                    elif middle_formula == "subtraction":
-                        left_formula = int(left_formula) - right_formula
-                    elif middle_formula == "multiplication":
-                        left_formula = int(left_formula) * right_formula
-                    elif middle_formula == "division":
-                        left_formula = int(left_formula) / right_formula
-            elif not isinstance(right_formula, pd.Series):
-                if middle_formula == "addition":
-                    left_formula = left_formula + int(right_formula)
-                elif middle_formula == "subtraction":
-                    left_formula = left_formula - int(right_formula)
-                elif middle_formula == "multiplication":
-                    left_formula = left_formula * int(right_formula)
-                elif middle_formula == "division":
-                    left_formula = left_formula / int(right_formula)
-            else:
-                if middle_formula == "addition":
-                    left_formula = left_formula + right_formula
-                elif middle_formula == "subtraction":
-                    left_formula = left_formula - right_formula
-                elif middle_formula == "multiplication":
-                    left_formula = left_formula * right_formula
-                elif middle_formula == "division":
-                    left_formula = left_formula / right_formula
-
-    df[new_column_name] = left_formula
+    df[new_column_name] = df.apply(lambda row: calculate(formula_list, row), axis=1)
 
     df.to_csv("./uploads/demo.csv", index=False)
 
@@ -742,7 +732,9 @@ def impute_categorical(column: str, method: str = "mode"):
                 non_null_values, size=null_mask.sum()
             )
     else:
-        print(f"警告: カラム '{column}' はカテゴリカル型または文字列型ではありません。補完は行われません。")
+        print(
+            f"警告: カラム '{column}' はカテゴリカル型または文字列型ではありません。補完は行われません。"
+        )
 
     df_imputed.to_csv("./uploads/demo.csv", index=False)
 
@@ -797,6 +789,7 @@ def load_dtype(df: DataFrame, filename: str) -> None:
         for col, dtype in dtypes.items():
             if dtype == "object":
                 df[col] = df[col].astype(str)
+                df[col] = df[col].replace("nan", np.nan)
             elif dtype == "int64":
                 df[col] = df[col].astype(int)
     except:

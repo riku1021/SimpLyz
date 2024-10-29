@@ -6,6 +6,7 @@ import codecs
 import glob
 import io
 import json
+import os
 from typing import Any, Dict, List
 
 import matplotlib
@@ -68,7 +69,8 @@ def get_df() -> DataFrame:
     """
 
     df = pd.read_csv("./uploads/demo.csv")
-    df = load_dtype(df, "./uploads/dtypes.json")
+    if os.path.exists("./uploads/dtypes.json"):
+        df = load_dtype(df, "./uploads/dtypes.json")
 
     return df
 

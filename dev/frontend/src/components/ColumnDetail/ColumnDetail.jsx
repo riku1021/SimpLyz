@@ -46,14 +46,16 @@ function ColumnDetail() {
                     title: '成功',
                     text: 'カテゴリカルデータに変更しました',
                     icon: 'success',
-                    confirmButtonText: 'OK'
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#1976d2'
                 });
             } else {
                 Swal.fire({
                     title: 'エラー',
                     text: '変更に失敗しました',
                     icon: 'error',
-                    confirmButtonText: 'OK'
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#1976d2',
                 });
             }
         }

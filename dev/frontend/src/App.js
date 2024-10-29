@@ -8,6 +8,7 @@ import DataInfo from './components/DataInfo/DataInfo';
 import ColumnDetail from './components/ColumnDetail/ColumnDetail';
 import FeatureCreation from './components/FeatureCreation/FeatureCreation';
 import MissingValueImputation from './components/MissingValueImputation/MissingValueImputation';
+import PersonalInfo from './components/PersonalInfo/PersonalInfo';
 
 import Header from './components/Header';
 
@@ -23,6 +24,7 @@ function App() {
         <Route path='/miss-input' element={<MissingValueImputation />} />
         <Route path='/feature-creation' element={<FeatureCreation />} />
         <Route path='/analysis' element={<Analysis />} />
+        <Route path='/personal-information' element={<PersonalInfo />} />
       </Routes>
     </BrowserRouter>
   );

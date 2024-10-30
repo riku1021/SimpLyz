@@ -177,6 +177,8 @@ requests==2.32.3
     # via google-api-core
 rsa==4.9
     # via google-auth
+ruff==0.7.1
+    # via backend
 scikit-learn==1.5.1
     # via backend
 scipy==1.14.1

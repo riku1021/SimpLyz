@@ -1,9 +1,16 @@
 import json
 import os
 import shutil
+from typing import Any, Dict, List
 
 import google.generativeai as GEMINI
-from data_plt import *
+from data_plt import (
+    plot_box,
+    read_quantitative,
+    read_qualitative,
+    plot_scatter,
+    plot_hist,
+)
 from data_utils import (
     change_umeric_to_categorical,
     feature_value_analysis,
@@ -15,8 +22,7 @@ from data_utils import (
     make_pie,
 )
 from dotenv import load_dotenv
-from flask import jsonify, request, send_file
-from flask_cors import CORS
+from flask import jsonify, request
 from read_CSV import read
 
 # 環境変数を読み込む

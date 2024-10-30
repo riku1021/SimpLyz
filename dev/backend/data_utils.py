@@ -14,7 +14,6 @@ import json
 
 from scipy import interpolate
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer, KNNImputer
 from sklearn.metrics import (
     accuracy_score,
@@ -302,7 +301,7 @@ def calculate(formula_list: List, row: Series) -> int:
         "multiplication": "*",
         "division": "/",
         "(": "(",
-        ")": ")"
+        ")": ")",
     }
 
     # 式を構築するために、演算子リストの要素を対応する記号に変換
@@ -787,17 +786,14 @@ def load_dtype(df: DataFrame, filename: str) -> None:
 
     """
 
-    try:
-        with open(filename, "r") as f:
-            dtypes = json.load(f)
-        for col, dtype in dtypes.items():
-            if dtype == "object":
-                df[col] = df[col].astype(str)
-                df[col] = df[col].replace("nan", np.nan)
-            elif dtype == "int64":
-                df[col] = df[col].astype(int)
-    except:
-        pass
+    with open(filename, "r") as f:
+        dtypes = json.load(f)
+    for col, dtype in dtypes.items():
+        if dtype == "object":
+            df[col] = df[col].astype(str)
+            df[col] = df[col].replace("nan", np.nan)
+        elif dtype == "int64":
+            df[col] = df[col].astype(int)
 
 
 if __name__ == "__main__":

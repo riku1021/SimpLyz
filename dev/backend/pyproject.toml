@@ -18,6 +18,8 @@ dependencies = [
     "chardet>=5.2.0",
     "colorama>=0.4.6",
     "ruff>=0.7.1",
+    "tox>=4.23.2",
+    "mypy>=1.13.0",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
@@ -39,4 +41,4 @@ packages = ["src/backend"]
 [tool.rye.scripts]
 start = "python app.py"
 lint = "ruff check . --fix"
-format = "rye run ruff format ."
+format = "ruff format ."

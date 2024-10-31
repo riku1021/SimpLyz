@@ -49,7 +49,7 @@ const Header = () => {
                             <ListItemIcon>
                                 <UploadFileIcon />
                             </ListItemIcon>
-                            <ListItemText primary="CSVアップロード" primaryTypographyProps={{ fontWeight: 'bold' }} />
+                            <ListItemText primary="CSVファイル管理" primaryTypographyProps={{ fontWeight: 'bold' }} />
                         </ListItemButton>
                         <ListItemButton onClick={() => handleNavigate('/data-info')}>
                             <ListItemIcon>

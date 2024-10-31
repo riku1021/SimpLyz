@@ -108,7 +108,7 @@ function MissingValueImputation() {
                 <CardContent>
                     <Typography variant="h5" gutterBottom>数値データの欠損値</Typography>
                     {quantitativeMissList.length === 0 ? (
-                        <Box sx={{ backgroundColor: '#EAEAEA', borderRadius: '8px', p: 2, mb: 2 }}>
+                        <Box sx={{ backgroundColor: '#EAEAEA', borderRadius: '8px', p: 2 }}>
                             <Typography>欠損値のある数値データのカラムはありません。</Typography>
                         </Box>
                     ) : (
@@ -138,7 +138,7 @@ function MissingValueImputation() {
                 <CardContent>
                     <Typography variant="h5" gutterBottom>カテゴリカルデータの欠損値</Typography>
                     {qualitativeMissList.length === 0 ? (
-                        <Box sx={{ backgroundColor: '#EAEAEA', borderRadius: '8px', p: 2, mb: 2 }}>
+                        <Box sx={{ backgroundColor: '#EAEAEA', borderRadius: '8px', p: 2 }}>
                             <Typography>欠損値のあるカテゴリカルデータのカラムはありません。</Typography>
                         </Box>
                     ) : (

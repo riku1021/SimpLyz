@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import UploadCSV from './components/UploadCSV/UploadCSV';
+import ManageCSV from './components/ManageCSV/ManageCSV';
 import Fetch from './components/fetch';
 import Analysis from './Analysis/Analysis';
 import DataInfo from './components/DataInfo/DataInfo';
@@ -16,8 +16,9 @@ function App() {
     <BrowserRouter>
       <Header />
       <Routes>
+        <Route path='/' element={<ManageCSV />} />
         <Route path='/fetch' element={<Fetch />} />
-        <Route path='/upload-csv' element={<UploadCSV />} />
+        <Route path='/manage-csv' element={<ManageCSV />} />
         <Route path='/data-info' element={<DataInfo />} />
         <Route path="/data-info/:columnName/:type" element={<ColumnDetail />} />
         <Route path='/miss-input' element={<MissingValueImputation />} />

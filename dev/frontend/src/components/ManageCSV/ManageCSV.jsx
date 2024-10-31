@@ -4,7 +4,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { Box, Button, Typography, Paper, Card, CardContent, Stack } from '@mui/material';
 
-const UploadCSV = () => {
+const ManageCSV = () => {
     const [messages, setMessages] = useState([]);
     const [uploadedFileName, setUploadedFileName] = useState(null);
     const fileInputRef = useRef(null);
@@ -185,4 +185,4 @@ const UploadCSV = () => {
     );
 };
 
-export default UploadCSV;
+export default ManageCSV;

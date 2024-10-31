@@ -45,7 +45,7 @@ const Header = () => {
                 </Box>
                 <Box sx={{ width: 250, paddingRight: '20px' }}>
                     <List>
-                        <ListItemButton onClick={() => handleNavigate('/upload-csv')}>
+                        <ListItemButton onClick={() => handleNavigate('/manage-csv')}>
                             <ListItemIcon>
                                 <UploadFileIcon />
                             </ListItemIcon>

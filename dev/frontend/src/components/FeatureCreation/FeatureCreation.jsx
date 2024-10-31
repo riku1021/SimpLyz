@@ -214,7 +214,7 @@ const FeatureCreation = () => {
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
             <Card sx={{ width: 600, p: 2 }}>
                 <CardContent>
-                    <Typography variant="h4" gutterBottom>特徴量の作成</Typography>
+                    <Typography variant="h5" gutterBottom>特徴量の作成</Typography>
                     <Box sx={{
                         mt: 2,
                         backgroundColor: '#EAEAEA',

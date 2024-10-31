@@ -12,13 +12,22 @@ function MissingValueImputation() {
 
     useEffect(() => {
         const fetchMissingColumns = async () => {
-            const response = await fetch('http://127.0.0.1:5000/get_miss_columns', {
-                method: 'GET',
-            });
-            const data = await response.json();
-            setQuantitativeMissList(data.quantitative_miss_list);
-            setQualitativeMissList(data.qualitative_miss_list);
-            setLoading(false);
+            try {
+                const response = await fetch('http://127.0.0.1:5000/get_miss_columns', {
+                    method: 'GET',
+                });
+                const data = await response.json();
+                setQuantitativeMissList(data.quantitative_miss_list);
+                setQualitativeMissList(data.qualitative_miss_list);
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'エラー',
+                    text: '欠損カラムの取得に失敗しました。',
+                });
+            } finally {
+                setLoading(false);
+            }
         };
         fetchMissingColumns();
     }, []);
@@ -41,28 +50,36 @@ function MissingValueImputation() {
             }
         }
 
-        for (const column in imputationMethods) {
-            const { type, method } = imputationMethods[column];
-            const url = type === 'numeric' ? 'http://127.0.0.1:5000/complement/numeric' : 'http://127.0.0.1:5000/complement/categorical';
-            await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    column_name: column,
-                    complementary_methods: method,
-                }),
+        try {
+            for (const column in imputationMethods) {
+                const { type, method } = imputationMethods[column];
+                const url = type === 'numeric' ? 'http://127.0.0.1:5000/complement/numeric' : 'http://127.0.0.1:5000/complement/categorical';
+                await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        column_name: column,
+                        complementary_methods: method,
+                    }),
+                });
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: '完了',
+                text: '欠損値が補完されました',
+            }).then(() => {
+                navigate('/feature-creation');
+            });
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'エラー',
+                text: '補完処理中にエラーが発生しました。',
             });
         }
-
-        Swal.fire({
-            icon: 'success',
-            title: '完了',
-            text: '欠損値が補完されました',
-        }).then(() => {
-            navigate('/feature-creation');
-        });
     };
 
     const renderSelectOptions = (type) => {
@@ -84,12 +101,16 @@ function MissingValueImputation() {
     }
 
     return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', p: 3 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', p: 3, gap: 3 }}>
+            <div style={{ marginTop: '30px' }}></div>
+            {/* 数値データの欠損値カード */}
             <Card sx={{ width: '100%', maxWidth: 800 }}>
                 <CardContent>
                     <Typography variant="h5" gutterBottom>数値データの欠損値</Typography>
                     {quantitativeMissList.length === 0 ? (
-                        <Typography>欠損値のある数値データのカラムはありません。</Typography>
+                        <Box sx={{ backgroundColor: '#EAEAEA', borderRadius: '8px', p: 2, mb: 2 }}>
+                            <Typography>欠損値のある数値データのカラムはありません。</Typography>
+                        </Box>
                     ) : (
                         quantitativeMissList.map((col) => (
                             <Card key={col} sx={{ marginBottom: 2 }}>
@@ -109,9 +130,17 @@ function MissingValueImputation() {
                             </Card>
                         ))
                     )}
+                </CardContent>
+            </Card>
+
+            {/* カテゴリカルデータの欠損値カード */}
+            <Card sx={{ width: '100%', maxWidth: 800 }}>
+                <CardContent>
                     <Typography variant="h5" gutterBottom>カテゴリカルデータの欠損値</Typography>
                     {qualitativeMissList.length === 0 ? (
-                        <Typography>欠損値のあるカテゴリカルデータのカラムはありません。</Typography>
+                        <Box sx={{ backgroundColor: '#EAEAEA', borderRadius: '8px', p: 2, mb: 2 }}>
+                            <Typography>欠損値のあるカテゴリカルデータのカラムはありません。</Typography>
+                        </Box>
                     ) : (
                         qualitativeMissList.map((col) => (
                             <Card key={col} sx={{ marginBottom: 2 }}>
@@ -131,9 +160,13 @@ function MissingValueImputation() {
                             </Card>
                         ))
                     )}
-                    <Button variant="contained" color="primary" onClick={handleImpute} sx={{ marginTop: 2, width: '100%' }}>決定</Button>
                 </CardContent>
             </Card>
+            <Box sx={{ width: '100%', maxWidth: 800 }}>
+                <Button variant="contained" color="primary" onClick={handleImpute} sx={{ marginTop: 2, width: '100%' }}>
+                    決定
+                </Button>
+            </Box>
         </Box>
     );
 }

@@ -2,50 +2,30 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { Box, Button, Typography, Paper, Card, CardContent } from '@mui/material';
+import { Box, Button, Typography, Paper, Card, CardContent, Stack } from '@mui/material';
 
 const UploadCSV = () => {
     const [messages, setMessages] = useState([]);
-    const [selectedFile, setSelectedFile] = useState(null);
+    const [uploadedFileName, setUploadedFileName] = useState(null);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
-    // 確認モーダルを表示する関数
-    const showDeleteConfirmModal = () => {
-        return Swal.fire({
-            title: '元のCSVファイルを削除しますか？',
-            showCancelButton: true,
-            confirmButtonText: 'はい',
-            cancelButtonText: 'いいえ',
-        });
-    };
-
-    // アップロードディレクトリをクリアする非同期関数
-    const clearUploads = async () => {
+    // サーバーから既存のファイル名を取得する関数
+    const fetchUploadedFileName = async () => {
         try {
-            await axios.post('http://localhost:5000/clear-uploads');
+            const response = await axios.get('http://localhost:5000/get-uploaded-file');
+            setUploadedFileName(response.data.fileName);
         } catch (error) {
-            console.error('Failed to clear uploads directory:', error);
+            console.error('Failed to fetch uploaded file name:', error);
         }
     };
 
     useEffect(() => {
-        const confirmAndClearUploads = async () => {
-            const result = await showDeleteConfirmModal();
-            if (result.isConfirmed) {
-                await clearUploads();
-            }
-        };
-        confirmAndClearUploads();
+        fetchUploadedFileName();
     }, []);
 
     // ファイルが選択された時の処理
     const handleFiles = (files) => {
-        const newFileNames = [];
-        Array.from(files).forEach((file) => {
-            newFileNames.push(file.name);
-        });
-        setSelectedFile(files[0]);
         showConfirmModal(files[0]);
     };
 
@@ -65,6 +45,7 @@ const UploadCSV = () => {
                 title: 'アップロード完了',
                 text: response.data.message,
             });
+            setUploadedFileName(file.name);
         } catch (error) {
             newMessages.push(`ファイル ${file.name} のアップロードに失敗しました。`);
             Swal.fire({
@@ -74,6 +55,40 @@ const UploadCSV = () => {
             });
         }
         setMessages([...messages, ...newMessages]);
+    };
+
+    // 削除確認モーダルを表示する関数
+    const showDeleteConfirmModal = () => {
+        return Swal.fire({
+            icon: 'warning',
+            title: 'アップロードされたCSVファイルを削除しますか？',
+            showCancelButton: true,
+            confirmButtonText: 'はい',
+            cancelButtonText: 'いいえ',
+        });
+    };
+
+    // ファイル削除の処理
+    const deleteFile = async () => {
+        try {
+            await axios.post('http://localhost:5000/clear-uploads');
+            setUploadedFileName(null);
+            Swal.fire({
+                icon: 'success',
+                title: '削除完了',
+                text: 'ファイルが削除されました',
+            });
+        } catch (error) {
+            console.error('Failed to delete file:', error);
+        }
+    };
+
+    // 削除ボタンのクリック時の処理
+    const handleDeleteClick = async () => {
+        const result = await showDeleteConfirmModal();
+        if (result.isConfirmed) {
+            deleteFile();
+        }
     };
 
     // ファイルドロップイベントの処理
@@ -96,7 +111,7 @@ const UploadCSV = () => {
     // 確認モーダルを表示する処理
     const showConfirmModal = (file) => {
         Swal.fire({
-            title: `${file.name}をアップロードしますか？`,
+            title: `${file.name}を<br>アップロードしますか？`,
             showCancelButton: true,
             confirmButtonText: 'はい',
             cancelButtonText: 'いいえ',
@@ -110,7 +125,7 @@ const UploadCSV = () => {
 
     // "次へ"ボタンのクリック処理
     const handleNext = () => {
-        if (selectedFile) {
+        if (uploadedFileName) {
             navigate('/data-info');
         } else {
             Swal.fire({
@@ -123,24 +138,29 @@ const UploadCSV = () => {
 
     return (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-            <Card sx={{ width: 600, p: 2 }}>
+            <Card sx={{ width: 600, p: 1, mb: 1 }}>
                 <CardContent>
-                    <Typography variant="h4" gutterBottom>
-                        CSVファイルをアップロード
+                    <Typography variant="h5" gutterBottom>
+                        CSVファイル管理
                     </Typography>
                     <Paper
-                        onClick={() => fileInputRef.current.click()}
+                        onClick={() => !uploadedFileName && fileInputRef.current.click()}
                         onDrop={handleDrop}
                         onDragOver={(e) => e.preventDefault()}
                         sx={{
-                            border: '2px dashed #ccc',
+                            border: '1.5px solid #ccc',
                             p: 4,
                             textAlign: 'center',
-                            mb: 4,
-                            cursor: 'pointer',
+                            mb: 2,
+                            mt: 2,
+                            cursor: uploadedFileName ? 'default' : 'pointer',
                         }}
                     >
-                        ここをタッチまたはCSVファイルをドラッグアンドドロップ
+                        {uploadedFileName ? (
+                            <Typography variant="h4">{uploadedFileName}</Typography>
+                        ) : (
+                            'ここをタッチまたはCSVファイルをドラッグアンドドロップ'
+                        )}
                     </Paper>
                     <input
                         ref={fileInputRef}
@@ -149,9 +169,16 @@ const UploadCSV = () => {
                         style={{ display: 'none' }}
                         onChange={handleFileChange}
                     />
-                    <Button variant="contained" color="primary" onClick={handleNext} sx={{ mt: 2, width: '100%' }}>
-                        次へ
-                    </Button>
+                    {uploadedFileName && (
+                        <Stack direction="row" spacing={2}>
+                            <Button variant="contained" color="primary" onClick={handleNext} fullWidth>
+                                次へ
+                            </Button>
+                            <Button variant="outlined" color="error" onClick={handleDeleteClick} fullWidth>
+                                削除
+                            </Button>
+                        </Stack>
+                    )}
                 </CardContent>
             </Card>
         </Box>

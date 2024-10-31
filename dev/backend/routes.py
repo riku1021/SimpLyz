@@ -107,6 +107,30 @@ def setup_routes(app):
 
         return jsonify({"message": "Uploads directory cleared"}), 200
 
+    @app.route("/get-uploaded-file", methods=["GET"])
+    def get_uploaded_file():
+        """
+        説明
+        ----------
+        現在アップロードされているCSVファイル名を取得するapi
+
+        Request
+        ----------
+        None
+
+        Response
+        ----------
+        {"fileName": ファイル名（またはNone）}
+        """
+        # UPLOAD_PATHディレクトリに存在する最初のCSVファイルを取得
+        if os.path.exists(UPLOAD_PATH):
+            files = [f for f in os.listdir(UPLOAD_PATH) if f.endswith(".csv")]
+            if files:
+                return jsonify({"fileName": files[0]}), 200
+
+        # ファイルが存在しない場合はNoneを返す
+        return jsonify({"fileName": None}), 200
+
     @app.route("/get_quantitative", methods=["POST"])
     def get_quantitative():
         """

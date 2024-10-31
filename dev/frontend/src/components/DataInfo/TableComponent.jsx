@@ -12,11 +12,11 @@ function TableComponent({ title, data, onClick, type }) {
     return (
         <Card>
             <CardContent>
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="h5" gutterBottom>
                     {title}
                 </Typography>
-                <TableContainer component={Paper}>
-                    <Table>
+                <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+                    <Table sx={{ minWidth: 1600 }}>
                         <TableHead>
                             <TableRow>
                                 <TableCell align="center" sx={{ fontWeight: 'bold' }}>カラム名</TableCell>

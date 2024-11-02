@@ -13,7 +13,7 @@ matplotlib.use("Agg")
 import json
 
 from scipy import interpolate
-from sklearn.experimental import enable_iterative_imputer
+from sklearn.experimental import enable_iterative_imputer # type: ignore
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.impute import IterativeImputer, KNNImputer
 from sklearn.metrics import (

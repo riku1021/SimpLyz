@@ -2,7 +2,7 @@
 import pandas as pd
 import chardet
 import json
-from typing import List, Tuple, Any
+from typing import List, Tuple
 import glob
 
 

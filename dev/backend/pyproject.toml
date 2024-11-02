@@ -17,6 +17,7 @@ dependencies = [
     "flask-cors>=5.0.0",
     "chardet>=5.2.0",
     "colorama>=0.4.6",
+    "ruff>=0.7.1",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
@@ -37,3 +38,5 @@ packages = ["src/backend"]
 
 [tool.rye.scripts]
 start = "python app.py"
+lint = "ruff check . --fix"
+format = "rye run ruff format ."

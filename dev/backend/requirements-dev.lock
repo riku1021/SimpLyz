@@ -36,7 +36,6 @@ colorama==0.4.6
     # via tqdm
 =======
     # via tox
->>>>>>> 0af10dbc0549b67a98db4cdd52f133fd4abb67ee
 comm==0.2.2
     # via ipykernel
 contourpy==1.3.0
@@ -192,6 +191,8 @@ python-dotenv==1.0.1
     # via backend
 pytz==2024.1
     # via pandas
+pywin32==308
+    # via jupyter-core
 pywin32==308
     # via jupyter-core
 pyzmq==26.2.0

@@ -36,7 +36,6 @@ colorama==0.4.6
     # via tqdm
 =======
     # via tox
->>>>>>> 0af10dbc0549b67a98db4cdd52f133fd4abb67ee
 comm==0.2.2
     # via ipykernel
 contourpy==1.3.0

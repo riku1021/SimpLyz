@@ -5,7 +5,12 @@ import {
     DialogContent, DialogActions
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import Swal from 'sweetalert2';
+import {
+    showErrorAlert,
+    showInfoAlert,
+    showSuccessAlert,
+    showConfirmationAlert
+} from '../../utils/alertUtils';
 
 const PersonalInfo = () => {
     // APIキー管理用の状態
@@ -35,96 +40,54 @@ const PersonalInfo = () => {
     // APIキーを保存する関数
     const handleSaveApiKey = () => {
         if (!apiKey) {
-            Swal.fire({
-                icon: 'error',
-                title: 'エラー',
-                text: 'APIキーを入力してください',
-                confirmButtonColor: '#1976d2',
-                showCloseButton: true,
-            });
+            showErrorAlert('エラー', 'APIキーを入力してください');
             return;
         }
 
-        Swal.fire({
-            title: `「${apiKey}」でAPIキーを登録します。よろしいですか？`,
-            icon: 'info',
-            showCancelButton: true,
-            confirmButtonText: 'はい',
-            cancelButtonText: 'いいえ',
-            confirmButtonColor: '#1976d2',
-            showCloseButton: true,
-        }).then((result) => {
+        showConfirmationAlert(
+            `「${apiKey}」でAPIキーを登録します。よろしいですか？`,
+            '',
+            'はい',
+            'いいえ'
+        ).then((result) => {
             if (result.isConfirmed) {
                 localStorage.setItem('geminiApiKey', apiKey);
                 setIsKeySaved(true);
-                Swal.fire({
-                    icon: 'success',
-                    title: '保存完了',
-                    text: 'APIキーが保存されました。',
-                    confirmButtonColor: '#1976d2',
-                    showCloseButton: true,
-                });
+                showSuccessAlert('保存完了', 'APIキーが保存されました。');
             }
         });
     };
 
     // APIキーを削除する関数
     const handleDeleteApiKey = () => {
-        Swal.fire({
-            title: 'APIキーを削除しますか？',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'はい',
-            cancelButtonText: 'いいえ',
-            confirmButtonColor: '#1976d2',
-            showCloseButton: true,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                localStorage.removeItem('geminiApiKey');
-                setApiKey('');
-                setIsKeySaved(false);
-                setShowApiKey(false);
-                Swal.fire({
-                    icon: 'success',
-                    title: '削除完了',
-                    text: 'APIキーが削除されました。',
-                    confirmButtonColor: '#1976d2',
-                    showCloseButton: true,
-                });
-            }
-        });
+        showConfirmationAlert('APIキーを削除しますか？', '', 'はい', 'いいえ')
+            .then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('geminiApiKey');
+                    setApiKey('');
+                    setIsKeySaved(false);
+                    setShowApiKey(false);
+                    showSuccessAlert('削除完了', 'APIキーが削除されました。');
+                }
+            });
     };
 
     // パスワード入力モーダルを開く関数
     const handleOpenPasswordModal = (currentAction) => {
         setAction(currentAction);
         if (currentAction === 'modify') {
-            Swal.fire({
-                title: '現在のパスワードを<br>入力してください',
-                input: 'password',
-                showCancelButton: true,
-                inputAttributes: {
-                    autocapitalize: 'off',
-                },
-                confirmButtonColor: '#1976d2',
-                showCloseButton: true,
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const enteredPassword = result.value;
-                    const storedPassword = localStorage.getItem('userPassword');
-                    if (storedPassword && enteredPassword === storedPassword) {
-                        setShowPasswordModal(true);
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: '認証エラー',
-                            text: '現在のパスワードが正しくありません。',
-                            confirmButtonColor: '#1976d2',
-                            showCloseButton: true,
-                        });
+            showInfoAlert('現在のパスワードを<br>入力してください', '')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        const enteredPassword = result.value;
+                        const storedPassword = localStorage.getItem('userPassword');
+                        if (storedPassword && enteredPassword === storedPassword) {
+                            setShowPasswordModal(true);
+                        } else {
+                            showErrorAlert('認証エラー', '現在のパスワードが正しくありません。');
+                        }
                     }
-                }
-            });
+                });
         } else {
             setShowPasswordModal(true);
         }
@@ -138,26 +101,14 @@ const PersonalInfo = () => {
     // パスワードを保存する関数
     const handleSavePassword = () => {
         if (!passwordInput) {
-            Swal.fire({
-                icon: 'error',
-                title: 'エラー',
-                text: 'パスワードを入力してください',
-                confirmButtonColor: '#1976d2',
-                showCloseButton: true,
-            });
+            showErrorAlert('エラー', 'パスワードを入力してください');
             return;
         }
 
         localStorage.setItem('userPassword', passwordInput);
         setIsPasswordSaved(true);
         setShowPasswordModal(false);
-        Swal.fire({
-            icon: 'success',
-            title: '保存完了',
-            text: `パスワードが${action === 'modify' ? '修正' : '登録'}されました。`,
-            confirmButtonColor: '#1976d2',
-            showCloseButton: true,
-        });
+        showSuccessAlert('保存完了', `パスワードが${action === 'modify' ? '修正' : '登録'}されました。`);
     };
 
     // パスワード表示/非表示の切り替え
@@ -168,42 +119,23 @@ const PersonalInfo = () => {
     // APIキー表示/非表示の切り替え関数
     const handleToggleShowApiKey = () => {
         if (!isPasswordSaved) {
-            Swal.fire({
-                icon: 'info',
-                title: 'パスワードを登録してください',
-                confirmButtonColor: '#1976d2',
-                showCloseButton: true,
-            });
+            showInfoAlert('パスワードを登録してください', '');
             return;
         }
 
         if (!showApiKey) {
-            Swal.fire({
-                title: 'パスワードを入力してください',
-                input: 'password',
-                showCancelButton: true,
-                inputAttributes: {
-                    autocapitalize: 'off',
-                },
-                confirmButtonColor: '#1976d2',
-                showCloseButton: true,
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const enteredPassword = result.value;
-                    const storedPassword = localStorage.getItem('userPassword');
-                    if (storedPassword && enteredPassword === storedPassword) {
-                        setShowApiKey(true);
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: '認証エラー',
-                            text: 'パスワードが正しくありません。',
-                            confirmButtonColor: '#1976d2',
-                            showCloseButton: true,
-                        });
+            showInfoAlert('パスワードを入力してください', '')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        const enteredPassword = result.value;
+                        const storedPassword = localStorage.getItem('userPassword');
+                        if (storedPassword && enteredPassword === storedPassword) {
+                            setShowApiKey(true);
+                        } else {
+                            showErrorAlert('認証エラー', 'パスワードが正しくありません。');
+                        }
                     }
-                }
-            });
+                });
         } else {
             setShowApiKey(false);
         }
@@ -211,32 +143,19 @@ const PersonalInfo = () => {
 
     // API及びパスワード初期化ハンドラー
     const handleReset = () => {
-        Swal.fire({
-            title: 'APIキーとパスワードを初期化しますがよろしいですか？',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'OK',
-            cancelButtonText: 'キャンセル',
-            confirmButtonColor: '#1976d2',
-            showCloseButton: true,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                localStorage.removeItem('geminiApiKey');
-                localStorage.removeItem('userPassword');
-                setApiKey('');
-                setIsKeySaved(false);
-                setShowApiKey(false);
-                setIsPasswordSaved(false);
-                setShowPasswordModal(false);
-                Swal.fire({
-                    icon: 'success',
-                    title: '初期化完了',
-                    text: 'APIキーとパスワードが初期化されました。',
-                    confirmButtonColor: '#1976d2',
-                    showCloseButton: true,
-                });
-            }
-        });
+        showConfirmationAlert('APIキーとパスワードを初期化しますがよろしいですか？', '', 'OK', 'キャンセル')
+            .then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('geminiApiKey');
+                    localStorage.removeItem('userPassword');
+                    setApiKey('');
+                    setIsKeySaved(false);
+                    setShowApiKey(false);
+                    setIsPasswordSaved(false);
+                    setShowPasswordModal(false);
+                    showSuccessAlert('初期化完了', 'APIキーとパスワードが初期化されました。');
+                }
+            });
     };
 
     return (

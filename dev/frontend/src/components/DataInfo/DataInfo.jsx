@@ -3,7 +3,7 @@ import { Box, CircularProgress, Typography, Grid, Button } from '@mui/material';
 import TableComponent from './TableComponent';
 import { useNavigate } from 'react-router-dom';
 
-function DataInfo() {
+const DataInfo = () => {
     const [data, setData] = useState({ qualitative: [], quantitative: [] });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);

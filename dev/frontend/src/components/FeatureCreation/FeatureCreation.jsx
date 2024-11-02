@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Box, Button, Typography, Select, MenuItem, TextField, Card, CardContent, Grid } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
-import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import { showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
 
 const FeatureCreation = () => {
     const [quantitativeColumns, setQuantitativeColumns] = useState([]);
@@ -53,11 +53,7 @@ const FeatureCreation = () => {
         if (formula.length === 0 || formula[formula.length - 1].type === 'operation' || (formula[formula.length - 1].type === 'parenthesis' && formula[formula.length - 1].value === '(')) {
             setFormula([...formula, { type: 'column', value: currentColumn }]);
         } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'エラー',
-                text: '演算子を追加してください（カラムが連続していないか確認してください）',
-            });
+            showErrorAlert('エラー', '演算子を追加してください（カラムが連続していないか確認してください）');
         }
     };
 
@@ -65,11 +61,7 @@ const FeatureCreation = () => {
         if (formula.length > 0 && formula[formula.length - 1].type !== 'operation' && formula[formula.length - 1].value !== '(') {
             setFormula([...formula, { type: 'operation', value: currentOperation }]);
         } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'エラー',
-                text: '数値またはカラムを追加してください（演算子が連続していないか確認してください）',
-            });
+            showErrorAlert('エラー', '数値またはカラムを追加してください（演算子が連続していないか確認してください）');
         }
     };
 
@@ -77,11 +69,7 @@ const FeatureCreation = () => {
         if (formula.length === 0 || formula[formula.length - 1].type === 'operation' || formula[formula.length - 1].value === '(') {
             setFormula([...formula, { type: 'number', value: currentNumber }]);
         } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'エラー',
-                text: '演算子を追加してください（数値が連続していないか確認してください）',
-            });
+            showErrorAlert('エラー', '演算子を追加してください（数値が連続していないか確認してください）');
         }
     };
 
@@ -90,22 +78,14 @@ const FeatureCreation = () => {
             const lastItem = formula[formula.length - 1];
 
             if (lastItem && (lastItem.type === 'column' || lastItem.type === 'number' || lastItem.value === ')')) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'エラー',
-                    text: 'カラムや数値、閉じ括弧の直後に開き括弧を追加することはできません',
-                });
+                showErrorAlert('エラー', 'カラムや数値、閉じ括弧の直後に開き括弧を追加することはできません');
             } else {
                 setFormula([...formula, { type: 'parenthesis', value: '(' }]);
             }
         } else if (type === 'close') {
             const lastItem = formula[formula.length - 1];
             if (!lastItem || lastItem.type === 'operation' || lastItem.value === '(') {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'エラー',
-                    text: '演算子の後や空の括弧に閉じ括弧は使用できません',
-                });
+                showErrorAlert('エラー', '演算子の後や空の括弧に閉じ括弧は使用できません');
             } else {
                 setFormula([...formula, { type: 'parenthesis', value: ')' }]);
             }
@@ -131,48 +111,28 @@ const FeatureCreation = () => {
         const closeParenthesisCount = formula.filter(item => item.value === ')').length;
 
         if (!newColumnName) {
-            Swal.fire({
-                icon: 'error',
-                title: 'エラー',
-                text: '新しいカラム名を入力してください',
-            });
+            showErrorAlert('エラー', '新しいカラム名を入力してください');
             return;
         }
 
         if (formula.length === 0 || formula[formula.length - 1].type === 'operation') {
-            Swal.fire({
-                icon: 'error',
-                title: 'エラー',
-                text: '最後に数値またはカラムを追加してください',
-            });
+            showErrorAlert('エラー', '最後に数値またはカラムを追加してください');
             return;
         }
 
         if (formula[0].type === 'operation') {
-            Swal.fire({
-                icon: 'error',
-                title: 'エラー',
-                text: '数式の最初に演算子を置くことはできません',
-            });
+            showErrorAlert('エラー', '数式の最初に演算子を置くことはできません');
             return;
         }
 
         if (openParenthesisCount !== closeParenthesisCount) {
-            Swal.fire({
-                icon: 'error',
-                title: 'エラー',
-                text: '括弧の数が一致していません',
-            });
+            showErrorAlert('エラー', '括弧の数が一致していません');
             return;
         }
 
         for (let i = 0; i < formula.length; i++) {
             if (formula[i].type === 'operation' && formula[i].value === 'division' && formula[i + 1]?.value === 0) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'エラー',
-                    text: '0で割ることはできません',
-                });
+                showErrorAlert('エラー', '0で割ることはできません');
                 return;
             }
         }
@@ -184,11 +144,7 @@ const FeatureCreation = () => {
                 formula: formula.map(item => item.value),
                 new_column_name: newColumnName
             });
-            Swal.fire({
-                icon: 'success',
-                title: '成功',
-                text: '特徴量が作成されました',
-            }).then(() => {
+            showSuccessAlert('成功', '特徴量が作成されました').then(() => {
                 setFormula([]);
                 setNewColumnName('');
                 setCurrentNumber(0);
@@ -197,11 +153,7 @@ const FeatureCreation = () => {
                 setPreview('');
             });
         } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'エラー',
-                text: '特徴量の作成に失敗しました',
-            });
+            showErrorAlert('エラー', '特徴量の作成に失敗しました');
             console.error('Failed to create feature:', error);
         }
     };

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 
-function Fetch() {
+const Fetch = () => {
     const [message, setMessage] = useState('');
     useEffect(() => {
         // Flaskからデータを取得し、messageに格納

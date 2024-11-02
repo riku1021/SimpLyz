@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Card, CardContent, FormControl, InputLabel, MenuItem, Select, Typography, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
+import { showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
 
-function MissingValueImputation() {
+const MissingValueImputation = () => {
     const [quantitativeMissList, setQuantitativeMissList] = useState([]);
     const [qualitativeMissList, setQualitativeMissList] = useState([]);
     const [imputationMethods, setImputationMethods] = useState({});
@@ -20,11 +20,7 @@ function MissingValueImputation() {
                 setQuantitativeMissList(data.quantitative_miss_list);
                 setQualitativeMissList(data.qualitative_miss_list);
             } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'エラー',
-                    text: '欠損カラムの取得に失敗しました。',
-                });
+                showErrorAlert('エラー', '欠損カラムの取得に失敗しました。');
             } finally {
                 setLoading(false);
             }
@@ -41,11 +37,7 @@ function MissingValueImputation() {
     const handleImpute = async () => {
         for (const col of quantitativeMissList.concat(qualitativeMissList)) {
             if (!imputationMethods[col] || !imputationMethods[col].method) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'エラー',
-                    text: 'すべてのカラムに対して補完方法を指定してください',
-                });
+                showErrorAlert('エラー', 'すべてのカラムに対して補完方法を指定してください');
                 return;
             }
         }
@@ -66,25 +58,17 @@ function MissingValueImputation() {
                 });
             }
 
-            Swal.fire({
-                icon: 'success',
-                title: '完了',
-                text: '欠損値が補完されました',
-            }).then(() => {
+            showSuccessAlert('完了', '欠損値が補完されました').then(() => {
                 navigate('/feature-creation');
             });
         } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'エラー',
-                text: '補完処理中にエラーが発生しました。',
-            });
+            showErrorAlert('エラー', '補完処理中にエラーが発生しました。');
         }
     };
 
     const renderSelectOptions = (type) => {
         const methods = type === 'numeric'
-            ? ['平均値補完', '中央値補完', '定数値補完', '線形補完', 'スプライン補完', 'KNN補完', 'random_forest']
+            ? ['平均値補完', '中央値補完', '定数値補完', '線形補完', 'スプライン補完', 'KNN補完', 'ランダムフォレスト']
             : ['最頻値補完', '定数値補完', 'ホットデッキ法'];
 
         return methods.map((method) => (

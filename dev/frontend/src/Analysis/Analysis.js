@@ -4,7 +4,7 @@ import './Analysis.css';
 import Plt from './Plt';
 import Chat from './Chat';
 
-function Analysis() {
+const Analysis = () => {
   const [scatter, setScatter] = useState(true);
   const [histogram, setHistogram] = useState(false);
   const [boxhidediagram, setBoxhidediagram] = useState(false);

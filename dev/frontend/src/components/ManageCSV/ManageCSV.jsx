@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Swal from 'sweetalert2';
 import { Box, Button, Typography, Paper, Card, CardContent, Stack } from '@mui/material';
+import { showConfirmationAlert, showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
 
 const ManageCSV = () => {
     const [messages, setMessages] = useState([]);
@@ -40,32 +40,23 @@ const ManageCSV = () => {
                 },
             });
             newMessages.push(response.data.message);
-            Swal.fire({
-                icon: 'success',
-                title: 'アップロード完了',
-                text: response.data.message,
-            });
+            showSuccessAlert('アップロード完了', response.data.message);
             setUploadedFileName(file.name);
         } catch (error) {
             newMessages.push(`ファイル ${file.name} のアップロードに失敗しました。`);
-            Swal.fire({
-                icon: 'error',
-                title: 'エラー',
-                text: `ファイル ${file.name} のアップロードに失敗しました。`,
-            });
+            showErrorAlert('エラー', `ファイル ${file.name} のアップロードに失敗しました。`);
         }
         setMessages([...messages, ...newMessages]);
     };
 
     // 削除確認モーダルを表示する関数
     const showDeleteConfirmModal = () => {
-        return Swal.fire({
-            icon: 'warning',
-            title: 'アップロードされたCSVファイルを削除しますか？',
-            showCancelButton: true,
-            confirmButtonText: 'はい',
-            cancelButtonText: 'いいえ',
-        });
+        return showConfirmationAlert(
+            'アップロードされたCSVファイルを削除しますか？',
+            '',
+            'はい',
+            'いいえ'
+        );
     };
 
     // ファイル削除の処理
@@ -73,11 +64,7 @@ const ManageCSV = () => {
         try {
             await axios.post('http://localhost:5000/clear-uploads');
             setUploadedFileName(null);
-            Swal.fire({
-                icon: 'success',
-                title: '削除完了',
-                text: 'ファイルが削除されました',
-            });
+            showSuccessAlert('削除完了', 'ファイルが削除されました');
         } catch (error) {
             console.error('Failed to delete file:', error);
         }
@@ -110,12 +97,12 @@ const ManageCSV = () => {
 
     // 確認モーダルを表示する処理
     const showConfirmModal = (file) => {
-        Swal.fire({
-            title: `${file.name}を<br>アップロードしますか？`,
-            showCancelButton: true,
-            confirmButtonText: 'はい',
-            cancelButtonText: 'いいえ',
-        }).then((result) => {
+        showConfirmationAlert(
+            `${file.name}を<br>アップロードしますか？`,
+            '',
+            'はい',
+            'いいえ'
+        ).then((result) => {
             if (result.isConfirmed) {
                 const newMessages = [];
                 uploadFile(file, newMessages);
@@ -128,11 +115,7 @@ const ManageCSV = () => {
         if (uploadedFileName) {
             navigate('/data-info');
         } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'エラー',
-                text: 'CSVファイルをアップロードしてください',
-            });
+            showErrorAlert('エラー', 'CSVファイルをアップロードしてください');
         }
     };
 

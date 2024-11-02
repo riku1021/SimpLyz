@@ -65,7 +65,7 @@ def setup_routes(app):
         file = request.files["file"]
 
         # csvファイルの保存
-        file_path = os.path.join(UPLOAD_PATH, file.filename)
+        file_path = os.path.join(UPLOAD_PATH, "demo.csv")
         file.save(file_path)
 
         empty_json = {}

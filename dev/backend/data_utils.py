@@ -1,6 +1,7 @@
 import base64
 import io
 from typing import Any, Dict, List, Optional, Tuple
+import os
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -15,6 +16,7 @@ import json
 from scipy import interpolate
 from sklearn.experimental import enable_iterative_imputer # type: ignore
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer, KNNImputer
 from sklearn.metrics import (
     accuracy_score,
@@ -66,7 +68,9 @@ def get_df() -> DataFrame:
     """
 
     df = pd.read_csv("./uploads/demo.csv")
-    load_dtype(df, "./uploads/dtypes.json")
+    json_path = "./uploads/dtypes.json"
+    if os.path.exists(json_path):
+        load_dtype(df, json_path)
 
     return df
 

@@ -12,21 +12,21 @@ import MissingValueImputation from './components/MissingValueImputation/MissingV
 import Header from './components/Header';
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Header />
-      <Routes>
-        <Route path='/' element={<ManageCSV />} />
-        <Route path='/fetch' element={<Fetch />} />
-        <Route path='/manage-csv' element={<ManageCSV />} />
-        <Route path='/data-info' element={<DataInfo />} />
-        <Route path="/data-info/:columnName/:type" element={<ColumnDetail />} />
-        <Route path='/miss-input' element={<MissingValueImputation />} />
-        <Route path='/feature-creation' element={<FeatureCreation />} />
-        <Route path='/analysis' element={<Analysis />} />
-      </Routes>
-    </BrowserRouter>
-  );
+	return (
+		<BrowserRouter>
+			<Header />
+			<Routes>
+				<Route path='/' element={<ManageCSV />} />
+				<Route path='/fetch' element={<Fetch />} />
+				<Route path='/manage-csv' element={<ManageCSV />} />
+				<Route path='/data-info' element={<DataInfo />} />
+				<Route path="/data-info/:columnName/:type" element={<ColumnDetail />} />
+				<Route path='/miss-input' element={<MissingValueImputation />} />
+				<Route path='/feature-creation' element={<FeatureCreation />} />
+				<Route path='/analysis' element={<Analysis />} />
+			</Routes>
+		</BrowserRouter>
+	);
 }
 
 export default App;

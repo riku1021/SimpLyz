@@ -14,7 +14,6 @@ import json
 
 from scipy import interpolate
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer, KNNImputer
 from sklearn.metrics import (
     accuracy_score,
@@ -302,7 +301,7 @@ def calculate(formula_list: List, row: Series) -> int:
         "multiplication": "*",
         "division": "/",
         "(": "(",
-        ")": ")"
+        ")": ")",
     }
 
     # 式を構築するために、演算子リストの要素を対応する記号に変換
@@ -378,6 +377,10 @@ def prepare_data(
     if exclude_columns is None:
         exclude_columns = []
 
+    # 目的変数に欠損値があるか確認
+    if df[target_column].isnull().any():
+        df = df.dropna(subset=[target_column])
+
     columns_to_drop = [target_column] + exclude_columns
     X = df.drop(columns_to_drop, axis=1)
     y = df[target_column]
@@ -437,6 +440,9 @@ def plot_feature_importance(feature_importance: DataFrame, top_n: int = 20) -> s
         分析結果のバイナリデータ
 
     """
+
+    # 初期化
+    plt.clf()
 
     plt.figure(figsize=(12, 8))
     top_n = min(top_n, len(feature_importance))
@@ -583,9 +589,6 @@ def feature_value_analysis(data: Dict[str, str]) -> str:
         分析結果のバイナリデータ
 
     """
-
-    # 初期化
-    plt.clf()
 
     df = get_df()
 
@@ -783,17 +786,14 @@ def load_dtype(df: DataFrame, filename: str) -> None:
 
     """
 
-    try:
-        with open(filename, "r") as f:
-            dtypes = json.load(f)
-        for col, dtype in dtypes.items():
-            if dtype == "object":
-                df[col] = df[col].astype(str)
-                df[col] = df[col].replace("nan", np.nan)
-            elif dtype == "int64":
-                df[col] = df[col].astype(int)
-    except:
-        pass
+    with open(filename, "r") as f:
+        dtypes = json.load(f)
+    for col, dtype in dtypes.items():
+        if dtype == "object":
+            df[col] = df[col].astype(str)
+            df[col] = df[col].replace("nan", np.nan)
+        elif dtype == "int64":
+            df[col] = df[col].astype(int)
 
 
 if __name__ == "__main__":

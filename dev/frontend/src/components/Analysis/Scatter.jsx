@@ -19,23 +19,23 @@ function Scatter({ setImage }) {
 				},
 				body: JSON.stringify({ 'a': 0 }),
 			});
-			const data = await response.json()
-			setVariableList(data['quantitative_variables'])
-			setVariable1(data['quantitative_variables'][0])
-			setVariable2(data['quantitative_variables'][1])
+			const data = await response.json();
+			setVariableList(data['quantitative_variables']);
+			setVariable1(data['quantitative_variables'][0]);
+			setVariable2(data['quantitative_variables'][1]);
 			console.log(data['quantitative_variables']);
 		};
 		const fetchTarget = async () => {
 			const response = await fetch('http://127.0.0.1:5000/get_qualitative', {
 				method: 'GET'
-			})
-			const data = await response.json()
-			const targets = data['qualitative_variables']
+			});
+			const data = await response.json();
+			const targets = data['qualitative_variables'];
 			targets.push('None');
-			setTarget('None')
-			setTargetList(data['qualitative_variables'])
-			console.log(data)
-		}
+			setTarget('None');
+			setTargetList(data['qualitative_variables']);
+			console.log(data);
+		};
 		fetchTarget();
 		fetchVariable();
 	}, []);
@@ -48,7 +48,7 @@ function Scatter({ setImage }) {
 				'target': target,
 				'fit_reg': reg,
 				'order': dimension
-			}
+			};
 			const response = await fetch('http://127.0.0.1:5000/scatter', {
 				method: 'POST',
 				headers: {
@@ -58,7 +58,7 @@ function Scatter({ setImage }) {
 			});
 			const data = await response.json();
 			setImage(data.image_data);
-			console.log(data)
+			console.log(data);
 		};
 		if (variable1 !== '' && variable2 !== '' && target !== '') {
 			fetchImage();
@@ -79,12 +79,17 @@ function Scatter({ setImage }) {
 	};
 
 	const changeReg = (e) => {
-		setReg(e.target.value);
-	}
+		const newRegValue = e.target.value === "true";
+		setReg(newRegValue);
+		if (newRegValue) {
+			setDimension(1);
+		}
+	};
 
 	const changeDimension = (e) => {
-		setDimension(e.target.value);
+		setDimension(parseInt((e.target.value), 10));
 	};
+
 	return (
 		<div>
 			<div className='config-wrapper'>
@@ -92,7 +97,7 @@ function Scatter({ setImage }) {
 					<p>variable 1</p>
 				</div>
 				<div className='config-value-wrapper'>
-					<select value={variable1} onChange={changeVariable1} >
+					<select value={variable1} onChange={changeVariable1}>
 						{variableList && variableList.map((value, idx) => {
 							if (value !== variable2) {
 								return (<option key={idx} value={value}>{value}</option>);
@@ -107,7 +112,7 @@ function Scatter({ setImage }) {
 					<p>variable 2</p>
 				</div>
 				<div className='config-value-wrapper'>
-					<select value={variable2} onChange={changeVariable2} >
+					<select value={variable2} onChange={changeVariable2}>
 						{variableList && variableList.map((value, idx) => {
 							if (value !== variable1) {
 								return (<option key={idx} value={value}>{value}</option>);
@@ -122,7 +127,7 @@ function Scatter({ setImage }) {
 					<p>target</p>
 				</div>
 				<div className='config-value-wrapper'>
-					<select value={target} onChange={changeTarget} >
+					<select value={target} onChange={changeTarget}>
 						{targetList && targetList.map((value, idx) => (
 							<option key={idx} value={value}>{value}</option>
 						))}
@@ -140,20 +145,22 @@ function Scatter({ setImage }) {
 					</select>
 				</div>
 			</div>
-			<div className='config-wrapper'>
-				<div className='config-name-wrapper'>
-					<p>dimension</p>
+			{reg && (
+				<div className='config-wrapper'>
+					<div className='config-name-wrapper'>
+						<p>dimension</p>
+					</div>
+					<div className='config-value-wrapper'>
+						<select value={dimension} onChange={changeDimension}>
+							<option value="1">1</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+						</select>
+					</div>
 				</div>
-				<div className='config-value-wrapper'>
-					<select value={dimension} onChange={changeDimension}>
-						<option value="1">1</option>
-						<option value="2">2</option>
-						<option value="3">3</option>
-					</select>
-				</div>
-			</div>
+			)}
 		</div>
-	)
+	);
 }
 
-export default Scatter
+export default Scatter;

@@ -1,4 +1,4 @@
-import './Analysis.css';
+import '../Analysis.css';
 
 function Plt({ image }) {
 	return (

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import './Analysis.css';
+import '../Analysis.css';
 import './Chat.css';
 
 function Chat({ image }) {

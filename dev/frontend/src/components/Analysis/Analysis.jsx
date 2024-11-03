@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import Custom from './Custom';
+import Custom from './Custom/Custom';
 import './Analysis.css';
-import Plt from './Plt';
-import Chat from './Chat';
+import Plt from './Plt/Plt';
+import Chat from './Chat/Chat';
 
 const Analysis = () => {
 	const [scatter, setScatter] = useState(true);

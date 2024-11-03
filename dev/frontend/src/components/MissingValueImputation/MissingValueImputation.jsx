@@ -68,7 +68,7 @@ const MissingValueImputation = () => {
 
 	const renderSelectOptions = (type) => {
 		const methods = type === 'numeric'
-			? ['平均値補完', '中央値補完', '定数値補完', '線形補完', 'スプライン補完', 'KNN補完', 'ランダムフォレスト']
+			? ['平均値補完', '中央値補完', '定数値補完', '線形補完', 'スプライン補完', 'KNN補完', 'ランダムフォレスト補完']
 			: ['最頻値補完', '定数値補完', 'ホットデッキ法'];
 
 		return methods.map((method) => (

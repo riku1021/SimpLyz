@@ -676,7 +676,7 @@ def impute_numeric(column: str, method: str = "mean") -> None:
         #     imputer = IterativeImputer(random_state=0)
         #     df_imputed[column] = imputer.fit_transform(df_imputed[[column]])
 
-        elif method == "random_forest":
+        elif method == "ランダムフォレスト補完":
             # 14. ランダムフォレスト補完
             imputer = IterativeImputer(
                 estimator=RandomForestRegressor(), random_state=0

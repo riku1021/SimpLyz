@@ -1,4 +1,15 @@
-import { AppBar, Toolbar, Typography, IconButton, Drawer, List, ListItemButton, ListItemText, Box, ListItemIcon } from '@mui/material';
+import {
+	AppBar,
+	Toolbar,
+	Typography,
+	IconButton,
+	Drawer,
+	List,
+	ListItemButton,
+	ListItemText,
+	Box,
+	ListItemIcon
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
@@ -13,33 +24,52 @@ const Header = () => {
 	const navigate = useNavigate();
 	const [drawerOpen, setDrawerOpen] = useState(false);
 
-	const toggleDrawer = (open) => {
-		setDrawerOpen(open);
+	const toggleDrawer = () => {
+		setDrawerOpen((prev) => !prev);
 	};
 
 	const handleNavigate = (path) => {
 		navigate(path);
-		toggleDrawer(false);
+		setDrawerOpen(false);
 	};
 
 	return (
 		<div>
 			<AppBar position="fixed" style={{ zIndex: 1300 }}>
 				<Toolbar>
-					<IconButton edge="start" color="inherit" aria-label="menu" onClick={() => toggleDrawer(true)}>
+					<IconButton
+						edge="start"
+						color="inherit"
+						aria-label="menu"
+						style={{ marginRight: '10px' }}
+						onClick={toggleDrawer}
+					>
 						<MenuIcon />
 					</IconButton>
-					<Typography variant="h6" style={{ fontWeight: 'bold', flexGrow: 1 }}>
-						データ分析AIツール
+					<Typography variant="h5" style={{ fontWeight: 'bold', flexGrow: 1 }}>
+						SimpLyz
 					</Typography>
 				</Toolbar>
 			</AppBar>
-			<Drawer anchor='left' open={drawerOpen} onClose={() => toggleDrawer(false)} PaperProps={{ sx: { width: 250 } }}>
-				<Box sx={{ backgroundColor: 'primary.main', color: 'white', display: 'flex', alignItems: 'center', padding: '10px' }}>
+			<Drawer
+				anchor='left'
+				open={drawerOpen}
+				onClose={toggleDrawer}
+				PaperProps={{ sx: { width: 250 } }}
+			>
+				<Box
+					sx={{
+						backgroundColor: 'primary.main',
+						color: 'white',
+						display: 'flex',
+						alignItems: 'center',
+						padding: '10px'
+					}}
+				>
 					<Typography variant="h6" style={{ flexGrow: 1 }}>
 						メニュー
 					</Typography>
-					<IconButton onClick={() => toggleDrawer(false)} style={{ color: 'white' }}>
+					<IconButton onClick={toggleDrawer} style={{ color: 'white' }}>
 						<CloseIcon />
 					</IconButton>
 				</Box>

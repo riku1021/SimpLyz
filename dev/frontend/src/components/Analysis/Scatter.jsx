@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import './Scatter.css'
+import { useEffect, useState } from 'react';
+import './Scatter.css';
 
 function Scatter({ setImage }) {
 	const [variable1, setVariable1] = useState('');

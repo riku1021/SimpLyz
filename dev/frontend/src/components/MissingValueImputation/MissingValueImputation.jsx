@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button, Card, CardContent, FormControl, InputLabel, MenuItem, Select, Typography, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
@@ -21,6 +21,7 @@ const MissingValueImputation = () => {
 				setQualitativeMissList(data.qualitative_miss_list);
 			} catch (error) {
 				showErrorAlert('エラー', '欠損カラムの取得に失敗しました。');
+				console.log(`missing obtain missing columns: ${error}`)
 			} finally {
 				setLoading(false);
 			}
@@ -63,6 +64,7 @@ const MissingValueImputation = () => {
 			});
 		} catch (error) {
 			showErrorAlert('エラー', '補完処理中にエラーが発生しました。');
+			console.log(`missing imputation: ${error}`)
 		}
 	};
 

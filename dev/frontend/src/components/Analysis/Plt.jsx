@@ -1,5 +1,4 @@
-import React from 'react'
-import './Analysis.css'
+import './Analysis.css';
 
 function Plt({ image }) {
 	return (
@@ -11,4 +10,4 @@ function Plt({ image }) {
 	)
 }
 
-export default Plt
+export default Plt;

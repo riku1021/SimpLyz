@@ -1,7 +1,7 @@
 # frontendのコマンドを実行
 Set-Location "$PSScriptRoot/dev/frontend"
 npm install
-Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "start"
+Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run dev"
 
 # backendのコマンドを新しいウィンドウで実行
 Set-Location "$PSScriptRoot/dev/backend"

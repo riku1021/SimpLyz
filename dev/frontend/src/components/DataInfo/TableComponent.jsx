@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
 
 function TableComponent({ title, data, onClick, type }) {

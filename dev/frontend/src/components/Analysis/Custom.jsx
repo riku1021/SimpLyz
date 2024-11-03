@@ -1,4 +1,3 @@
-import React from 'react';
 import './Analysis.css';
 import './Custom.css';
 import Scatter from './Scatter';

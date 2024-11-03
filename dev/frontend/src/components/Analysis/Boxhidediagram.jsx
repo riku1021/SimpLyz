@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 
 function Boxhidediagram({ setImage }) {
 	const [variable1, setVariable1] = useState('');
@@ -99,4 +99,4 @@ function Boxhidediagram({ setImage }) {
 	)
 }
 
-export default Boxhidediagram
+export default Boxhidediagram;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Custom from './Custom';
 import './Analysis.css';
 import Plt from './Plt';

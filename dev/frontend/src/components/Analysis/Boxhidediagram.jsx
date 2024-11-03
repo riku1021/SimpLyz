@@ -67,7 +67,7 @@ function Boxhidediagram({ setImage }) {
 		<div>
 			<div className='config-wrapper'>
 				<div className='config-name-wrapper'>
-					<p>variable 1</p>
+					<p>vertical</p>
 				</div>
 				<div className='config-value-wrapper'>
 					<select value={variable1} onChange={changeVariable1} >
@@ -82,7 +82,7 @@ function Boxhidediagram({ setImage }) {
 			</div>
 			<div className='config-wrapper'>
 				<div className='config-name-wrapper'>
-					<p>variable 2</p>
+					<p>horizontal</p>
 				</div>
 				<div className='config-value-wrapper'>
 					<select value={variable2} onChange={changeVariable2} >

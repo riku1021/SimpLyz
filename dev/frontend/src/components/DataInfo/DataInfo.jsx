@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Box, CircularProgress, Typography, Grid, Button } from '@mui/material';
 import TableComponent from './TableComponent';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const DataInfo = () => {
 	const [data, setData] = useState({ qualitative: [], quantitative: [] });
@@ -12,15 +13,12 @@ const DataInfo = () => {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const response = await fetch('http://127.0.0.1:5000/get_data_info');
-				if (!response.ok) {
-					throw new Error('データの取得に失敗しました');
-				}
-				const result = await response.json();
-				setData(result);
+				const response = await axios.get('http://127.0.0.1:5000/get_data_info');
+				setData(response.data);
 				setLoading(false);
 			} catch (error) {
-				setError(error.message);
+				console.error('データの取得に失敗しました:', error);
+				setError('データの取得に失敗しました');
 				setLoading(false);
 			}
 		};

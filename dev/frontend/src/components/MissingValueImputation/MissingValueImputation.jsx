@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Box, Button, Card, CardContent, FormControl, InputLabel, MenuItem, Select, Typography, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
+import axios from 'axios';
 
 const MissingValueImputation = () => {
 	const [quantitativeMissList, setQuantitativeMissList] = useState([]);
@@ -13,15 +14,12 @@ const MissingValueImputation = () => {
 	useEffect(() => {
 		const fetchMissingColumns = async () => {
 			try {
-				const response = await fetch('http://127.0.0.1:5000/get_miss_columns', {
-					method: 'GET',
-				});
-				const data = await response.json();
-				setQuantitativeMissList(data.quantitative_miss_list);
-				setQualitativeMissList(data.qualitative_miss_list);
+				const response = await axios.get('http://127.0.0.1:5000/get_miss_columns');
+				setQuantitativeMissList(response.data.quantitative_miss_list);
+				setQualitativeMissList(response.data.qualitative_miss_list);
 			} catch (error) {
 				showErrorAlert('エラー', '欠損カラムの取得に失敗しました。');
-				console.log(`missing obtain missing columns: ${error}`)
+				console.log(`missing obtain missing columns: ${error}`);
 			} finally {
 				setLoading(false);
 			}
@@ -46,16 +44,13 @@ const MissingValueImputation = () => {
 		try {
 			for (const column in imputationMethods) {
 				const { type, method } = imputationMethods[column];
-				const url = type === 'numeric' ? 'http://127.0.0.1:5000/complement/numeric' : 'http://127.0.0.1:5000/complement/categorical';
-				await fetch(url, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						column_name: column,
-						complementary_methods: method,
-					}),
+				const url = type === 'numeric'
+					? 'http://127.0.0.1:5000/complement/numeric'
+					: 'http://127.0.0.1:5000/complement/categorical';
+
+				await axios.post(url, {
+					column_name: column,
+					complementary_methods: method,
 				});
 			}
 
@@ -64,7 +59,7 @@ const MissingValueImputation = () => {
 			});
 		} catch (error) {
 			showErrorAlert('エラー', '補完処理中にエラーが発生しました。');
-			console.log(`missing imputation: ${error}`)
+			console.log(`missing imputation: ${error}`);
 		}
 	};
 

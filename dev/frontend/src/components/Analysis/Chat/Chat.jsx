@@ -77,7 +77,6 @@ function Chat({ image }) {
 
 	return (
 		<div className='chat-wrapper'>
-			<div style={{ marginTop: '64px' }}></div>
 			<div className='chat-window'>
 				{messages.map((msg, index) => (
 					<div key={index} className={`chat-message ${msg.sender}`}>

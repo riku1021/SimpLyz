@@ -51,6 +51,7 @@ const Header = ({ children }) => {
 					</Typography>
 				</Toolbar>
 			</AppBar>
+
 			<Drawer
 				anchor='left'
 				open={drawerOpen}
@@ -105,10 +106,16 @@ const Header = ({ children }) => {
 							</ListItemIcon>
 							<ListItemText primary="分析" primaryTypographyProps={{ fontWeight: 'bold' }} />
 						</ListItemButton>
+						<ListItemButton onClick={() => handleNavigate('/data-analysis')}>
+							<ListItemIcon>
+								<AssessmentIcon />
+							</ListItemIcon>
+							<ListItemText primary="データ分析" primaryTypographyProps={{ fontWeight: 'bold' }} />
+						</ListItemButton>
 					</List>
 				</Box>
 			</Drawer>
-			{/* コンテンツエリア */}
+
 			<Box
 				component="main"
 				sx={{

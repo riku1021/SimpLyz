@@ -68,8 +68,18 @@ const AnalysisChat = ({ image }) => {
     };
 
     return (
-        <Box sx={{ p: 2 }}>
-            <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+        <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <Box
+                sx={{
+                    flex: 1,
+                    overflowY: 'auto',
+                    maxHeight: 'calc(100vh - 200px)',
+                    mb: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-end'
+                }}
+            >
                 {messages.map((msg, index) => (
                     <Box
                         key={index}

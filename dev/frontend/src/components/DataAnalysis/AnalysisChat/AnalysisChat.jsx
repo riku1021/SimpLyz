@@ -4,26 +4,22 @@ import { TextField, IconButton, Box, Button, Typography } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 
 const AnalysisChat = ({ image }) => {
-
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState([]);
     const [isChartAnalysisMode, setIsChartAnalysisMode] = useState(true);
     const [loading, setLoading] = useState(false);
     const [analyzeMessage, setAnalyzeMessage] = useState(null);
 
-    // 画像が変更されるたびに解析ボタン復活
     useEffect(() => {
         setIsChartAnalysisMode(true);
         setMessages([]);
         setAnalyzeMessage(null);
     }, [image]);
 
-    // メッセージリストを文字列に変換する関数
     const getCombinedMessages = (messages) => {
         return messages.map(msg => `${msg.sender}: ${msg.text}`).join('\n');
     };
 
-    // 最新の5組のメッセージを取得する関数
     const getLastTenMessages = (messages) => {
         return messages.slice(-10);
     };
@@ -36,18 +32,13 @@ const AnalysisChat = ({ image }) => {
         setLoading(true);
 
         try {
-            // 現在のメッセージリストに新しいメッセージを追加
             const updatedMessages = [...messages, newMessage];
-
-            // 最新の10組のメッセージを取得
             const lastTenMessages = getLastTenMessages(updatedMessages);
 
-            // analyzeMessageがある場合は含める
             const combinedMessages = analyzeMessage
                 ? getCombinedMessages([analyzeMessage, ...lastTenMessages])
                 : getCombinedMessages(lastTenMessages);
 
-            // 結合したメッセージをサーバーに送信
             const response = await axios.post('http://localhost:5000/api/chat', { message: combinedMessages });
 
             const botMessage = { sender: 'bot', text: response.data.reply };
@@ -61,7 +52,6 @@ const AnalysisChat = ({ image }) => {
         setLoading(false);
     };
 
-    // 画像を解析する関数
     const analyzeImage = async () => {
         setLoading(true);
         try {
@@ -79,7 +69,7 @@ const AnalysisChat = ({ image }) => {
 
     return (
         <Box sx={{ p: 2 }}>
-            <Box sx={{ mb: 2 }}>
+            <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                 {messages.map((msg, index) => (
                     <Box
                         key={index}
@@ -89,20 +79,22 @@ const AnalysisChat = ({ image }) => {
                             bgcolor: msg.sender === 'user' ? '#1976d2' : '#ffffff',
                             color: msg.sender === 'user' ? '#ffffff' : '#404040',
                             borderRadius: '16px',
-                            p: 1,
                             m: 1,
+                            p: '8px 12px',
                             boxShadow: 1,
+                            wordBreak: 'break-word',
+                            width: 'fit-content',
+                            display: 'flex',
+                            justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start',
                         }}
                     >
                         <Typography variant="body2">{msg.text}</Typography>
                     </Box>
                 ))}
             </Box>
-
             {isChartAnalysisMode ? (
                 <Box
                     sx={{
-                        whidth: '100%',
                         position: 'absolute',
                         bottom: 0,
                         left: 0,
@@ -137,7 +129,6 @@ const AnalysisChat = ({ image }) => {
             ) : (
                 <Box
                     sx={{
-                        whidth: '100%',
                         position: 'absolute',
                         bottom: 0,
                         left: 0,
@@ -186,7 +177,8 @@ const AnalysisChat = ({ image }) => {
                     >
                         <SendIcon />
                     </IconButton>
-                </Box>)}
+                </Box>
+            )}
         </Box>
     );
 };

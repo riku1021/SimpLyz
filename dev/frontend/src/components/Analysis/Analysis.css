@@ -2,12 +2,15 @@
 
 .analysis-wrapper {
   display: flex;
+  min-height: 'calc(100vh - 64px)';
+  overflow: hidden;
 }
 
 /* Custom.js */
 
 .custom-wrapper {
-  height: 100vh;
+  min-height: 'calc(100vh - 64px)';
+  overflow: hidden;
   width: 350px;
   /* background-color: rgb(213, 213, 251); */
 }
@@ -18,21 +21,24 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 'calc(100vh - 64px)';
+  overflow: hidden;
   width: calc(100% - 800px);
   background-color: #ffffff;
 }
 
 .plt-wrapper img {
-  width: 800px;
-  height: 700px;
+  width: 100%;
+  min-height: 'calc(100vh - 64px)';
+  overflow: hidden;
   object-fit: contain;
 }
 
 /* Chat.js */
 
 .chat-wrapper {
-  height: 100vh;
+  min-height: 'calc(100vh - 64px)';
+  overflow: hidden;
   width: 450px;
   /* background-color: rgb(217, 238, 163); */
 }

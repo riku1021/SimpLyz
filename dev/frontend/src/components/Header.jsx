@@ -20,7 +20,7 @@ import CreateIcon from '@mui/icons-material/Create';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const Header = () => {
+const Header = ({ children }) => {
 	const navigate = useNavigate();
 	const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -34,19 +34,19 @@ const Header = () => {
 	};
 
 	return (
-		<div>
-			<AppBar position="fixed" style={{ zIndex: 1300 }}>
+		<Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+			<AppBar position="static" sx={{ zIndex: 1300, flexShrink: 0 }}>
 				<Toolbar>
 					<IconButton
 						edge="start"
 						color="inherit"
 						aria-label="menu"
-						style={{ marginRight: '10px' }}
+						sx={{ marginRight: '10px' }}
 						onClick={toggleDrawer}
 					>
 						<MenuIcon />
 					</IconButton>
-					<Typography variant="h5" style={{ fontWeight: 'bold', flexGrow: 1 }}>
+					<Typography variant="h5" sx={{ fontWeight: 'bold', flexGrow: 1 }}>
 						SimpLyz
 					</Typography>
 				</Toolbar>
@@ -66,10 +66,10 @@ const Header = () => {
 						padding: '10px'
 					}}
 				>
-					<Typography variant="h6" style={{ flexGrow: 1 }}>
+					<Typography variant="h6" sx={{ flexGrow: 1 }}>
 						メニュー
 					</Typography>
-					<IconButton onClick={toggleDrawer} style={{ color: 'white' }}>
+					<IconButton onClick={toggleDrawer} sx={{ color: 'white' }}>
 						<CloseIcon />
 					</IconButton>
 				</Box>
@@ -108,7 +108,17 @@ const Header = () => {
 					</List>
 				</Box>
 			</Drawer>
-		</div>
+			{/* コンテンツエリア */}
+			<Box
+				component="main"
+				sx={{
+					flexGrow: 1,
+					overflowY: 'auto',
+				}}
+			>
+				{children}
+			</Box>
+		</Box>
 	);
 };
 

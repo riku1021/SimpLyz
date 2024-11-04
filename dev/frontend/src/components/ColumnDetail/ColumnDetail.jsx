@@ -63,8 +63,7 @@ const ColumnDetail = () => {
 	}
 
 	return (
-		<>
-			<div style={{ marginTop: '64px' }}></div>
+		<div style={{ minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
 			<Box p={3} display="flex" justifyContent="center" alignItems="center">
 				<Card>
 					<CardContent>
@@ -100,7 +99,7 @@ const ColumnDetail = () => {
 					</CardContent>
 				</Card>
 			</Box>
-		</>
+		</div>
 	);
 }
 

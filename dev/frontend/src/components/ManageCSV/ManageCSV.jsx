@@ -121,7 +121,7 @@ const ManageCSV = () => {
 	};
 
 	return (
-		<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+		<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 64px)' }}>
 			<Card sx={{ width: 600, p: 1, mb: 1 }}>
 				<CardContent>
 					<Typography variant="h5" gutterBottom>

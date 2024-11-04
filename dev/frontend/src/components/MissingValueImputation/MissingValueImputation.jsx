@@ -80,21 +80,20 @@ const MissingValueImputation = () => {
 
 	if (loading) {
 		return (
-			<Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+			<Box display="flex" justifyContent="center" alignItems="center" height="100vh" sx={{ mt: 2, mb: 2 }}>
 				<CircularProgress />
 			</Box>
 		);
 	}
 
 	return (
-		<Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', p: 3, gap: 3 }}>
-			<div style={{ marginTop: '30px' }}></div>
+		<Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: 'calc(100vh - 64px)', gap: 3, overflow: 'hidden', mt: 2, mb: 2 }}>
 			{/* 数値データの欠損値カード */}
 			<Card sx={{ width: '100%', maxWidth: 800 }}>
 				<CardContent>
 					<Typography variant="h5" gutterBottom>数値データの欠損値</Typography>
 					{quantitativeMissList.length === 0 ? (
-						<Box sx={{ backgroundColor: '#EAEAEA', borderRadius: '8px', p: 2 }}>
+						<Box sx={{ backgroundColor: '#EAEAEA', borderRadius: '50px', p: 2 }}>
 							<Typography>欠損値のある数値データのカラムはありません。</Typography>
 						</Box>
 					) : (
@@ -124,7 +123,7 @@ const MissingValueImputation = () => {
 				<CardContent>
 					<Typography variant="h5" gutterBottom>カテゴリカルデータの欠損値</Typography>
 					{qualitativeMissList.length === 0 ? (
-						<Box sx={{ backgroundColor: '#EAEAEA', borderRadius: '8px', p: 2 }}>
+						<Box sx={{ backgroundColor: '#EAEAEA', borderRadius: '50px', p: 2 }}>
 							<Typography>欠損値のあるカテゴリカルデータのカラムはありません。</Typography>
 						</Box>
 					) : (
@@ -149,7 +148,7 @@ const MissingValueImputation = () => {
 				</CardContent>
 			</Card>
 			<Box sx={{ width: '100%', maxWidth: 800 }}>
-				<Button variant="contained" color="primary" onClick={handleImpute} sx={{ marginTop: 2, width: '100%' }}>
+				<Button variant="contained" color="primary" onClick={handleImpute} sx={{ width: '100%' }}>
 					決定
 				</Button>
 			</Box>

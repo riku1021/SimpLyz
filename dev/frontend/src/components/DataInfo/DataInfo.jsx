@@ -54,7 +54,6 @@ const DataInfo = () => {
 
 	return (
 		<Box p={3}>
-			<div style={{ marginTop: '64px' }}></div>
 			<Grid container spacing={3}>
 				<Grid item xs={12}>
 					<TableComponent title="質的データ" data={data.qualitative} onClick={handleClick} type="qualitative" />

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { TextField, IconButton, Box, Button, Typography } from '@mui/material';
+import { TextField, IconButton, Box, Button, Typography, CircularProgress } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 
 const AnalysisChat = ({ image }) => {
@@ -29,12 +29,12 @@ const AnalysisChat = ({ image }) => {
 
         const newMessage = { sender: 'user', text: input };
 
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+        setInput('');
         setLoading(true);
 
         try {
-            const updatedMessages = [...messages, newMessage];
-            const lastTenMessages = getLastTenMessages(updatedMessages);
-
+            const lastTenMessages = getLastTenMessages([...messages, newMessage]);
             const combinedMessages = analyzeMessage
                 ? getCombinedMessages([analyzeMessage, ...lastTenMessages])
                 : getCombinedMessages(lastTenMessages);
@@ -42,13 +42,11 @@ const AnalysisChat = ({ image }) => {
             const response = await axios.post('http://localhost:5000/api/chat', { message: combinedMessages });
 
             const botMessage = { sender: 'bot', text: response.data.reply };
-            setMessages((prevMessages) => [...prevMessages, newMessage, botMessage]);
+            setMessages((prevMessages) => [...prevMessages, botMessage]);
         } catch (error) {
             console.error('Error sending message:', error);
-            setMessages((prevMessages) => [...prevMessages, newMessage]);
         }
 
-        setInput('');
         setLoading(false);
     };
 
@@ -60,7 +58,6 @@ const AnalysisChat = ({ image }) => {
             setMessages((prevMessages) => [...prevMessages, botMessage]);
             setAnalyzeMessage(botMessage);
             setIsChartAnalysisMode(false);
-            console.log(response.data.text)
         } catch (error) {
             console.error('Error analyzing image:', error);
         }
@@ -69,6 +66,23 @@ const AnalysisChat = ({ image }) => {
 
     return (
         <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
+            {loading && (
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 10,
+                    }}
+                >
+                    <CircularProgress />
+                </Box>
+            )}
             <Box
                 sx={{
                     flex: 1,
@@ -119,8 +133,8 @@ const AnalysisChat = ({ image }) => {
                         fullWidth
                         onClick={analyzeImage}
                         sx={{
-                            color: '#fff',
-                            bgcolor: '#1976d2',
+                            color: loading ? '#9e9e9e' : '#fff',
+                            bgcolor: loading ? '#e0e0e0' : '#1976d2',
                             fontSize: '16px',
                             fontWeight: 'bold',
                             borderRadius: '50px',
@@ -128,10 +142,12 @@ const AnalysisChat = ({ image }) => {
                             margin: 1,
                             borderTop: '1px solid #ddd',
                             boxShadow: '0px -2px 5px rgba(0, 0, 0, 0.1)',
+                            cursor: loading ? 'default' : 'pointer',
                             '&:hover': {
-                                bgcolor: '#1565c0',
+                                bgcolor: loading ? '#e0e0e0' : '#1565c0',
                             },
                         }}
+                        disabled={loading}
                     >
                         画像を解析
                     </Button>
@@ -178,12 +194,14 @@ const AnalysisChat = ({ image }) => {
                     <IconButton
                         onClick={sendMessage}
                         sx={{
-                            bgcolor: '#1976d2',
-                            color: '#fff',
+                            bgcolor: loading ? '#e0e0e0' : '#1976d2',
+                            color: loading ? '#9e9e9e' : '#fff',
+                            cursor: loading ? 'default' : 'pointer',
                             '&:hover': {
-                                bgcolor: '#1565c0',
+                                bgcolor: loading ? '#e0e0e0' : '#1565c0',
                             },
                         }}
+                        disabled={loading}
                     >
                         <SendIcon />
                     </IconButton>

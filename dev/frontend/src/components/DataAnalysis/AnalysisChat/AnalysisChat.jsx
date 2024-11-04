@@ -8,6 +8,7 @@ const AnalysisChat = ({ image }) => {
     const [messages, setMessages] = useState([]);
     const [isChartAnalysisMode, setIsChartAnalysisMode] = useState(true);
     const [loading, setLoading] = useState(false);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analyzeMessage, setAnalyzeMessage] = useState(null);
 
     useEffect(() => {
@@ -51,7 +52,7 @@ const AnalysisChat = ({ image }) => {
     };
 
     const analyzeImage = async () => {
-        setLoading(true);
+        setIsAnalyzing(true);
         try {
             const response = await axios.post('http://localhost:5000/gemini/image', { image_data: image });
             const botMessage = { sender: 'bot', text: response.data.text };
@@ -61,12 +62,12 @@ const AnalysisChat = ({ image }) => {
         } catch (error) {
             console.error('Error analyzing image:', error);
         }
-        setLoading(false);
+        setIsAnalyzing(false);
     };
 
     return (
         <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
-            {loading && (
+            {isAnalyzing && (
                 <Box
                     sx={{
                         position: 'absolute',
@@ -87,7 +88,7 @@ const AnalysisChat = ({ image }) => {
                 sx={{
                     flex: 1,
                     overflowY: 'auto',
-                    maxHeight: 'calc(100vh - 200px)',
+                    maxHeight: 'calc(100vh - 155px)',
                     mb: 2,
                     display: 'flex',
                     flexDirection: 'column',
@@ -133,8 +134,8 @@ const AnalysisChat = ({ image }) => {
                         fullWidth
                         onClick={analyzeImage}
                         sx={{
-                            color: loading ? '#9e9e9e' : '#fff',
-                            bgcolor: loading ? '#e0e0e0' : '#1976d2',
+                            color: isAnalyzing ? '#9e9e9e' : '#fff',
+                            bgcolor: isAnalyzing ? '#e0e0e0' : '#1976d2',
                             fontSize: '16px',
                             fontWeight: 'bold',
                             borderRadius: '50px',
@@ -142,12 +143,12 @@ const AnalysisChat = ({ image }) => {
                             margin: 1,
                             borderTop: '1px solid #ddd',
                             boxShadow: '0px -2px 5px rgba(0, 0, 0, 0.1)',
-                            cursor: loading ? 'default' : 'pointer',
+                            cursor: isAnalyzing ? 'default' : 'pointer',
                             '&:hover': {
-                                bgcolor: loading ? '#e0e0e0' : '#1565c0',
+                                bgcolor: isAnalyzing ? '#e0e0e0' : '#1565c0',
                             },
                         }}
-                        disabled={loading}
+                        disabled={isAnalyzing}
                     >
                         画像を解析
                     </Button>

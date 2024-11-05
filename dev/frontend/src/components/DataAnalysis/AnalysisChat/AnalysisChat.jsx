@@ -150,7 +150,7 @@ const AnalysisChat = ({ image }) => {
                         }}
                         disabled={isAnalyzing}
                     >
-                        画像を解析
+                        グラフを解析
                     </Button>
                 </Box>
             ) : (

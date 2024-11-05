@@ -159,7 +159,7 @@ const FeatureCreation = () => {
 	};
 
 	const handleNext = () => {
-		navigate('/analysis');
+		navigate('/data-analysis');
 	};
 
 	return (

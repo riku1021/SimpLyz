@@ -100,12 +100,6 @@ const Header = ({ children }) => {
 							</ListItemIcon>
 							<ListItemText primary="特徴量作成" primaryTypographyProps={{ fontWeight: 'bold' }} />
 						</ListItemButton>
-						<ListItemButton onClick={() => handleNavigate('/analysis')}>
-							<ListItemIcon>
-								<AssessmentIcon />
-							</ListItemIcon>
-							<ListItemText primary="分析" primaryTypographyProps={{ fontWeight: 'bold' }} />
-						</ListItemButton>
 						<ListItemButton onClick={() => handleNavigate('/data-analysis')}>
 							<ListItemIcon>
 								<AssessmentIcon />

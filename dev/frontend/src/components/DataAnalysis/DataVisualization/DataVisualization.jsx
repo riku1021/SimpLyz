@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { CardContent, Box } from '@mui/material';
+import { CardContent, Box, CircularProgress } from '@mui/material';
 
 function DataVisualization({ image }) {
     const [isPortrait, setIsPortrait] = useState(false);
 
-    // useCallbackを使ってcheckImageAspectRatioをメモ化
     const checkImageAspectRatio = useCallback(() => {
         const img = new Image();
         img.src = `data:image/png;base64,${image}`;
@@ -13,7 +12,6 @@ function DataVisualization({ image }) {
         };
     }, [image]);
 
-    // 画像が変更されたときにアスペクト比をチェック
     useEffect(() => {
         if (image) {
             checkImageAspectRatio();
@@ -33,7 +31,21 @@ function DataVisualization({ image }) {
                         }}
                     />
                 ) : (
-                    <Box sx={{ textAlign: 'center', padding: 2 }}>No image available</Box>
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 10,
+                        }}
+                    >
+                        <CircularProgress />
+                    </Box>
                 )}
             </CardContent>
         </Box>

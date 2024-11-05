@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Box, Button, Typography, Paper, Card, CardContent, Stack } from '@mui/material';
@@ -45,6 +45,7 @@ const ManageCSV = () => {
 		} catch (error) {
 			newMessages.push(`ファイル ${file.name} のアップロードに失敗しました。`);
 			showErrorAlert('エラー', `ファイル ${file.name} のアップロードに失敗しました。`);
+			console.log(`missing upload: ${error}`);
 		}
 		setMessages([...messages, ...newMessages]);
 	};
@@ -120,7 +121,7 @@ const ManageCSV = () => {
 	};
 
 	return (
-		<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+		<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 64px)' }}>
 			<Card sx={{ width: 600, p: 1, mb: 1 }}>
 				<CardContent>
 					<Typography variant="h5" gutterBottom>

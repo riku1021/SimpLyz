@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, RadioGroup, FormControlLabel, Radio, CircularProgress, Button, Card, CardContent } from '@mui/material';
 import { showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
+import axios from 'axios';
 
 const ColumnDetail = () => {
 	const { columnName, type } = useParams();
@@ -12,17 +13,18 @@ const ColumnDetail = () => {
 
 	useEffect(() => {
 		const fetchImage = async () => {
-			const response = await fetch('http://127.0.0.1:5000/feature_analysis', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ column_name: columnName }),
-			});
-			const data = await response.json();
-			setImage(data.image_data);
-			setLoading(false);
-			console.log(data.image_data);
+			try {
+				const response = await axios.post('http://127.0.0.1:5000/feature_analysis', {
+					column_name: columnName,
+				});
+				setImage(response.data.image_data);
+				setLoading(false);
+				console.log(response.data.image_data);
+			} catch (error) {
+				console.error('画像の取得に失敗しました:', error);
+				showErrorAlert('エラー', '画像の取得に失敗しました');
+				setLoading(false);
+			}
 		};
 
 		fetchImage();
@@ -34,16 +36,15 @@ const ColumnDetail = () => {
 
 	const handleSubmit = async () => {
 		if (category === 'yes') {
-			const response = await fetch('http://127.0.0.1:5000/change_numeric_to_categorical', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ column_name: columnName }),
-			});
-			if (response.ok) {
-				showSuccessAlert('成功', 'カテゴリカルデータに変更しました');
-			} else {
+			try {
+				const response = await axios.post('http://127.0.0.1:5000/change_numeric_to_categorical', {
+					column_name: columnName,
+				});
+				if (response.status === 200) {
+					showSuccessAlert('成功', 'カテゴリカルデータに変更しました');
+				}
+			} catch (error) {
+				console.error('変更に失敗しました:', error);
 				showErrorAlert('エラー', '変更に失敗しました');
 			}
 		}
@@ -63,8 +64,7 @@ const ColumnDetail = () => {
 	}
 
 	return (
-		<>
-			<div style={{ marginTop: '64px' }}></div>
+		<div style={{ minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
 			<Box p={3} display="flex" justifyContent="center" alignItems="center">
 				<Card>
 					<CardContent>
@@ -100,7 +100,7 @@ const ColumnDetail = () => {
 					</CardContent>
 				</Card>
 			</Box>
-		</>
+		</div>
 	);
 }
 

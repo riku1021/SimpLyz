@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import './Analysis.css';
+import '../Analysis.css';
 import './Chat.css';
 
 function Chat({ image }) {
@@ -77,7 +77,6 @@ function Chat({ image }) {
 
 	return (
 		<div className='chat-wrapper'>
-			<div style={{ marginTop: '64px' }}></div>
 			<div className='chat-window'>
 				{messages.map((msg, index) => (
 					<div key={index} className={`chat-message ${msg.sender}`}>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './Histogram.css';
 
 function Histogram({ setImage }) {
@@ -96,4 +96,4 @@ function Histogram({ setImage }) {
 	)
 }
 
-export default Histogram
+export default Histogram;

@@ -120,9 +120,9 @@ def read_qualitative() -> List[str]:
 
     """
 
-    passes = read_folder()
+    # passes = read_folder()
     qualitative_variables = []
-    encoding = check_encoding(passes[0])
+    # encoding = check_encoding(passes[0])
     df = get_df()
     columns = df.columns.values
     # apply関数で自作関数を適用
@@ -136,8 +136,8 @@ def read_qualitative() -> List[str]:
 
 
 # uploads内のフォルダを読み込み
-def read_folder(passes=".\\uploads"):
-    p = passes + "\\*.csv"
+def read_folder(passes="./uploads"):
+    p = passes + "/*.csv"
     return glob.glob(p)
 
 

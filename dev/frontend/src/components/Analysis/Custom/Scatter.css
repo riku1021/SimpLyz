@@ -1,6 +1,6 @@
 .config-wrapper {
   display: inline-flex;
-  width: 250px;
+  width: 280px;
   height: 40px;
   background-color: #D9D9D9;
   border-radius: 35px;
@@ -9,7 +9,7 @@
 }
 
 .config-name-wrapper {
-  width: 100px;
+  width: 130px;
   height: 100%;
   display: flex;
   justify-content: center;
@@ -39,9 +39,11 @@
   text-align-last: center;
   font-size: 20px;
   font-weight: 600;
-  -webkit-appearance: none;  /* Safari and Chrome */
-  -moz-appearance: none;     /* Firefox */
-  appearance: none;  
+  -webkit-appearance: none;
+  /* Safari and Chrome */
+  -moz-appearance: none;
+  /* Firefox */
+  appearance: none;
 }
 
 .config-value-wrapper select option {
@@ -54,8 +56,10 @@
   right: 15px;
   /* transform: translate(-100%, -100%); */
   position: absolute;
-  border-left: 8px solid transparent; /* 左側のボーダー */
-  border-right: 8px solid transparent; /* 右側のボーダー */
+  border-left: 8px solid transparent;
+  /* 左側のボーダー */
+  border-right: 8px solid transparent;
+  /* 右側のボーダー */
   border-bottom: 16px solid #D9D9D9;
   transform: rotate(180deg);
 }

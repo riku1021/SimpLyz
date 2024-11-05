@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function PieChart({ setImage }) {
 	const [variable, setVariable] = useState('');
@@ -46,7 +46,7 @@ function PieChart({ setImage }) {
 		<div>
 			<div className='config-wrapper'>
 				<div className='config-name-wrapper'>
-					<p>Variable</p>
+					<p>variable</p>
 				</div>
 				<div className='config-value-wrapper'>
 					<select value={variable} onChange={changeVariable}>

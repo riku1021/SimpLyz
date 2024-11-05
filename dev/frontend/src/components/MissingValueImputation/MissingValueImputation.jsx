@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button, Card, CardContent, FormControl, InputLabel, MenuItem, Select, Typography, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
+import axios from 'axios';
 
 const MissingValueImputation = () => {
 	const [quantitativeMissList, setQuantitativeMissList] = useState([]);
@@ -13,14 +14,12 @@ const MissingValueImputation = () => {
 	useEffect(() => {
 		const fetchMissingColumns = async () => {
 			try {
-				const response = await fetch('http://127.0.0.1:5000/get_miss_columns', {
-					method: 'GET',
-				});
-				const data = await response.json();
-				setQuantitativeMissList(data.quantitative_miss_list);
-				setQualitativeMissList(data.qualitative_miss_list);
+				const response = await axios.get('http://127.0.0.1:5000/get_miss_columns');
+				setQuantitativeMissList(response.data.quantitative_miss_list);
+				setQualitativeMissList(response.data.qualitative_miss_list);
 			} catch (error) {
 				showErrorAlert('エラー', '欠損カラムの取得に失敗しました。');
+				console.log(`missing obtain missing columns: ${error}`);
 			} finally {
 				setLoading(false);
 			}
@@ -45,16 +44,13 @@ const MissingValueImputation = () => {
 		try {
 			for (const column in imputationMethods) {
 				const { type, method } = imputationMethods[column];
-				const url = type === 'numeric' ? 'http://127.0.0.1:5000/complement/numeric' : 'http://127.0.0.1:5000/complement/categorical';
-				await fetch(url, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						column_name: column,
-						complementary_methods: method,
-					}),
+				const url = type === 'numeric'
+					? 'http://127.0.0.1:5000/complement/numeric'
+					: 'http://127.0.0.1:5000/complement/categorical';
+
+				await axios.post(url, {
+					column_name: column,
+					complementary_methods: method,
 				});
 			}
 
@@ -63,6 +59,7 @@ const MissingValueImputation = () => {
 			});
 		} catch (error) {
 			showErrorAlert('エラー', '補完処理中にエラーが発生しました。');
+			console.log(`missing imputation: ${error}`);
 		}
 	};
 
@@ -78,21 +75,20 @@ const MissingValueImputation = () => {
 
 	if (loading) {
 		return (
-			<Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+			<Box display="flex" justifyContent="center" alignItems="center" height="100vh" sx={{ mt: 2, mb: 2 }}>
 				<CircularProgress />
 			</Box>
 		);
 	}
 
 	return (
-		<Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', p: 3, gap: 3 }}>
-			<div style={{ marginTop: '30px' }}></div>
+		<Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: 'calc(100vh - 64px)', gap: 3, overflow: 'hidden', mt: 2, mb: 2 }}>
 			{/* 数値データの欠損値カード */}
 			<Card sx={{ width: '100%', maxWidth: 800 }}>
 				<CardContent>
 					<Typography variant="h5" gutterBottom>数値データの欠損値</Typography>
 					{quantitativeMissList.length === 0 ? (
-						<Box sx={{ backgroundColor: '#EAEAEA', borderRadius: '8px', p: 2 }}>
+						<Box sx={{ backgroundColor: '#EAEAEA', borderRadius: '50px', p: 2 }}>
 							<Typography>欠損値のある数値データのカラムはありません。</Typography>
 						</Box>
 					) : (
@@ -122,7 +118,7 @@ const MissingValueImputation = () => {
 				<CardContent>
 					<Typography variant="h5" gutterBottom>カテゴリカルデータの欠損値</Typography>
 					{qualitativeMissList.length === 0 ? (
-						<Box sx={{ backgroundColor: '#EAEAEA', borderRadius: '8px', p: 2 }}>
+						<Box sx={{ backgroundColor: '#EAEAEA', borderRadius: '50px', p: 2 }}>
 							<Typography>欠損値のあるカテゴリカルデータのカラムはありません。</Typography>
 						</Box>
 					) : (
@@ -147,7 +143,7 @@ const MissingValueImputation = () => {
 				</CardContent>
 			</Card>
 			<Box sx={{ width: '100%', maxWidth: 800 }}>
-				<Button variant="contained" color="primary" onClick={handleImpute} sx={{ marginTop: 2, width: '100%' }}>
+				<Button variant="contained" color="primary" onClick={handleImpute} sx={{ width: '100%' }}>
 					決定
 				</Button>
 			</Box>

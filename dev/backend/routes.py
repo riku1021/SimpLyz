@@ -523,7 +523,12 @@ def setup_routes(app):
         image_data = data["image_data"]
         cookie_picture = {"mime_type": "image/png", "data": image_data}
 
-        prompt = "この写真について教えて(日本語で)\n"
+        prompt = """
+        このグラフから読み取れることを詳細に解説してください。\n
+        ※日本語で表示してください。また、マークダウン装飾を付けるようにしてください。\n
+        Let's first understand the problem and devise a plan to solve the problem.
+        Then, let's carry out the plan and solve the problem step by step.
+        """
         response = model.generate_content(
             contents=[prompt, cookie_picture],
             generation_config=GEMINI.types.GenerationConfig(

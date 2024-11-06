@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { TextField, IconButton, Box, Button, Typography, CircularProgress } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const AnalysisChat = ({ image }) => {
     const [input, setInput] = useState('');
@@ -113,7 +115,14 @@ const AnalysisChat = ({ image }) => {
                             justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start',
                         }}
                     >
-                        <Typography variant="body2">{msg.text}</Typography>
+                        <Typography variant="body2"
+                            sx={{
+                                margin: 0,
+                                '& p': { margin: "5px 0px" },
+                                '& ul': { margin: 0, paddingLeft: "20px" },
+                            }}>
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
+                        </Typography>
                     </Box>
                 ))}
             </Box>

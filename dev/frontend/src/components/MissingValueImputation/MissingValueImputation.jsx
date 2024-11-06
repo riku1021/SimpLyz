@@ -84,7 +84,7 @@ const MissingValueImputation = () => {
 	return (
 		<Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: 'calc(100vh - 64px)', gap: 3, overflow: 'hidden', mt: 2, mb: 2 }}>
 			{/* 数値データの欠損値カード */}
-			<Card sx={{ width: '100%', maxWidth: 800 }}>
+			<Card sx={{ width: '100%', maxWidth: 800, borderRadius: '25px' }}>
 				<CardContent>
 					<Typography variant="h5" gutterBottom>数値データの欠損値</Typography>
 					{quantitativeMissList.length === 0 ? (
@@ -114,7 +114,7 @@ const MissingValueImputation = () => {
 			</Card>
 
 			{/* カテゴリカルデータの欠損値カード */}
-			<Card sx={{ width: '100%', maxWidth: 800 }}>
+			<Card sx={{ width: '100%', maxWidth: 800, borderRadius: '25px' }}>
 				<CardContent>
 					<Typography variant="h5" gutterBottom>カテゴリカルデータの欠損値</Typography>
 					{qualitativeMissList.length === 0 ? (

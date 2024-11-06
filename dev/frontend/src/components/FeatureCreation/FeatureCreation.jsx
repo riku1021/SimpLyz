@@ -164,13 +164,13 @@ const FeatureCreation = () => {
 
 	return (
 		<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
-			<Card sx={{ width: 600, p: 2 }}>
+			<Card sx={{ width: 600, p: 2, borderRadius: '25px' }}>
 				<CardContent>
 					<Typography variant="h5" gutterBottom>特徴量の作成</Typography>
 					<Box sx={{
 						mt: 2,
 						backgroundColor: '#EAEAEA',
-						borderRadius: '8px',
+						borderRadius: '25px',
 						border: '1px solid #EAEAEA',
 						padding: '16px',
 						minHeight: '30px',

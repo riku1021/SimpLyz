@@ -2,6 +2,7 @@
 /__pycache__
 /uploads
 .env
+/dist
 
 # venv
 .venv

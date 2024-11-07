@@ -172,14 +172,16 @@ const FeatureCreation = () => {
 						backgroundColor: '#EAEAEA',
 						borderRadius: '25px',
 						border: '1px solid #EAEAEA',
-						padding: '16px',
+						padding: '16px 20px',
 						minHeight: '30px',
 						display: 'flex',
 						alignItems: 'center',
 						justifyContent: 'flex-start',
-						textAlign: 'left'
+						textAlign: 'left',
+						maxHeight: '160px',
+						overflowY: 'auto',
 					}}>
-						<Typography variant="h5" sx={{ width: '100%' }}>
+						<Typography variant={preview ? "h5" : "h6"} sx={{ width: '100%' }}>
 							{preview || 'ここに数式のプレビューが表示されます'}
 						</Typography>
 					</Box>
@@ -189,6 +191,7 @@ const FeatureCreation = () => {
 								value={currentColumn}
 								onChange={(e) => setCurrentColumn(e.target.value)}
 								fullWidth
+								sx={{ borderRadius: '50px' }}
 							>
 								{quantitativeColumns.map((col, idx) => (
 									<MenuItem key={idx} value={col}>{col}</MenuItem>
@@ -198,7 +201,7 @@ const FeatureCreation = () => {
 								variant="outlined"
 								startIcon={<AddIcon />}
 								onClick={handleAddColumn}
-								sx={{ mt: 1, height: '56px' }}
+								sx={{ mt: 1, height: '56px', borderRadius: '50px' }}
 								fullWidth
 							>
 								カラム追加
@@ -209,6 +212,7 @@ const FeatureCreation = () => {
 								value={currentOperation}
 								onChange={(e) => setCurrentOperation(e.target.value)}
 								fullWidth
+								sx={{ borderRadius: '50px' }}
 							>
 								<MenuItem value="addition">足し算</MenuItem>
 								<MenuItem value="subtraction">引き算</MenuItem>
@@ -219,7 +223,7 @@ const FeatureCreation = () => {
 								variant="outlined"
 								startIcon={<AddIcon />}
 								onClick={handleAddOperation}
-								sx={{ mt: 1, height: '56px' }}
+								sx={{ mt: 1, height: '56px', borderRadius: '50px' }}
 								fullWidth
 							>
 								演算追加
@@ -230,13 +234,19 @@ const FeatureCreation = () => {
 								type="number"
 								value={currentNumber}
 								onChange={(e) => setCurrentNumber(Number(e.target.value))}
+								sx={{
+									borderRadius: '50px',
+									'& .MuiOutlinedInput-root': {
+										borderRadius: '50px'
+									}
+								}}
 								fullWidth
 							/>
 							<Button
 								variant="outlined"
 								startIcon={<AddIcon />}
 								onClick={handleAddNumber}
-								sx={{ mt: 1, height: '56px' }}
+								sx={{ mt: 1, height: '56px', borderRadius: '50px', borderRadius: '50px' }}
 								fullWidth
 							>
 								数値追加
@@ -247,7 +257,7 @@ const FeatureCreation = () => {
 								variant="outlined"
 								onClick={() => handleAddParenthesis('open')}
 								fullWidth
-								sx={{ height: '56px' }}
+								sx={{ height: '56px', borderRadius: '50px' }}
 							>
 								（
 							</Button>
@@ -255,7 +265,7 @@ const FeatureCreation = () => {
 								variant="outlined"
 								onClick={() => handleAddParenthesis('close')}
 								fullWidth
-								sx={{ mt: 1, height: '56px' }}
+								sx={{ mt: 1, height: '56px', borderRadius: '50px' }}
 							>
 								）
 							</Button>
@@ -266,7 +276,7 @@ const FeatureCreation = () => {
 							variant="contained"
 							color="error"
 							onClick={handleRemoveLastItem}
-							sx={{ mt: 2, width: '49%', marginRight: '2%' }}
+							sx={{ mt: 2, width: '49%', marginRight: '2%', borderRadius: '50px' }}
 						>
 							最後の項目を削除
 						</Button>
@@ -274,7 +284,7 @@ const FeatureCreation = () => {
 							variant="outlined"
 							color="error"
 							onClick={handleClearAll}
-							sx={{ mt: 2, width: '49%' }}
+							sx={{ mt: 2, width: '49%', borderRadius: '50px' }}
 						>
 							すべての項目を削除
 						</Button>
@@ -285,13 +295,18 @@ const FeatureCreation = () => {
 							value={newColumnName}
 							onChange={(e) => setNewColumnName(e.target.value)}
 							fullWidth
+							sx={{
+								'& .MuiOutlinedInput-root': {
+									borderRadius: '25px'
+								}
+							}}
 						/>
 					</Box>
 					<Button
 						variant="contained"
 						color="primary"
 						onClick={handleSubmit}
-						sx={{ mt: 2, width: '100%' }}
+						sx={{ mt: 2, width: '100%', borderRadius: '50px' }}
 					>
 						決定
 					</Button>
@@ -299,13 +314,13 @@ const FeatureCreation = () => {
 						variant="contained"
 						color="secondary"
 						onClick={handleNext}
-						sx={{ mt: 2, width: '100%' }}
+						sx={{ mt: 2, width: '100%', borderRadius: '50px' }}
 					>
 						次へ
 					</Button>
 				</CardContent>
 			</Card>
-		</Box>
+		</Box >
 	);
 };
 

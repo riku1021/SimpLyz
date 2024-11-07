@@ -14,6 +14,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import InfoIcon from '@mui/icons-material/Info';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import CreateIcon from '@mui/icons-material/Create';
 import { useState } from 'react';
@@ -46,7 +47,7 @@ const Header = ({ children }) => {
 					>
 						<ButtonTrigger drawerOpen={drawerOpen} />
 					</IconButton>
-					<Typography variant="h5" sx={{ fontWeight: 'bold', flexGrow: 1 }}>
+					<Typography variant="h5" sx={{ fontFamily: 'sans-serif', fontWeight: 'bold', flexGrow: 1 }}>
 						SimpLyz
 					</Typography>
 				</Toolbar>
@@ -102,7 +103,7 @@ const Header = ({ children }) => {
 						</ListItemButton>
 						<ListItemButton onClick={() => handleNavigate('/data-analysis')}>
 							<ListItemIcon>
-								<AssessmentIcon />
+								<QueryStatsIcon />
 							</ListItemIcon>
 							<ListItemText primary="データ分析" primaryTypographyProps={{ fontWeight: 'bold' }} />
 						</ListItemButton>

@@ -10,7 +10,6 @@ import {
 	Box,
 	ListItemIcon
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import AssessmentIcon from '@mui/icons-material/Assessment';
@@ -19,6 +18,7 @@ import TableChartIcon from '@mui/icons-material/TableChart';
 import CreateIcon from '@mui/icons-material/Create';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ButtonTrigger from './ButtonTrigger/ButtonTrigger';
 
 const Header = ({ children }) => {
 	const navigate = useNavigate();
@@ -41,10 +41,10 @@ const Header = ({ children }) => {
 						edge="start"
 						color="inherit"
 						aria-label="menu"
-						sx={{ marginRight: '10px' }}
+						sx={{ marginRight: '5px' }}
 						onClick={toggleDrawer}
 					>
-						<MenuIcon />
+						<ButtonTrigger drawerOpen={drawerOpen} />
 					</IconButton>
 					<Typography variant="h5" sx={{ fontWeight: 'bold', flexGrow: 1 }}>
 						SimpLyz
@@ -99,12 +99,6 @@ const Header = ({ children }) => {
 								<CreateIcon />
 							</ListItemIcon>
 							<ListItemText primary="特徴量作成" primaryTypographyProps={{ fontWeight: 'bold' }} />
-						</ListItemButton>
-						<ListItemButton onClick={() => handleNavigate('/analysis')}>
-							<ListItemIcon>
-								<AssessmentIcon />
-							</ListItemIcon>
-							<ListItemText primary="分析" primaryTypographyProps={{ fontWeight: 'bold' }} />
 						</ListItemButton>
 						<ListItemButton onClick={() => handleNavigate('/data-analysis')}>
 							<ListItemIcon>

@@ -66,7 +66,7 @@ const ColumnDetail = () => {
 	return (
 		<div style={{ minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
 			<Box p={3} display="flex" justifyContent="center" alignItems="center">
-				<Card>
+				<Card sx={{ borderRadius: '25px' }}>
 					<CardContent>
 						<Typography variant="h4" gutterBottom>{columnName} の詳細</Typography>
 						{type === 'quantitative' && (

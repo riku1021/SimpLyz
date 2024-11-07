@@ -9,12 +9,12 @@ function TableComponent({ title, data, onClick, type }) {
 	const specificKeys = Object.keys(data[0].data);
 
 	return (
-		<Card>
+		<Card sx={{ borderRadius: '25px' }}>
 			<CardContent>
 				<Typography variant="h5" gutterBottom>
 					{title}
 				</Typography>
-				<TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+				<TableContainer component={Paper} sx={{ overflowX: 'auto', borderRadius: '25px' }}>
 					<Table sx={{ minWidth: 1600 }}>
 						<TableHead>
 							<TableRow>
@@ -34,7 +34,7 @@ function TableComponent({ title, data, onClick, type }) {
 										<Button
 											onClick={() => onClick(row.column_name, type)}
 											variant="outlined"
-											sx={{ width: '230px' }}
+											sx={{ width: '230px', borderRadius: '10px' }}
 										>
 											{row.column_name}
 										</Button>

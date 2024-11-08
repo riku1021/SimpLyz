@@ -128,8 +128,8 @@ def setup_routes(app):
         file = request.files["file"]
 
         # csvファイルの保存
-        # file_path = os.path.join(UPLOAD_PATH, "demo.csv")
-        # file.save(file_path)
+        file_path = os.path.join(UPLOAD_PATH, "demo.csv")
+        file.save(file_path)
 
         # CSVデータを直接読み込み
         csv_data = file.read().decode("utf-8")  # バイトデータを文字列に変換

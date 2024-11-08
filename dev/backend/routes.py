@@ -1,9 +1,12 @@
 import json
+import base64
+import io
 import os
 import shutil
 from typing import Any, Dict, List
 
 import google.generativeai as GEMINI
+import pandas as pd
 from data_plt import (
     plot_box,
     read_quantitative,
@@ -20,9 +23,10 @@ from data_utils import (
     impute_numeric,
     make_feature_value,
     make_pie,
+    extraction_df,
 )
 from dotenv import load_dotenv
-from flask import jsonify, request
+from flask import jsonify, request, requests
 from read_CSV import read
 
 # 環境変数を読み込む
@@ -35,12 +39,65 @@ GEMINI.configure(api_key=GEMINI_API_KEY)
 # データアップロード先の定義
 UPLOAD_PATH = "./uploads"
 
+GO_API_URL="http://localhost:8080"
+
 
 def setup_routes(app):
     # テスト
     @app.route("/", methods=["GET"])
     def index():
         return {"message": True}
+    
+    @app.route("/get_csv", methods=["GET"])
+    def get_csv():
+        try:
+            # GoサーバーからCSVデータを取得
+            response = requests.get(f"{GO_API_URL}/get_csv")
+            
+            # レスポンスの内容とステータスコードを表示
+            print("Response Status Code:", response.status_code)
+            # print("Response Content:", response.text)
+            if response.status_code == 200:
+                response_data = response.json()  # JSONデータを取得
+                
+                try:
+                    # filesキーからCSVデータを取得
+                    csv_files = response_data.get('files', [])
+                    
+                    for i, file_data in enumerate(csv_files):
+                        # バイナリデータを取得
+                        csv_content = file_data.get('csv_file')
+                        json_content = file_data.get('json_file')
+                        if csv_content and json_content:
+                            # バイナリデータをDataFrameに変換
+                            decoded_csv_content = base64.b64decode(csv_content).decode('utf-8')
+                            decoded_json_content = base64.b64decode(json_content).decode('utf-8')
+                            print(decoded_json_content)
+                            df = pd.read_csv(io.StringIO(decoded_csv_content))
+                            print(f"\nDataFrame {i + 1}:")
+                            print(df.head())  # 最初の5行を表示
+                            print("\nColumns:", df.columns.tolist())  # カラム名を表示
+                            print("\nShape:", df.shape)  # データフレームの形状を表示
+                        else:
+                            print(f"No CSV content in file {i + 1}")
+                    
+                    return jsonify({"message": "success"})
+                    
+                except Exception as parse_error:
+                    print("Error parsing CSV data:", str(parse_error))
+                    return jsonify({"error": "Error parsing CSV data", "details": str(parse_error)}), 500
+                    
+            else:
+                error_message = response.text
+                print("Error from Go server:", error_message)
+                return jsonify({"error": "Failed to fetch CSV file", "details": error_message}), response.status_code
+                
+        except requests.exceptions.RequestException as e:
+            print("Request Error:", str(e))
+            return jsonify({"error": "Request failed", "details": str(e)}), 500
+        except Exception as e:
+            print("Unexpected Error:", str(e))
+            return jsonify({"error": "Unexpected error", "details": str(e)}), 500
 
     @app.route("/upload", methods=["POST"])
     def upload_csv():
@@ -71,16 +128,88 @@ def setup_routes(app):
         file = request.files["file"]
 
         # csvファイルの保存
-        file_path = os.path.join(UPLOAD_PATH, "demo.csv")
-        file.save(file_path)
+        # file_path = os.path.join(UPLOAD_PATH, "demo.csv")
+        # file.save(file_path)
 
-        empty_json = {}
+        # CSVデータを直接読み込み
+        csv_data = file.read().decode("utf-8")  # バイトデータを文字列に変換
+        df = pd.read_csv(io.StringIO(csv_data))  # データフレームに変換
+
+        dtypes = {col: str(dtype) for col, dtype in df.dtypes.items()}
+
+        files = {
+            'csv_file': ('data.csv', csv_data.encode('utf-8'), 'text/csv'),
+            'json_file': ('data.json', json.dumps(dtypes).encode('utf-8'), 'application/json')
+        }
+        
+        filename = file.filename
+
+        form_data = extraction_df(df=df, filename=filename)
+
+        # その他データを取得
+
+        response = requests.post(
+            f"{GO_API_URL}/upload_csv",
+            files=files,
+            data=form_data,
+        )
 
         # データの型を管理するjsonファイルの作成
-        with open("dtypes.json", "w") as json_file:
-            json.dump(empty_json, json_file)
+        # with open("dtypes.json", "w") as json_file:
+        #     json.dump(empty_json, json_file)
 
-        return jsonify({"message": f"File {file.filename} uploaded successfully"}), 200
+        if response.status_code == 200:
+            return jsonify({"message": f"File {file.filename} uploaded successfully"}), 200
+        else:
+            try:
+                # レスポンスからJSONデータを取得し、エラーメッセージを表示
+                error_response = response.json()
+                error_message = error_response.get("error", "Unknown error occurred")
+                print(f"エラーが発生しました: {error_message}")
+            except ValueError:
+                # JSONでない場合のエラーメッセージを表示
+                print(f"エラーレスポンス: {response.text}")
+            return jsonify({"error": "Failed to upload data to Go API"}), 500
+
+    # @app.route("/upload", methods=["POST"])
+    # def upload_csv():
+    #     """
+    #     説明
+    #     ----------
+    #     csvをアップロードするapi
+
+    #     Request
+    #     ----------
+    #     ImmutableMultiDict([('file', <FileStorage: 'DA_04.csv' ('text/csv')>)])
+
+    #     Response
+    #     ----------
+    #     {"message": f"File {file.filename} uploaded successfully"}
+
+    #     """
+
+    #     if not os.path.exists(UPLOAD_PATH):
+    #         os.makedirs(UPLOAD_PATH)
+
+    #     if "file" not in request.files:
+    #         return jsonify({"error": "No file part"}), 400
+
+    #     if request.files["file"].filename == "":
+    #         return jsonify({"error": "No selected file"}), 400
+
+    #     file = request.files["file"]
+
+    #     # csvファイルの保存
+    #     file_path = os.path.join(UPLOAD_PATH, "demo.csv")
+    #     file.save(file_path)
+
+    #     empty_json = {}
+
+    #     # データの型を管理するjsonファイルの作成
+    #     with open("dtypes.json", "w") as json_file:
+    #         json.dump(empty_json, json_file)
+
+    #     return jsonify({"message": f"File {file.filename} uploaded successfully"}), 200
 
     @app.route("/clear-uploads", methods=["POST"])
     def clear_uploads():

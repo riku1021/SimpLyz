@@ -26,8 +26,9 @@ from data_utils import (
     extraction_df,
 )
 from dotenv import load_dotenv
-from flask import jsonify, request, requests
+from flask import jsonify, request
 from read_CSV import read
+import requests
 
 # 環境変数を読み込む
 load_dotenv()
@@ -132,44 +133,45 @@ def setup_routes(app):
         file.save(file_path)
 
         # CSVデータを直接読み込み
-        csv_data = file.read().decode("utf-8")  # バイトデータを文字列に変換
-        df = pd.read_csv(io.StringIO(csv_data))  # データフレームに変換
+        # csv_data = file.read().decode("utf-8")  # バイトデータを文字列に変換
+        # df = pd.read_csv(io.StringIO(csv_data))  # データフレームに変換
 
-        dtypes = {col: str(dtype) for col, dtype in df.dtypes.items()}
+        # dtypes = {col: str(dtype) for col, dtype in df.dtypes.items()}
 
-        files = {
-            'csv_file': ('data.csv', csv_data.encode('utf-8'), 'text/csv'),
-            'json_file': ('data.json', json.dumps(dtypes).encode('utf-8'), 'application/json')
-        }
+        # files = {
+        #     'csv_file': ('data.csv', csv_data.encode('utf-8'), 'text/csv'),
+        #     'json_file': ('data.json', json.dumps(dtypes).encode('utf-8'), 'application/json')
+        # }
         
-        filename = file.filename
+        # filename = file.filename
 
-        form_data = extraction_df(df=df, filename=filename)
+        # form_data = extraction_df(df=df, filename=filename)
 
         # その他データを取得
 
-        response = requests.post(
-            f"{GO_API_URL}/upload_csv",
-            files=files,
-            data=form_data,
-        )
+        # response = requests.post(
+        #     f"{GO_API_URL}/upload_csv",
+        #     files=files,
+        #     data=form_data,
+        # )
 
         # データの型を管理するjsonファイルの作成
         # with open("dtypes.json", "w") as json_file:
         #     json.dump(empty_json, json_file)
 
-        if response.status_code == 200:
-            return jsonify({"message": f"File {file.filename} uploaded successfully"}), 200
-        else:
-            try:
-                # レスポンスからJSONデータを取得し、エラーメッセージを表示
-                error_response = response.json()
-                error_message = error_response.get("error", "Unknown error occurred")
-                print(f"エラーが発生しました: {error_message}")
-            except ValueError:
-                # JSONでない場合のエラーメッセージを表示
-                print(f"エラーレスポンス: {response.text}")
-            return jsonify({"error": "Failed to upload data to Go API"}), 500
+        # if response.status_code == 200:
+        #     return jsonify({"message": f"File {file.filename} uploaded successfully"}), 200
+        # else:
+        #     try:
+        #         # レスポンスからJSONデータを取得し、エラーメッセージを表示
+        #         error_response = response.json()
+        #         error_message = error_response.get("error", "Unknown error occurred")
+        #         print(f"エラーが発生しました: {error_message}")
+        #     except ValueError:
+        #         # JSONでない場合のエラーメッセージを表示
+        #         print(f"エラーレスポンス: {response.text}")
+        #     return jsonify({"error": "Failed to upload data to Go API"}), 500
+        return jsonify({"message": f"File {file.filename} uploaded successfully"})
 
     # @app.route("/upload", methods=["POST"])
     # def upload_csv():

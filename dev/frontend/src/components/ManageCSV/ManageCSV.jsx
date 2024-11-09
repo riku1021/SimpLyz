@@ -12,7 +12,7 @@ const ManageCSV = () => {
 	// サーバーから既存のファイル名を取得する関数
 	const fetchUploadedFileName = async () => {
 		try {
-			const response = await axios.get('http://localhost:5000/get-uploaded-file');
+			const response = await axios.get(`${apiUrl}/get-uploaded-file`);
 			setUploadedFileName(response.data.fileName);
 		} catch (error) {
 			console.error('Failed to fetch uploaded file name:', error);
@@ -62,7 +62,7 @@ const ManageCSV = () => {
 	// ファイル削除の処理
 	const deleteFile = async () => {
 		try {
-			await axios.post('http://localhost:5000/clear-uploads');
+			await axios.post(`${apiUrl}/clear-uploads`);
 			setUploadedFileName(null);
 			showSuccessAlert('削除完了', 'ファイルが削除されました');
 		} catch (error) {

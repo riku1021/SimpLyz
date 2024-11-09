@@ -2,6 +2,7 @@ import base64
 import io
 from typing import Any, Dict, List, Optional, Tuple
 import os
+import uuid
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -796,6 +797,48 @@ def load_dtype(df: DataFrame, filename: str) -> None:
         elif dtype == "int64":
             df[col] = df[col].astype(int)
 
+def extraction_df(df: DataFrame, filename: str) -> Dict[str, any]:
+    """
+    説明
+    ----------
+    dfの情報を取得する関数
+
+
+    Parameter
+    ----------
+    df : DataFrame
+        データフレーム
+    filename : str
+        データフレームの型情報を保存しているファイルのpath
+
+    Return
+    ----------
+    Dict[str, any]
+
+    """
+
+    # 仮にcsv_idとuser_idを生成している
+    csv_id = str(uuid.uuid4())
+    user_id = str(uuid.uuid4())
+
+    # メモリ上で一時的にCSVを作成
+    csv_buffer = io.StringIO()
+    df.to_csv(csv_buffer, index=False)
+    data_size = len(csv_buffer.getvalue().encode('utf-8'))
+
+    data_columns = len(df.columns)
+    data_rows = len(df)
+
+    form_data = {
+        'csv_id': csv_id,
+        'user_id': user_id,
+        'file_name': filename,
+        'data_size': data_size,
+        'data_columns': data_columns,
+        'data_rows': data_rows
+    }
+
+    return form_data
 
 if __name__ == "__main__":
     df = pd.read_csv("./uploads/demo.csv")

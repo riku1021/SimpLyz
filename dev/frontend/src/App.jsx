@@ -9,6 +9,7 @@ import ColumnDetail from './components/ColumnDetail/ColumnDetail';
 import FeatureCreation from './components/FeatureCreation/FeatureCreation';
 import MissingValueImputation from './components/MissingValueImputation/MissingValueImputation';
 import DataAnalysis from './components/DataAnalysis/DataAnalysis';
+import Test from './database/Test';
 
 function App() {
   return (
@@ -23,6 +24,8 @@ function App() {
           <Route path='/miss-input' element={<MissingValueImputation />} />
           <Route path='/feature-creation' element={<FeatureCreation />} />
           <Route path='/data-analysis' element={<DataAnalysis />} />
+          {/* データベース・テスト用 */}
+          <Route path="/test-db" element={<Test />} />
         </Routes>
       </Header>
     </BrowserRouter>

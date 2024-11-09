@@ -1,0 +1,7 @@
+CREATE ROLE admin WITH
+    LOGIN
+    SUPERUSER
+    CREATEDB
+    CREATEROLE
+    INHERIT
+    PASSWORD 'admin_password';

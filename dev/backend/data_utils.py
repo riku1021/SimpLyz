@@ -243,9 +243,9 @@ def make_pie(data) -> str:
 
     df = get_df()
 
-    value_counts = df[column].value_counts()
-    percentages = value_counts / len(df) * 100
-
+    value_counts = df[column].value_counts()[::-1]
+    percentages = (value_counts / len(df) * 100)[::-1]
+    
     colors = sns.color_palette("pastel", n_colors=len(value_counts))
 
     # グラフの作成
@@ -267,10 +267,6 @@ def make_pie(data) -> str:
             fontsize=10,
             verticalalignment="top",
         )
-
-    # タイトルの表示
-    title = f"Distribution of {column}"
-    fig.suptitle(title, fontsize=16)
 
     # バイナリデータにエンコード
     buf = io.BytesIO()

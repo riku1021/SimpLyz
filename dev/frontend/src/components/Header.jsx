@@ -54,7 +54,6 @@ const Header = ({ children }) => {
 					<Box
 						sx={{
 							display: { xs: 'none', sm: 'flex' },
-							gap: 2
 						}}
 					>
 						<Box
@@ -64,7 +63,7 @@ const Header = ({ children }) => {
 								flexDirection: 'column',
 								alignItems: 'center',
 								cursor: 'pointer',
-								padding: '10px',
+								padding: '10px 15px',
 								'&:hover': {
 									backgroundColor: 'rgba(0, 0, 0, 0.1)'
 								}
@@ -80,8 +79,7 @@ const Header = ({ children }) => {
 								flexDirection: 'column',
 								alignItems: 'center',
 								cursor: 'pointer',
-								padding: '10px',
-
+								padding: '10px 20px',
 								'&:hover': {
 									backgroundColor: 'rgba(0, 0, 0, 0.1)'
 								}
@@ -97,8 +95,7 @@ const Header = ({ children }) => {
 								flexDirection: 'column',
 								alignItems: 'center',
 								cursor: 'pointer',
-								padding: '10px',
-
+								padding: '10px 20px',
 								'&:hover': {
 									backgroundColor: 'rgba(0, 0, 0, 0.1)'
 								}
@@ -114,8 +111,7 @@ const Header = ({ children }) => {
 								flexDirection: 'column',
 								alignItems: 'center',
 								cursor: 'pointer',
-								padding: '10px',
-
+								padding: '10px 20px',
 								'&:hover': {
 									backgroundColor: 'rgba(0, 0, 0, 0.1)'
 								}
@@ -131,8 +127,7 @@ const Header = ({ children }) => {
 								flexDirection: 'column',
 								alignItems: 'center',
 								cursor: 'pointer',
-								padding: '10px',
-
+								padding: '10px 20px',
 								'&:hover': {
 									backgroundColor: 'rgba(0, 0, 0, 0.1)'
 								}

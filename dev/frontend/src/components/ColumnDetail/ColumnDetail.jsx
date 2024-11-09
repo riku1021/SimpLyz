@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { Box, Typography, RadioGroup, FormControlLabel, Radio, CircularProgress, Button, Card, CardContent } from '@mui/material';
 import { showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
-import axios from 'axios';
+import { apiUrl } from '../../urlConfig';
 
 const ColumnDetail = () => {
 	const { columnName, type } = useParams();
@@ -14,7 +15,7 @@ const ColumnDetail = () => {
 	useEffect(() => {
 		const fetchImage = async () => {
 			try {
-				const response = await axios.post('http://127.0.0.1:5000/feature_analysis', {
+				const response = await axios.post(`${apiUrl}/feature_analysis`, {
 					column_name: columnName,
 				});
 				setImage(response.data.image_data);
@@ -37,7 +38,7 @@ const ColumnDetail = () => {
 	const handleSubmit = async () => {
 		if (category === 'yes') {
 			try {
-				const response = await axios.post('http://127.0.0.1:5000/change_numeric_to_categorical', {
+				const response = await axios.post(`${apiUrl}/change_numeric_to_categorical`, {
 					column_name: columnName,
 				});
 				if (response.status === 200) {

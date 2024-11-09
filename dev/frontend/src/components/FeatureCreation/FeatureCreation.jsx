@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Box, Button, Typography, Select, MenuItem, TextField, Card, CardContent, Grid } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
 import { showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
+import { apiUrl } from '../../urlConfig';
 
 const FeatureCreation = () => {
 	const [quantitativeColumns, setQuantitativeColumns] = useState([]);
@@ -13,12 +13,11 @@ const FeatureCreation = () => {
 	const [formula, setFormula] = useState([]);
 	const [newColumnName, setNewColumnName] = useState('');
 	const [preview, setPreview] = useState('');
-	const navigate = useNavigate();
 
 	useEffect(() => {
 		const fetchQuantitativeColumns = async () => {
 			try {
-				const response = await axios.post('http://127.0.0.1:5000/get_quantitative');
+				const response = await axios.post(`${apiUrl}/get_quantitative`);
 				setQuantitativeColumns(response.data.quantitative_variables);
 				setCurrentColumn(response.data.quantitative_variables[0]);
 			} catch (error) {
@@ -140,7 +139,7 @@ const FeatureCreation = () => {
 		console.log('送信する数式:', formula.map(item => item.value).join(' '));
 
 		try {
-			await axios.post('http://127.0.0.1:5000/make_feature', {
+			await axios.post(`${apiUrl}/make_feature`, {
 				formula: formula.map(item => item.value),
 				new_column_name: newColumnName
 			});
@@ -156,10 +155,6 @@ const FeatureCreation = () => {
 			showErrorAlert('エラー', '特徴量の作成に失敗しました');
 			console.error('Failed to create feature:', error);
 		}
-	};
-
-	const handleNext = () => {
-		navigate('/data-analysis');
 	};
 
 	return (
@@ -246,7 +241,7 @@ const FeatureCreation = () => {
 								variant="outlined"
 								startIcon={<AddIcon />}
 								onClick={handleAddNumber}
-								sx={{ mt: 1, height: '56px', borderRadius: '50px', borderRadius: '50px' }}
+								sx={{ mt: 1, height: '56px', borderRadius: '50px' }}
 								fullWidth
 							>
 								数値追加

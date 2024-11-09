@@ -4,6 +4,7 @@ import { TextField, IconButton, Box, Button, Typography, CircularProgress } from
 import SendIcon from '@mui/icons-material/Send';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { apiUrl } from '../../../urlConfig';
 
 const AnalysisChat = ({ image }) => {
     const [input, setInput] = useState('');
@@ -42,7 +43,7 @@ const AnalysisChat = ({ image }) => {
                 ? getCombinedMessages([analyzeMessage, ...lastTenMessages])
                 : getCombinedMessages(lastTenMessages);
 
-            const response = await axios.post('http://localhost:5000/api/chat', { message: combinedMessages });
+            const response = await axios.post(`${apiUrl}/api/chat`, { message: combinedMessages });
 
             const botMessage = { sender: 'bot', text: response.data.reply };
             setMessages((prevMessages) => [...prevMessages, botMessage]);
@@ -56,7 +57,7 @@ const AnalysisChat = ({ image }) => {
     const analyzeImage = async () => {
         setIsAnalyzing(true);
         try {
-            const response = await axios.post('http://localhost:5000/gemini/image', { image_data: image });
+            const response = await axios.post(`${apiUrl}/gemini/image`, { image_data: image });
             const botMessage = { sender: 'bot', text: response.data.text };
             setMessages((prevMessages) => [...prevMessages, botMessage]);
             setAnalyzeMessage(botMessage);

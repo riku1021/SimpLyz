@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Box, CircularProgress, Typography, Grid, Button } from '@mui/material';
+import { Box, CircularProgress, Typography, Grid } from '@mui/material';
 import TableComponent from './TableComponent';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { apiUrl } from '../../urlConfig';
 
 const DataInfo = () => {
 	const [data, setData] = useState({ qualitative: [], quantitative: [] });
@@ -13,7 +14,7 @@ const DataInfo = () => {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const response = await axios.get('http://127.0.0.1:5000/get_data_info');
+				const response = await axios.get(`${apiUrl}/get_data_info`);
 				setData(response.data);
 				setLoading(false);
 			} catch (error) {

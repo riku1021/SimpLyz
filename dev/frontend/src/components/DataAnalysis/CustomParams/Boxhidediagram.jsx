@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Card, CardContent, FormControl, InputLabel, MenuItem, Select, Grid, Typography } from '@mui/material';
+import { apiUrl } from '../../../urlConfig';
 
 function Boxhidediagram({ setImage }) {
 	const [variable1, setVariable1] = useState('');
@@ -12,7 +13,7 @@ function Boxhidediagram({ setImage }) {
 	useEffect(() => {
 		const fetchVariable = async () => {
 			try {
-				const response = await axios.post('http://127.0.0.1:5000/get_quantitative', { a: 0 });
+				const response = await axios.post(`${apiUrl}/get_quantitative`, { a: 0 });
 				const data = response.data;
 				setVariableList2(data.quantitative_variables);
 				setVariable2(data.quantitative_variables[0]);
@@ -24,7 +25,7 @@ function Boxhidediagram({ setImage }) {
 
 		const fetchTarget = async () => {
 			try {
-				const response = await axios.get('http://127.0.0.1:5000/get_qualitative');
+				const response = await axios.get(`${apiUrl}/get_qualitative`);
 				const data = response.data;
 				setVariableList1(data.qualitative_variables);
 				setVariable1(data.qualitative_variables[0]);
@@ -46,7 +47,7 @@ function Boxhidediagram({ setImage }) {
 				variable2: variable2,
 			};
 			try {
-				const response = await axios.post('http://127.0.0.1:5000/box', sentData);
+				const response = await axios.post(`${apiUrl}/box`, sentData);
 				const data = response.data;
 				setImage(data.image_data);
 				console.log(data);

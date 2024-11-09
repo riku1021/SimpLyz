@@ -3,6 +3,7 @@ import { Box, Button, Card, CardContent, FormControl, InputLabel, MenuItem, Sele
 import { useNavigate } from 'react-router-dom';
 import { showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
 import axios from 'axios';
+import { apiUrl } from '../../urlConfig';
 
 const MissingValueImputation = () => {
 	const [quantitativeMissList, setQuantitativeMissList] = useState([]);
@@ -14,7 +15,7 @@ const MissingValueImputation = () => {
 	useEffect(() => {
 		const fetchMissingColumns = async () => {
 			try {
-				const response = await axios.get('http://127.0.0.1:5000/get_miss_columns');
+				const response = await axios.get(`${apiUrl}/get_miss_columns`);
 				setQuantitativeMissList(response.data.quantitative_miss_list);
 				setQualitativeMissList(response.data.qualitative_miss_list);
 			} catch (error) {
@@ -45,8 +46,8 @@ const MissingValueImputation = () => {
 			for (const column in imputationMethods) {
 				const { type, method } = imputationMethods[column];
 				const url = type === 'numeric'
-					? 'http://127.0.0.1:5000/complement/numeric'
-					: 'http://127.0.0.1:5000/complement/categorical';
+					? `${apiUrl}/complement/numeric`
+					: `${apiUrl}/complement/categorical`;
 
 				await axios.post(url, {
 					column_name: column,

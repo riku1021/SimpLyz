@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Card, CardContent, FormControl, InputLabel, MenuItem, Select, Grid, Typography } from '@mui/material';
+import { apiUrl } from '../../../urlConfig';
 
 function Scatter({ setImage }) {
     const [variable1, setVariable1] = useState('');
@@ -14,7 +15,7 @@ function Scatter({ setImage }) {
     useEffect(() => {
         const fetchVariable = async () => {
             try {
-                const response = await axios.post('http://127.0.0.1:5000/get_quantitative', { a: 0 });
+                const response = await axios.post(`${apiUrl}/get_quantitative`, { a: 0 });
                 const data = response.data;
                 setVariableList(data.quantitative_variables);
                 setVariable1(data.quantitative_variables[0]);
@@ -26,7 +27,7 @@ function Scatter({ setImage }) {
 
         const fetchTarget = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:5000/get_qualitative');
+                const response = await axios.get(`${apiUrl}/get_qualitative`);
                 const data = response.data;
                 const targets = [...data.qualitative_variables, 'None'];
                 setTarget('None');
@@ -50,7 +51,7 @@ function Scatter({ setImage }) {
                 order: dimension
             };
             try {
-                const response = await axios.post('http://127.0.0.1:5000/scatter', sentData);
+                const response = await axios.post(`${apiUrl}/scatter`, sentData);
                 const data = response.data;
                 setImage(data.image_data);
             } catch (error) {

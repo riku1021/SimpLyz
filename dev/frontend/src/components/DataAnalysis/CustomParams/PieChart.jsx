@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Card, CardContent, FormControl, InputLabel, MenuItem, Select, Grid, Typography } from '@mui/material';
+import { apiUrl } from '../../../urlConfig';
 
 function PieChart({ setImage }) {
 	const [variable, setVariable] = useState('');
@@ -10,7 +11,7 @@ function PieChart({ setImage }) {
 	useEffect(() => {
 		const fetchVariable = async () => {
 			try {
-				const response = await axios.get('http://127.0.0.1:5000/get_qualitative');
+				const response = await axios.get(`${apiUrl}/get_qualitative`);
 				const data = response.data;
 				setVariableList(data.qualitative_variables);
 				setVariable(data.qualitative_variables[0]);
@@ -28,7 +29,7 @@ function PieChart({ setImage }) {
 		const fetchImage = async () => {
 			const sentData = { column_name: variable };
 			try {
-				const response = await axios.post('http://127.0.0.1:5000/get_pie', sentData);
+				const response = await axios.post(`${apiUrl}/get_pie`, sentData);
 				const data = response.data;
 				setImage(data.image_data);
 				console.log(data);

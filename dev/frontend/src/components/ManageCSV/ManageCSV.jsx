@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Box, Button, Typography, Paper, Card, CardContent, Stack } from '@mui/material';
 import { showConfirmationAlert, showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
+import { apiUrl } from '../../urlConfig';
 
 const ManageCSV = () => {
 	const [messages, setMessages] = useState([]);
@@ -34,7 +35,7 @@ const ManageCSV = () => {
 		const formData = new FormData();
 		formData.append('file', file);
 		try {
-			const response = await axios.post('http://localhost:5000/upload', formData, {
+			const response = await axios.post(`${apiUrl}/upload`, formData, {
 				headers: {
 					'Content-Type': 'multipart/form-data',
 				},

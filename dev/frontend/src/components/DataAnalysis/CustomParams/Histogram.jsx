@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Card, CardContent, FormControl, InputLabel, MenuItem, Select, Grid, Typography } from '@mui/material';
+import { apiUrl } from '../../../urlConfig';
 
 function Histogram({ setImage }) {
 	const [variable, setVariable] = useState('');
@@ -12,7 +13,7 @@ function Histogram({ setImage }) {
 	useEffect(() => {
 		const fetchVariable = async () => {
 			try {
-				const response = await axios.post('http://127.0.0.1:5000/get_quantitative', { a: 0 });
+				const response = await axios.post(`${apiUrl}/get_quantitative`, { a: 0 });
 				const data = response.data;
 				setVariableList(data.quantitative_variables);
 				setVariable(data.quantitative_variables[0]);
@@ -25,7 +26,7 @@ function Histogram({ setImage }) {
 		// 定性変数を取得
 		const fetchTarget = async () => {
 			try {
-				const response = await axios.get('http://127.0.0.1:5000/get_qualitative');
+				const response = await axios.get(`${apiUrl}/get_qualitative`);
 				const data = response.data;
 				const targets = [...data.qualitative_variables, 'None'];
 				setTarget('None');
@@ -48,7 +49,7 @@ function Histogram({ setImage }) {
 				target: target,
 			};
 			try {
-				const response = await axios.post('http://127.0.0.1:5000/hist', sentData);
+				const response = await axios.post(`${apiUrl}/hist`, sentData);
 				const data = response.data;
 				setImage(data.image_data);
 				console.log(data);

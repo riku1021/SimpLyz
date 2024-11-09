@@ -12,7 +12,6 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
-import AssessmentIcon from '@mui/icons-material/Assessment';
 import InfoIcon from '@mui/icons-material/Info';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import TableChartIcon from '@mui/icons-material/TableChart';
@@ -50,9 +49,103 @@ const Header = ({ children }) => {
 					<Typography variant="h5" sx={{ fontFamily: 'sans-serif', fontWeight: 'bold', flexGrow: 1 }}>
 						SimpLyz
 					</Typography>
+
+					{/* ヘッダー右側のメニューアイテム */}
+					<Box
+						sx={{
+							display: { xs: 'none', sm: 'flex' },
+							gap: 2
+						}}
+					>
+						<Box
+							onClick={() => handleNavigate('/manage-csv')}
+							sx={{
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'center',
+								cursor: 'pointer',
+								padding: '10px',
+								'&:hover': {
+									backgroundColor: 'rgba(0, 0, 0, 0.1)'
+								}
+							}}
+						>
+							<UploadFileIcon fontSize="medium" />
+							<Typography variant="caption" fontWeight="bold">ファイル管理</Typography>
+						</Box>
+						<Box
+							onClick={() => handleNavigate('/data-info')}
+							sx={{
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'center',
+								cursor: 'pointer',
+								padding: '10px',
+
+								'&:hover': {
+									backgroundColor: 'rgba(0, 0, 0, 0.1)'
+								}
+							}}
+						>
+							<InfoIcon fontSize="medium" />
+							<Typography variant="caption" fontWeight="bold">データ情報</Typography>
+						</Box>
+						<Box
+							onClick={() => handleNavigate('/miss-input')}
+							sx={{
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'center',
+								cursor: 'pointer',
+								padding: '10px',
+
+								'&:hover': {
+									backgroundColor: 'rgba(0, 0, 0, 0.1)'
+								}
+							}}
+						>
+							<TableChartIcon fontSize="medium" />
+							<Typography variant="caption" fontWeight="bold">欠損値補完</Typography>
+						</Box>
+						<Box
+							onClick={() => handleNavigate('/feature-creation')}
+							sx={{
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'center',
+								cursor: 'pointer',
+								padding: '10px',
+
+								'&:hover': {
+									backgroundColor: 'rgba(0, 0, 0, 0.1)'
+								}
+							}}
+						>
+							<CreateIcon fontSize="medium" />
+							<Typography variant="caption" fontWeight="bold">特徴量作成</Typography>
+						</Box>
+						<Box
+							onClick={() => handleNavigate('/data-analysis')}
+							sx={{
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'center',
+								cursor: 'pointer',
+								padding: '10px',
+
+								'&:hover': {
+									backgroundColor: 'rgba(0, 0, 0, 0.1)'
+								}
+							}}
+						>
+							<QueryStatsIcon fontSize="medium" />
+							<Typography variant="caption" fontWeight="bold">データ分析</Typography>
+						</Box>
+					</Box>
 				</Toolbar>
 			</AppBar>
 
+			{/* ドロワーメニュー */}
 			<Drawer
 				anchor='left'
 				open={drawerOpen}
@@ -81,7 +174,7 @@ const Header = ({ children }) => {
 							<ListItemIcon>
 								<UploadFileIcon />
 							</ListItemIcon>
-							<ListItemText primary="CSVファイル管理" primaryTypographyProps={{ fontWeight: 'bold' }} />
+							<ListItemText primary="ファイル管理" primaryTypographyProps={{ fontWeight: 'bold' }} />
 						</ListItemButton>
 						<ListItemButton onClick={() => handleNavigate('/data-info')}>
 							<ListItemIcon>

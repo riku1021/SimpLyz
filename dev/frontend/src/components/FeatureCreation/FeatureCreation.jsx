@@ -310,14 +310,6 @@ const FeatureCreation = () => {
 					>
 						決定
 					</Button>
-					<Button
-						variant="contained"
-						color="secondary"
-						onClick={handleNext}
-						sx={{ mt: 2, width: '100%', borderRadius: '50px' }}
-					>
-						次へ
-					</Button>
 				</CardContent>
 			</Card>
 		</Box >

@@ -15,6 +15,9 @@ import pandas as pd
 import seaborn as sns
 from pandas import DataFrame
 
+# メイリオフォントの設定
+plt.rcParams['font.family'] = 'Meiryo'
+
 matplotlib.use("Agg")
 
 
@@ -245,7 +248,6 @@ def plot_hist(jsons: Dict[str, Any]) -> str:
         画像データをBase64エンコードされたバイト列をUTF-8でエンコーディングした文字列
 
     """
-
     plt.clf()
     variable = ""
     target_variable = None
@@ -260,10 +262,13 @@ def plot_hist(jsons: Dict[str, Any]) -> str:
     if list_columns["target"] == "None":
         hist_plot = sns.histplot(x=list_columns["variable"], data=df)
     else:
+        order = df[list_columns["target"]].value_counts(ascending=True).index
         hist_plot = sns.histplot(
-            x=list_columns["variable"], hue=list_columns["target"], data=df
+            x=list_columns["variable"], hue=list_columns["target"],
+            data=df, hue_order=order, multiple="layer", palette="Set2"
         )
 
+    # バッファに保存
     buf = io.BytesIO()
     plt.savefig(buf, format="png")
     buf.seek(0)

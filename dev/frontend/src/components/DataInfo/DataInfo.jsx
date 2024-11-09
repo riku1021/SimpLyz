@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Box, CircularProgress, Typography, Grid, Button } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Box, CircularProgress, Typography, Grid } from '@mui/material';
 import TableComponent from './TableComponent';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { apiUrl } from '../../urlConfig';
 
 const DataInfo = () => {
 	const [data, setData] = useState({ qualitative: [], quantitative: [] });
@@ -12,15 +14,12 @@ const DataInfo = () => {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const response = await fetch('http://127.0.0.1:5000/get_data_info');
-				if (!response.ok) {
-					throw new Error('データの取得に失敗しました');
-				}
-				const result = await response.json();
-				setData(result);
+				const response = await axios.get(`${apiUrl}/get_data_info`);
+				setData(response.data);
 				setLoading(false);
 			} catch (error) {
-				setError(error.message);
+				console.error('データの取得に失敗しました:', error);
+				setError('データの取得に失敗しました');
 				setLoading(false);
 			}
 		};
@@ -48,24 +47,14 @@ const DataInfo = () => {
 		navigate(`/data-info/${columnName}/${type}`);
 	};
 
-	const handleNext = () => {
-		navigate('/miss-input');
-	};
-
 	return (
 		<Box p={3}>
-			<div style={{ marginTop: '64px' }}></div>
 			<Grid container spacing={3}>
 				<Grid item xs={12}>
 					<TableComponent title="質的データ" data={data.qualitative} onClick={handleClick} type="qualitative" />
 				</Grid>
 				<Grid item xs={12}>
 					<TableComponent title="量的データ" data={data.quantitative} onClick={handleClick} type="quantitative" />
-				</Grid>
-				<Grid item xs={12} display="flex" justifyContent="center" alignItems="center">
-					<Button variant="contained" color="primary" onClick={handleNext} sx={{ mt: 2, width: '200px' }}>
-						次へ
-					</Button>
 				</Grid>
 			</Grid>
 		</Box>

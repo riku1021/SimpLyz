@@ -1,27 +1,12 @@
-import { useEffect, useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import axios from 'axios';
-import { Box, Button, Typography, Paper, Card, CardContent } from '@mui/material';
+import { Box, Typography, Paper, Card, CardContent } from '@mui/material';
 import { showConfirmationAlert, showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
 import { apiUrl } from '../../urlConfig';
 
 const ManageCSV = () => {
 	const [messages, setMessages] = useState([]);
-	const [uploadedFileName, setUploadedFileName] = useState(null);
 	const fileInputRef = useRef(null);
-
-	// サーバーから既存のファイル名を取得する関数
-	const fetchUploadedFileName = async () => {
-		try {
-			const response = await axios.get(`${apiUrl}/get-uploaded-file`);
-			setUploadedFileName(response.data.fileName);
-		} catch (error) {
-			console.error('Failed to fetch uploaded file name:', error);
-		}
-	};
-
-	useEffect(() => {
-		fetchUploadedFileName();
-	}, []);
 
 	// ファイルが選択された時の処理
 	const handleFiles = (files) => {
@@ -33,49 +18,15 @@ const ManageCSV = () => {
 		const formData = new FormData();
 		formData.append('file', file);
 		try {
-			const response = await axios.post(`${apiUrl}/upload`, formData, {
-				headers: {
-					'Content-Type': 'multipart/form-data',
-				},
-			});
+			const response = await axios.post(`${apiUrl}/upload`, formData);
 			newMessages.push(response.data.message);
 			showSuccessAlert('アップロード完了', response.data.message);
-			setUploadedFileName(file.name);
 		} catch (error) {
 			newMessages.push(`ファイル ${file.name} のアップロードに失敗しました。`);
 			showErrorAlert('エラー', `ファイル ${file.name} のアップロードに失敗しました。`);
 			console.log(`missing upload: ${error}`);
 		}
 		setMessages([...messages, ...newMessages]);
-	};
-
-	// 削除確認モーダルを表示する関数
-	const showDeleteConfirmModal = () => {
-		return showConfirmationAlert(
-			'アップロードされたCSVファイルを削除しますか？',
-			'',
-			'はい',
-			'いいえ'
-		);
-	};
-
-	// ファイル削除の処理
-	const deleteFile = async () => {
-		try {
-			await axios.post(`${apiUrl}/clear-uploads`);
-			setUploadedFileName(null);
-			showSuccessAlert('削除完了', 'ファイルが削除されました');
-		} catch (error) {
-			console.error('Failed to delete file:', error);
-		}
-	};
-
-	// 削除ボタンのクリック時の処理
-	const handleDeleteClick = async () => {
-		const result = await showDeleteConfirmModal();
-		if (result.isConfirmed) {
-			deleteFile();
-		}
 	};
 
 	// ファイルドロップイベントの処理
@@ -111,30 +62,27 @@ const ManageCSV = () => {
 	};
 
 	return (
-		<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 64px)' }}>
-			<Card sx={{ width: 600, p: 1, mb: 1 }}>
+		<Box sx={{ p: 4 }}>
+			<Card sx={{ p: 1, borderRadius: '25px' }} >
 				<CardContent>
 					<Typography variant="h5" gutterBottom>
-						CSVファイル管理
+						ファイルアップロード
 					</Typography>
 					<Paper
-						onClick={() => !uploadedFileName && fileInputRef.current.click()}
+						onClick={() => fileInputRef.current.click()}
 						onDrop={handleDrop}
 						onDragOver={(e) => e.preventDefault()}
 						sx={{
-							border: '1.5px solid #ccc',
+							border: '1.5px dashed #ccc',
+							boxShadow: 'inset 0 0 10px rgba(0, 0, 0, 0.2)',
 							p: 4,
 							textAlign: 'center',
-							mb: 2,
-							mt: 2,
-							cursor: uploadedFileName ? 'default' : 'pointer',
+							borderRadius: '25px',
+							cursor: 'pointer',
+							fontSize: '20px'
 						}}
 					>
-						{uploadedFileName ? (
-							<Typography variant="h4">{uploadedFileName}</Typography>
-						) : (
-							'ここをタッチまたはCSVファイルをドラッグアンドドロップ'
-						)}
+						'ここをタッチ または CSVファイルをドラッグアンドドロップ'
 					</Paper>
 					<input
 						ref={fileInputRef}
@@ -143,14 +91,9 @@ const ManageCSV = () => {
 						style={{ display: 'none' }}
 						onChange={handleFileChange}
 					/>
-					{uploadedFileName && (
-						<Button variant="outlined" color="error" onClick={handleDeleteClick} fullWidth>
-							削除
-						</Button>
-					)}
 				</CardContent>
 			</Card>
-		</Box>
+		</Box >
 	);
 };
 

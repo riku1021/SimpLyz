@@ -32,6 +32,12 @@ npm run dev
 rye run start
 ```
 
+### データベースの起動
+~/dev/frontendで実行
+```sh
+go run .
+```
+
 ## キーの指定
 ~/dev/backendに.envファイルを作成して以下を記述
 ```txt

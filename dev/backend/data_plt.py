@@ -188,6 +188,7 @@ def plot_scatter(jsons: Dict[str, Any]) -> str:
     """
 
     plt.clf()
+    plt.figure(figsize=(10, 8))
     variable1 = ""
     variable2 = ""
     target_variable = None
@@ -249,6 +250,7 @@ def plot_hist(jsons: Dict[str, Any]) -> str:
 
     """
     plt.clf()
+    plt.figure(figsize=(10, 8))
     variable = ""
     target_variable = None
     list_columns = {"variable": variable, "target": target_variable}
@@ -296,11 +298,17 @@ def plot_box(jsons: Dict[str, Any]) -> str:
 
     # 初期化
     plt.clf()
+    plt.figure(figsize=(10, 9))
     x = jsons["variable1"]
     y = jsons["variable2"]
     df = get_df()
+    
+    df[x] = df[x].apply(lambda label: label if len(label) <= 25 else label[:25] + "...")
+    
     # プロット
     box_plot = sns.boxenplot(x=x, y=y, data=df)
+    plt.xticks(rotation=340, fontsize=8)
+    
     # バイナリデータにエンコード
     buf = io.BytesIO()
     plt.savefig(buf, format="png")

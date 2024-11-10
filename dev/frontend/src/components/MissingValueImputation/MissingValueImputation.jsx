@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Box, Button, Card, CardContent, FormControl, InputLabel, MenuItem, Select, Typography, CircularProgress } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import { showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
 import axios from 'axios';
 import { apiUrl } from '../../urlConfig';
@@ -10,7 +9,6 @@ const MissingValueImputation = () => {
 	const [qualitativeMissList, setQualitativeMissList] = useState([]);
 	const [imputationMethods, setImputationMethods] = useState({});
 	const [loading, setLoading] = useState(true);
-	const navigate = useNavigate();
 
 	useEffect(() => {
 		const fetchMissingColumns = async () => {
@@ -35,13 +33,6 @@ const MissingValueImputation = () => {
 	};
 
 	const handleImpute = async () => {
-		for (const col of quantitativeMissList.concat(qualitativeMissList)) {
-			if (!imputationMethods[col] || !imputationMethods[col].method) {
-				showErrorAlert('エラー', 'すべてのカラムに対して補完方法を指定してください');
-				return;
-			}
-		}
-
 		try {
 			for (const column in imputationMethods) {
 				const { type, method } = imputationMethods[column];
@@ -54,10 +45,7 @@ const MissingValueImputation = () => {
 					complementary_methods: method,
 				});
 			}
-
-			showSuccessAlert('完了', '欠損値が補完されました').then(() => {
-				navigate('/feature-creation');
-			});
+			showSuccessAlert('完了', '欠損値が補完されました');
 		} catch (error) {
 			showErrorAlert('エラー', '補完処理中にエラーが発生しました。');
 			console.log(`missing imputation: ${error}`);
@@ -83,8 +71,7 @@ const MissingValueImputation = () => {
 	}
 
 	return (
-		<Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: 'calc(100vh - 64px)', gap: 3, overflow: 'hidden', mt: 2, mb: 2 }}>
-			{/* 数値データの欠損値カード */}
+		<Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: 'calc(100vh - 64px)', gap: 3, overflow: 'hidden', p: 3 }}>
 			<Card sx={{ width: '100%', maxWidth: 800, borderRadius: '25px' }}>
 				<CardContent>
 					<Typography variant="h5" gutterBottom>数値データの欠損値</Typography>
@@ -94,14 +81,22 @@ const MissingValueImputation = () => {
 						</Box>
 					) : (
 						quantitativeMissList.map((col) => (
-							<Card key={col} sx={{ marginBottom: 2 }}>
-								<CardContent>
+							<Card key={col} sx={{ marginBottom: 2, borderRadius: '25px' }}>
+								<CardContent sx={{ borderRadius: '50px' }}>
 									<Typography variant="h6">{col}</Typography>
 									<FormControl fullWidth sx={{ marginTop: 2 }}>
-										<InputLabel>補完方法を選択</InputLabel>
+										<InputLabel sx={{ backgroundColor: 'white', padding: '0 4px', borderRadius: '5px' }}>補完方法を選択</InputLabel>
 										<Select
 											value={imputationMethods[col]?.method || ''}
 											onChange={handleImputationMethodChange(col, 'numeric')}
+											MenuProps={{
+												PaperProps: {
+													sx: {
+														borderRadius: '10px',
+													}
+												}
+											}}
+											sx={{ borderRadius: '25px' }}
 										>
 											<MenuItem value=""><em>選択してください</em></MenuItem>
 											{renderSelectOptions('numeric')}
@@ -111,12 +106,7 @@ const MissingValueImputation = () => {
 							</Card>
 						))
 					)}
-				</CardContent>
-			</Card>
-
-			{/* カテゴリカルデータの欠損値カード */}
-			<Card sx={{ width: '100%', maxWidth: 800, borderRadius: '25px' }}>
-				<CardContent>
+					<Box sx={{ height: 40 }} />
 					<Typography variant="h5" gutterBottom>カテゴリカルデータの欠損値</Typography>
 					{qualitativeMissList.length === 0 ? (
 						<Box sx={{ backgroundColor: '#EAEAEA', borderRadius: '50px', p: 2 }}>
@@ -124,14 +114,22 @@ const MissingValueImputation = () => {
 						</Box>
 					) : (
 						qualitativeMissList.map((col) => (
-							<Card key={col} sx={{ marginBottom: 2 }}>
+							<Card key={col} sx={{ marginBottom: 2, borderRadius: '25px' }}>
 								<CardContent>
 									<Typography variant="h6">{col}</Typography>
 									<FormControl fullWidth sx={{ marginTop: 2 }}>
-										<InputLabel>補完方法を選択</InputLabel>
+										<InputLabel sx={{ backgroundColor: 'white', padding: '0 4px', borderRadius: '5px' }}>補完方法を選択</InputLabel>
 										<Select
 											value={imputationMethods[col]?.method || ''}
 											onChange={handleImputationMethodChange(col, 'categorical')}
+											MenuProps={{
+												PaperProps: {
+													sx: {
+														borderRadius: '10px',
+													}
+												}
+											}}
+											sx={{ borderRadius: '25px' }}
 										>
 											<MenuItem value=""><em>選択してください</em></MenuItem>
 											{renderSelectOptions('categorical')}
@@ -141,13 +139,15 @@ const MissingValueImputation = () => {
 							</Card>
 						))
 					)}
+					{quantitativeMissList.length > 0 || qualitativeMissList.length > 0 && (
+						<Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+							<Button variant="contained" color="primary" onClick={handleImpute} sx={{ borderRadius: '50px', width: '50%' }}>
+								決定
+							</Button>
+						</Box>
+					)}
 				</CardContent>
 			</Card>
-			<Box sx={{ width: '100%', maxWidth: 800 }}>
-				<Button variant="contained" color="primary" onClick={handleImpute} sx={{ width: '100%' }}>
-					決定
-				</Button>
-			</Box>
 		</Box>
 	);
 }

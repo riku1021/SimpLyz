@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Box, Button, Typography, Paper, Card, CardContent, Stack } from '@mui/material';
+import { Box, Button, Typography, Paper, Card, CardContent } from '@mui/material';
 import { showConfirmationAlert, showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
 import { apiUrl } from '../../urlConfig';
 
@@ -9,7 +8,6 @@ const ManageCSV = () => {
 	const [messages, setMessages] = useState([]);
 	const [uploadedFileName, setUploadedFileName] = useState(null);
 	const fileInputRef = useRef(null);
-	const navigate = useNavigate();
 
 	// サーバーから既存のファイル名を取得する関数
 	const fetchUploadedFileName = async () => {
@@ -112,15 +110,6 @@ const ManageCSV = () => {
 		});
 	};
 
-	// "次へ"ボタンのクリック処理
-	const handleNext = () => {
-		if (uploadedFileName) {
-			navigate('/data-info');
-		} else {
-			showErrorAlert('エラー', 'CSVファイルをアップロードしてください');
-		}
-	};
-
 	return (
 		<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 64px)' }}>
 			<Card sx={{ width: 600, p: 1, mb: 1 }}>
@@ -155,14 +144,9 @@ const ManageCSV = () => {
 						onChange={handleFileChange}
 					/>
 					{uploadedFileName && (
-						<Stack direction="row" spacing={2}>
-							<Button variant="contained" color="primary" onClick={handleNext} fullWidth>
-								次へ
-							</Button>
-							<Button variant="outlined" color="error" onClick={handleDeleteClick} fullWidth>
-								削除
-							</Button>
-						</Stack>
+						<Button variant="outlined" color="error" onClick={handleDeleteClick} fullWidth>
+							削除
+						</Button>
 					)}
 				</CardContent>
 			</Card>

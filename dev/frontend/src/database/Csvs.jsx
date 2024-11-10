@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 
 const Csvs = () => {
@@ -19,7 +19,7 @@ const Csvs = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:8080/csvs/get/small', csvGetSmallData);
+            const response = await axios.post('http://localhost:8080/csvs/get', csvGetSmallData);
             console.log('Success:', response.data);
             setCsvGetSmallDataResult(response.data.StatusMessage);
             setCsvGetSmallData({

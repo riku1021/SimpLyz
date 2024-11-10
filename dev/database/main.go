@@ -51,7 +51,7 @@ func main() {
 
 	// CORSミドルウェアの設定
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:5000"}, // ReactとFlaskのオリジン
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:5000"}, // ReactとFlaskのオリジン
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -70,9 +70,24 @@ func main() {
 		users.CreateUser(c, db)
 	})
 
+	// 過去のユーザー情報を消し、新たにユーザーを登録するAPI
+	r.POST("/users/recreate", func(c *gin.Context) {
+		users.ReCreateUser(c, db)
+	})
+
+	// 過去のユーザー情報を復元するAPI
+	r.POST("users/restoration", func(c *gin.Context) {
+		users.RestorationUser(c, db)
+	})
+
 	// ユーザーを認証するAPI
 	r.POST("/users/login", func(c *gin.Context) {
 		users.LoginUser(c, db)
+	})
+
+	// ユーザーを削除するAPI
+	r.POST("/users/delete", func(c *gin.Context) {
+		users.DeleteUser(c, db)
 	})
 
 	// Passwordを変更するAPI
@@ -80,9 +95,24 @@ func main() {
 		users.ChangePassword(c, db)
 	})
 
+	// Passwordを認証するAPI
+	r.POST("/users/check/password", func(c *gin.Context) {
+		users.AuthenticationPassword(c, db)
+	})
+
 	// GeminiApiKeyを保存するAPI
 	r.POST("/users/save/api", func(c *gin.Context) {
-		users.SaveGeminiAipKey(c, db)
+		users.SaveGeminiApiKey(c, db)
+	})
+
+	// GeminiApiKeyを取得するAPI
+	r.POST("/users/get/api", func(c *gin.Context) {
+		users.GetGeminiApiKey(c, db)
+	})
+
+	// データベース内のユーザー情報を確認するAPI
+	r.POST("/uesrs/check/user", func(c *gin.Context) {
+		users.CheckUser(c, db)
 	})
 
 	// csvs
@@ -96,8 +126,8 @@ func main() {
 		csvs.GetCsv(c, db)
 	})
 
-	// CSVファイルの簡易情報を取得するAPI
-	r.POST("/csvs/get/small", func(c *gin.Context) {
+	// CSVファイルの情報を取得するAPI
+	r.POST("/csvs/get", func(c *gin.Context) {
 		csvs.GetCsvData(c, db)
 	})
 

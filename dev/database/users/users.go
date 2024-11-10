@@ -105,7 +105,91 @@ func CreateUser(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, gin.H{
 		"StatusMessage": "Success",
 	})
+}
 
+// 過去のユーザー情報を消し、新たにユーザーを作成する関数
+func ReCreateUser(c *gin.Context, db *gorm.DB) {
+	// データの受け取り
+	user, err := bindUser(c)
+	if err != nil {
+		return
+	}
+
+	// メールアドレスを基にレコードを完全に削除
+	deleteResult := db.Where("mail_address = ?", user.MailAddress).Delete(&user)
+	if deleteResult.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"StatusMessage": "Failed",
+			"massage":       "ユーザー情報を削除できませんでした",
+			"error":         deleteResult.Error.Error(),
+		})
+		return
+	}
+
+	// データベースに保存
+	result := db.Create(&user)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"StatusMessage": "Failed",
+			"massage":       "データベースに保存できませんでした",
+			"error":         result.Error.Error(),
+		})
+		return
+	}
+
+	// 保存成功
+	c.JSON(http.StatusOK, gin.H{
+		"StatusMessage": "Success",
+	})
+}
+
+// ユーザー情報を復元するAPI
+func RestorationUser(c *gin.Context, db *gorm.DB) {
+	// データの受け取り
+	user, err := bindUser(c)
+	if err != nil {
+		return
+	}
+
+	// メールアドレスが存在しているか確認
+	var dbUser User
+	overlapResult := db.Where("mail_address = ?", user.MailAddress).First(&dbUser)
+
+	if overlapResult.Error != nil { // メールアドレスが存在しなかった場合
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "このメールアドレスは存在しません",
+			"error":         overlapResult.Error.Error(),
+		})
+		return
+	}
+
+	// パスワードが一致するかどうか確認する
+	if dbUser.Password != user.Password { // 一致しなかった場合
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "パスワードが違います！",
+		})
+		return
+	}
+
+	// 論理削除を解除
+	dbUser.IsDelete = false
+
+	updateResult := db.Save(dbUser)
+	if updateResult.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "ユーザー情報を復元できませんでした",
+			"error":         updateResult.Error.Error(),
+		})
+		return
+	}
+
+	// 更新成功
+	c.JSON(http.StatusOK, gin.H{
+		"StatusMessage": "Success",
+	})
 }
 
 // ユーザーを認証する関数
@@ -145,10 +229,48 @@ func LoginUser(c *gin.Context, db *gorm.DB) {
 		"StatusMessage": "Success",
 		"UserId":        dbUser.UserID,
 	})
-
 }
 
-// passwordを削除する関数
+// ユーザーを削除する関数
+func DeleteUser(c *gin.Context, db *gorm.DB) {
+	// データの受け取り
+	user, err := bindUser(c)
+	if err != nil {
+		return
+	}
+
+	// user_idに一致するデータがあるか確認する
+	var dbUser User
+	overlapResult := db.Where("user_id = ?", user.UserID).First(&dbUser)
+
+	if overlapResult.Error != nil { // user_idが存在しなかった場合
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "UserIdが存在しません",
+			"error":         overlapResult.Error.Error(),
+		})
+		return
+	}
+
+	// パスワードを更新する
+	dbUser.IsDelete = true
+	updateResult := db.Save(dbUser)
+	if updateResult.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "ユーザーを削除できませんでした",
+			"error":         updateResult.Error.Error(),
+		})
+		return
+	}
+
+	// 更新成功
+	c.JSON(http.StatusOK, gin.H{
+		"StatusMessage": "Success",
+	})
+}
+
+// passwordを更新する関数
 func ChangePassword(c *gin.Context, db *gorm.DB) {
 	// データの受け取り
 	var newPassword NewPassword
@@ -208,8 +330,46 @@ func ChangePassword(c *gin.Context, db *gorm.DB) {
 	fmt.Printf("%+v\n", dbUser)      // デバッグ出力の改善
 }
 
+// Passwordを認証する関数
+func AuthenticationPassword(c *gin.Context, db *gorm.DB) {
+	// データの受け取り
+	user, err := bindUser(c)
+	if err != nil {
+		return
+	}
+
+	fmt.Printf("%+v\n", user)
+
+	// user_idに一致するデータがあるか確認する
+	var dbUser User
+	overlapResult := db.Where("user_id = ?", user.UserID).First(&dbUser)
+
+	if overlapResult.Error != nil { // user_idが存在しなかった場合
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "UserIdが存在しません",
+			"error":         overlapResult.Error.Error(),
+		})
+		return
+	}
+
+	// passwordが一致するか確認する
+	if dbUser.Password != user.Password {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "passwordが一致しません",
+		})
+		return
+	}
+
+	// 更新成功
+	c.JSON(http.StatusOK, gin.H{
+		"StatusMessage": "Success",
+	})
+}
+
 // GeminiApiKeyを保存する関数
-func SaveGeminiAipKey(c *gin.Context, db *gorm.DB) {
+func SaveGeminiApiKey(c *gin.Context, db *gorm.DB) {
 	// データの受け取り
 	user, err := bindUser(c)
 	if err != nil {
@@ -245,4 +405,67 @@ func SaveGeminiAipKey(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, gin.H{
 		"StatusMessage": "Success",
 	})
+}
+
+// GeminiApiKeyを取得する関数
+func GetGeminiApiKey(c *gin.Context, db *gorm.DB) {
+	// データの受け取り
+	user, err := bindUser(c)
+	if err != nil {
+		return
+	}
+
+	// user_idに一致するデータがあるか確認する
+	var dbUser User
+	overlapResult := db.Where("user_id = ?", user.UserID).First(&dbUser)
+
+	if overlapResult.Error != nil { // user_idが存在しなかった場合
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "UserIdが存在しません",
+			"error":         overlapResult.Error.Error(),
+		})
+		return
+	}
+
+	// 更新成功
+	c.JSON(http.StatusOK, gin.H{
+		"StatusMessage": "Success",
+		"GeminiApiKey":  dbUser.GeminiApiKey,
+	})
+}
+
+// データベース内のユーザー情報を確認する関数
+func CheckUser(c *gin.Context, db *gorm.DB) {
+	// データの受け取り
+	user, err := bindUser(c)
+	if err != nil {
+		return
+	}
+
+	// mail_addressに一致するデータがあるか確認する
+	var dbUser User
+	overlapResult := db.Where("mail_address = ?", user.MailAddress).First(&dbUser)
+
+	if overlapResult.Error != nil { // mail_addressが存在しなかった場合
+		c.JSON(http.StatusOK, gin.H{
+			"StatusMessage": "Success",
+			"case":          "possible",
+		})
+		return
+	}
+
+	fmt.Printf("%+v\n", dbUser.IsDelete)
+
+	if !dbUser.IsDelete { // データベース内のユーザー情報のis_deleteがfalseの場合
+		c.JSON(http.StatusOK, gin.H{
+			"StatusMessage": "Success",
+			"case":          "impossible",
+		})
+	} else { // データベース内のユーザー情報のis_deleteがtrueの場合
+		c.JSON(http.StatusOK, gin.H{
+			"StatusMessage": "Success",
+			"case":          "restoration",
+		})
+	}
 }

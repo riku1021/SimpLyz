@@ -174,15 +174,19 @@ func GetCsvData(c *gin.Context, db *gorm.DB) {
 
 	// 返すデータの構造を定義
 	type CsvData struct {
-		CsvID    string `json:"csv_id"`
-		FileName string `json:"file_name"`
+		CsvID            string    `json:"csv_id"`
+		FileName         string    `json:"file_name"`
+		DataSize         int       `json:"data_size"`
+		DataColumns      int       `json:"data_columns"`
+		DataRows         int       `json:"data_rows"`
+		LastAccessedDate time.Time `json:"last_accessed_date"`
 	}
 
 	data := []CsvData{}
 
 	// user_idを基にデータベースからcsvデータを取得する
 	var csvs []Csv
-	result := db.Where("user_id = ?", front.UserID).Find(&csvs)
+	result := db.Where("user_id = ? AND is_delete = ?", front.UserID, false).Find(&csvs)
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"StatusMessage": "Failed",
@@ -192,9 +196,25 @@ func GetCsvData(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	// csvsのデータを取り出す
+	for _, csv := range csvs {
+		fmt.Printf("%+v\n", csv.FileName)
+		csvData := CsvData{
+			CsvID:            csv.CsvID,
+			FileName:         csv.FileName,
+			DataSize:         csv.DataSize,
+			DataColumns:      csv.DataColumns,
+			DataRows:         csv.DataRows,
+			LastAccessedDate: csv.LastAccessedDate,
+		}
+
+		data = append(data, csvData)
+	}
+
 	fmt.Printf("%+v\n", data)
 
 	c.JSON(http.StatusOK, gin.H{
-		"StatusMessage": "S",
+		"StatusMessage": "Success",
+		"CsvData":       data,
 	})
 }

@@ -12,10 +12,11 @@ ENV PATH="$RYE_HOME/shims:$PATH"
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     ca-certificates \
-    curl && \
+    curl \
+    fonts-noto-cjk && \
     update-ca-certificates
 
-# ryeのインストール (SSL検証を無効化)
+# ryeのインストール
 SHELL [ "/bin/bash", "-o", "pipefail", "-c" ]
 RUN curl -sSf https://rye.astral.sh/get | RYE_INSTALL_OPTION="--yes" bash && \
     rye config --set-bool behavior.global-python=false && \
@@ -33,11 +34,16 @@ WORKDIR /app
 COPY --from=builder /opt/rye /opt/rye
 COPY --from=builder /opt/pyproject.toml /app/
 
-# 環境変数の再設定とSSL検証無効化の設定
+# 環境変数の再設定
 ENV RYE_HOME="/opt/rye"
 ENV PATH="$RYE_HOME/shims:$PATH"
 ENV PYTHONUNBUFFERED=True
-ENV RYE_SSL_NO_VERIFY=true
+
+# 日本語フォントのインストール
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends fonts-noto-cjk && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # アプリケーションファイルのコピー
 COPY . /app

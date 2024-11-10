@@ -16,7 +16,7 @@ import seaborn as sns
 from pandas import DataFrame
 
 # メイリオフォントの設定
-plt.rcParams['font.family'] = 'Meiryo'
+plt.rcParams['font.family'] = 'Noto Sans CJK JP'
 
 matplotlib.use("Agg")
 

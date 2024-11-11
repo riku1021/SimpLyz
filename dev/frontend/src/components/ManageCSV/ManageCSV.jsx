@@ -10,7 +10,12 @@ const ManageCSV = () => {
 
 	// ファイルが選択された時の処理
 	const handleFiles = (files) => {
-		showConfirmModal(files[0]);
+		const file = files[0];
+		if (file.name.endsWith('.csv')) {
+			showConfirmModal(file);
+		} else {
+			showErrorAlert('エラー', 'CSVファイルのみアップロード可能です');
+		}
 	};
 
 	// ファイルをアップロードする非同期関数
@@ -93,7 +98,7 @@ const ManageCSV = () => {
 					/>
 				</CardContent>
 			</Card>
-		</Box >
+		</Box>
 	);
 };
 

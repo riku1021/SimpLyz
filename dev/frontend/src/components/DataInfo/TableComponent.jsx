@@ -34,7 +34,7 @@ function TableComponent({ title, data, onClick, type }) {
 										<Button
 											onClick={() => onClick(row.column_name, type)}
 											variant="outlined"
-											sx={{ width: '230px', borderRadius: '10px' }}
+											sx={{ width: '230px', borderRadius: '10px', textTransform: 'none' }}
 										>
 											{row.column_name}
 										</Button>

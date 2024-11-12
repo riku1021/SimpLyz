@@ -139,9 +139,9 @@ const MissingValueImputation = () => {
 							</Card>
 						))
 					)}
-					{quantitativeMissList.length > 0 || qualitativeMissList.length > 0 && (
+					{(quantitativeMissList.length > 0 || qualitativeMissList.length > 0) && (
 						<Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-							<Button variant="contained" color="primary" onClick={handleImpute} sx={{ borderRadius: '50px', width: '50%' }}>
+							<Button variant="contained" color="primary" onClick={handleImpute} sx={{ borderRadius: '50px', width: '100%' }}>
 								決定
 							</Button>
 						</Box>

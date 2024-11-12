@@ -188,7 +188,7 @@ def plot_scatter(jsons: Dict[str, Any]) -> str:
     """
 
     plt.clf()
-    plt.figure(figsize=(10, 8))
+    plt.figure(figsize=(10, 9))
     variable1 = ""
     variable2 = ""
     target_variable = None
@@ -250,7 +250,7 @@ def plot_hist(jsons: Dict[str, Any]) -> str:
 
     """
     plt.clf()
-    plt.figure(figsize=(10, 8))
+    plt.figure(figsize=(10, 9))
     variable = ""
     target_variable = None
     list_columns = {"variable": variable, "target": target_variable}

@@ -32,7 +32,7 @@ const Users = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:8080/users/create', formData);
+            const response = await axios.post('http://golang:8080/users/create', formData);
             console.log('Success:', response.data);
             setSaveDataSuccess(response.data.StatusMessage);
             setFormData({ user_id: generateUUID(), mail_address: '', password: '' });

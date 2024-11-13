@@ -1,4 +1,4 @@
-# ビルドステージ
+# ビルドステージ as -> AS
 FROM debian:bullseye-slim as builder
 
 # 作業ディレクトリを指定
@@ -24,7 +24,8 @@ RUN curl -sSf https://rye.astral.sh/get | RYE_INSTALL_OPTION="--yes" bash && \
 
 # Pythonバージョンの確認と依存関係のインストール
 COPY ./.python-version ./pyproject.toml ./requirements* ./README.md ./
-RUN echo "Python version specified in .python-version:" && cat .python-version && \
+RUN --mount=type=cache,target=/opt/cache \
+    echo "Python version specified in .python-version:" && cat .python-version && \
     rye pin "$(cat .python-version)" && \
     rye sync
 

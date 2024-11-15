@@ -196,7 +196,7 @@ def change_umeric_to_categorical(data: Dict[str, str]) -> None:
     """
     説明
     ----------
-    数値データからカテゴリカルデータへ変換する関数
+    数値データから質的データへ変換する関数
 
     Parameter
     ----------
@@ -446,7 +446,7 @@ def plot_feature_importance(feature_importance: DataFrame, top_n: int = 20) -> s
     # 初期化
     plt.clf()
 
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(7, 5.5))
     top_n = min(top_n, len(feature_importance))
     sns.barplot(x="importance", y="feature", data=feature_importance.head(top_n))
     plt.title(f"Top {top_n} Feature Importance")

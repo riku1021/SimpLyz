@@ -1,5 +1,5 @@
 # versionは自動で補完してくれるのでいらないらしい
-# version: '3.8'
+# version: "3.8"
 
 services:
   frontend:
@@ -7,25 +7,26 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - '5173:5173'
+      - "5173:5173"
     environment:
       - VITE_API_URL=http://localhost:5000
-    networks:
-      - go-networks
-    # depends_on:
-    #   - backend
+    depends_on:
+      - backend
 
-  # backend:
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - '5000:5000'
-  #   environment:
-  #     - FLASK_ENV=development
-  #   volumes:
-  #     - ./backend:/app
-  
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+    volumes:
+      - ./backend:/app
+    command: python app.py
+    networks:
+      - db-networks
+
   postgres:
     build:
       context: ./database
@@ -34,7 +35,7 @@ services:
       - ./database/db_data:/var/lib/postgres/data
       - ./database/init:/docker-entrypoint-initdb.d
     ports:
-      - '5432:5432'
+      - "5432:5432"
     networks:
       - db-networks
 
@@ -43,16 +44,13 @@ services:
       context: ./golang
       dockerfile: Dockerfile
     ports:
-      - '8080:8080'
+      - "8080:8080"
     depends_on:
       - postgres
     command: go run .
     networks:
       - db-networks
-      - go-networks
 
 networks:
   db-networks:
-    driver: bridge
-  go-networks:
     driver: bridge

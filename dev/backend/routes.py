@@ -132,7 +132,7 @@ def setup_routes(app):
         file_path = os.path.join(UPLOAD_PATH, "demo.csv")
         file.save(file_path)
 
-        # CSVデータを直接読み込み
+        # # CSVデータを直接読み込み
         # csv_data = file.read().decode("utf-8")  # バイトデータを文字列に変換
         # df = pd.read_csv(io.StringIO(csv_data))  # データフレームに変換
 
@@ -147,7 +147,7 @@ def setup_routes(app):
 
         # form_data = extraction_df(df=df, filename=filename)
 
-        # その他データを取得
+        # # その他データを取得
 
         # response = requests.post(
         #     f"{GO_API_URL}/upload_csv",
@@ -155,9 +155,9 @@ def setup_routes(app):
         #     data=form_data,
         # )
 
-        # データの型を管理するjsonファイルの作成
-        # with open("dtypes.json", "w") as json_file:
-        #     json.dump(empty_json, json_file)
+        # # データの型を管理するjsonファイルの作成
+        # # with open("dtypes.json", "w") as json_file:
+        # #     json.dump(empty_json, json_file)
 
         # if response.status_code == 200:
         #     return jsonify({"message": f"File {file.filename} uploaded successfully"}), 200

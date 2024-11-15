@@ -76,7 +76,7 @@ func main() {
 
 	// CORSミドルウェアの設定
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:5000", "*"}, // ReactとFlaskのオリジン
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:5000"}, // ReactとFlaskのオリジン
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept"},
 		ExposeHeaders:    []string{"Content-Length"},

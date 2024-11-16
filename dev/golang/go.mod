@@ -7,6 +7,7 @@ replace local.package/users => ./users
 replace local.package/csvs => ./csvs
 
 require (
+	github.com/cenkalti/backoff/v4 v4.3.0
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/joho/godotenv v1.5.1

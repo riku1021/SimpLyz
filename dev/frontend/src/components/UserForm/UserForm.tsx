@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, FormEvent } from 'react';
 import {
     Box,
     Button,
@@ -11,11 +11,15 @@ import {
     Divider,
     Link
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import axios from 'axios';
+import {
+    Visibility as VisibilityIcon,
+    VisibilityOff as VisibilityOffIcon
+} from '@mui/icons-material';
 import { showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
 import useAuth from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { validateEmail, validatePassword } from '../../utils/validation';
+import { generateUUID, createUser, loginUser } from '../../databaseUtils/Users';
 
 interface FormData {
     mail_address: string;
@@ -34,13 +38,7 @@ const UserForm: React.FC = () => {
     const [passwordError, setPasswordError] = useState<string>('');
     const navigate = useNavigate();
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{4,}$/;
-
-    const validateEmail = (email: string) => emailRegex.test(email);
-    const validatePassword = (password: string) => passwordRegex.test(password);
-
-    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
             ...prevData,
@@ -48,19 +46,9 @@ const UserForm: React.FC = () => {
         }));
     };
 
-    const generateUUID = () => {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            const r = (Math.random() * 16) | 0,
-                v = c === 'x' ? r : (r & 0x3) | 0x8;
-            return v.toString(16);
-        });
-    };
-
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-
         let valid = true;
-
         if (!validateEmail(formData.mail_address)) {
             setEmailError('有効なメールアドレスを入力してください');
             valid = false;
@@ -69,33 +57,32 @@ const UserForm: React.FC = () => {
             setPasswordError('アルファベットと数字を含む4文字以上のパスワードを入力してください');
             valid = false;
         }
-
         if (valid) {
             try {
-                let response;
-                let userId;
+                let userId: string | undefined;
                 if (isRegist) {
-                    const dataToSend = { ...formData, user_id: generateUUID() };
-                    response = await axios.post('http://localhost:8080/users/create', dataToSend);
-                    userId = dataToSend.user_id;
-                    showSuccessAlert(response.data.StatusMessage || '新規登録が成功しました', '');
+                    userId = generateUUID();
+                    const statusMessage = await createUser(userId, formData.mail_address, formData.password);
+                    showSuccessAlert(statusMessage || '新規登録が成功しました', '');
                 } else {
-                    response = await axios.post('http://localhost:8080/users/login', formData);
-                    userId = response.data.user_id;
-                    showSuccessAlert(response.data.StatusMessage || 'ログインが成功しました', '');
+                    const loginResult = await loginUser(formData.mail_address, formData.password);
+                    userId = loginResult.userId;
+                    showSuccessAlert(loginResult.message || 'ログインが成功しました', '');
                 }
-                localStorage.setItem('loginStatus', 'ログイン中');
-                localStorage.setItem('userId', userId);
-                setFormData({ mail_address: '', password: '' });
-                navigate('/manage-csv');
+                if (userId) {
+                    localStorage.setItem('loginStatus', 'ログイン中');
+                    localStorage.setItem('userId', userId);
+                    setFormData({ mail_address: '', password: '' });
+                    navigate('/manage-csv');
+                } else {
+                    showErrorAlert('エラーが発生しました', 'ユーザーIDが取得できませんでした');
+                }
             } catch (err: any) {
-                console.error('Error:', err.response?.data);
-                const errorStatus = err.response?.data?.StatusMessage || 'エラーが発生しました';
-                const errorMessage = err.response?.data?.message;
-                showErrorAlert(errorStatus, errorMessage);
+                console.error('Error:', err);
+                showErrorAlert('エラーが発生しました', err.message || '詳細不明のエラーです');
             }
         } else {
-            showErrorAlert('Faild', '入力エラーがあります。確認してください。');
+            showErrorAlert('入力エラー', '入力エラーがあります。確認してください。');
         }
     };
 
@@ -181,7 +168,7 @@ const UserForm: React.FC = () => {
                                             edge="end"
                                             sx={{ p: 2 }}
                                         >
-                                            {showPassword ? <Visibility /> : <VisibilityOff />}
+                                            {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
                                         </IconButton>
                                     </InputAdornment>
                                 ),

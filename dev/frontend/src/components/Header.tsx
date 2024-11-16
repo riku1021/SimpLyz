@@ -10,12 +10,14 @@ import {
 	Box,
 	ListItemIcon,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
-import InfoIcon from '@mui/icons-material/Info';
-import QueryStatsIcon from '@mui/icons-material/QueryStats';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import CreateIcon from '@mui/icons-material/Create';
+import {
+	Close as CloseIcon,
+	UploadFile as UploadFileIcon,
+	Info as InfoIcon,
+	QueryStats as QueryStatsIcon,
+	AccountTree as AccountTreeIcon,
+	Create as CreateIcon
+} from '@mui/icons-material';
 import { useState, ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ButtonTrigger from './ButtonTrigger/ButtonTrigger';

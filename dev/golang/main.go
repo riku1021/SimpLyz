@@ -156,6 +156,21 @@ func main() {
 		csvs.GetCsvData(c, db)
 	})
 
+	// CSVファイルを更新するAPI
+	r.POST("/csvs/update", func(c *gin.Context) {
+		csvs.UpdateCSV(c, db)
+	})
+
+	// CSVファイルを削除するAPI
+	r.POST("/csvs/delete", func(c *gin.Context) {
+		csvs.DeleteCSV(c, db)
+	})
+
+	// CSVファイルを復元するAPI
+	r.POST("/csvs/restoration", func(c *gin.Context) {
+		csvs.RestorationCSV(c, db)
+	})
+
 	// 8080ポートでサーバーを起動
 	r.Run(":8080")
 }

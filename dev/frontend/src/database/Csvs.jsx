@@ -30,6 +30,64 @@ const Csvs = () => {
             setCsvGetSmallDataResult(err.response.data.StatusMessage);
         }
     }
+
+    // CSVファイルを削除するAPI
+    const [deleteCsv, setDeleteCsv] = useState({
+        csv_id: "",
+    });
+    const [delteCsvResult, setDeleteCsvResult] = useState("");
+
+    const handleDeleteCsvDataChange = (e) => {
+        setDeleteCsv({
+            ...deleteCsv,
+            [e.target.name]: e.target.value
+        });
+    }
+
+    const handleDeleteCsvSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const response = await axios.post('http://localhost:8080/csvs/delete', deleteCsv);
+            console.log('Success:', response.data);
+            setDeleteCsvResult(response.data.StatusMessage);
+            setDeleteCsv({
+                csv_id: "",
+            });
+        } catch (err) {
+            console.error('Error:', err.response.data);
+            setDeleteCsvResult(err.response.data.StatusMessage);
+        }
+    }
+
+    // CSVファイルを復元するAPI
+    const [restorationCsv, setRestorationCsv] = useState({
+        csv_id: "",
+    });
+    const [restorationCsvResult, setRestorationCsvResult] = useState("");
+
+    const handleRestorationCsvDataChange = (e) => {
+        setRestorationCsv({
+            ...restorationCsv,
+            [e.target.name]: e.target.value
+        });
+    }
+
+    const handleRestorationCsvSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const response = await axios.post('http://localhost:8080/csvs/restoration', restorationCsv);
+            console.log('Success:', response.data);
+            setRestorationCsvResult(response.data.StatusMessage);
+            setRestorationCsv({
+                csv_id: "",
+            });
+        } catch (err) {
+            console.error('Error:', err.response.data);
+            setRestorationCsvResult(err.response.data.StatusMessage);
+        }
+    }
     return (
         <div>
             <h1>csvs</h1>
@@ -49,6 +107,46 @@ const Csvs = () => {
                     <button type="submit">Get Csv Data</button>
                     <div>
                         result: {csvGetSmallDataResult}
+                    </div>
+                </form>
+            </div>
+
+            <div>
+                <h2>CSVファイルを削除するAPI</h2>
+                <form onSubmit={handleDeleteCsvSubmit}>
+                    <div>
+                        <label>CsvId:</label>
+                        <input
+                            type="text"
+                            name="csv_id"
+                            value={deleteCsv.csv_id}
+                            onChange={handleDeleteCsvDataChange}
+                            required
+                        />
+                    </div>
+                    <button type="submit">Delete Csv Data</button>
+                    <div>
+                        result: {delteCsvResult}
+                    </div>
+                </form>
+            </div>
+
+            <div>
+                <h2>CSVファイルを復元するAPI</h2>
+                <form onSubmit={handleRestorationCsvSubmit}>
+                    <div>
+                        <label>CsvId:</label>
+                        <input
+                            type="text"
+                            name="csv_id"
+                            value={restorationCsv.csv_id}
+                            onChange={handleRestorationCsvDataChange}
+                            required
+                        />
+                    </div>
+                    <button type="submit">Restoration Csv Data</button>
+                    <div>
+                        result: {restorationCsvResult}
                     </div>
                 </form>
             </div>

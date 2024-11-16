@@ -56,6 +56,7 @@ func bindFront(c *gin.Context) (*Front, error) {
 func GetCsv(c *gin.Context, db *gorm.DB) {
 	// パラメータから csv_id を取得
 	csvID := c.Param("csv_id")
+	fmt.Printf("%+v\n", csvID)
 
 	// データベースから特定の csv_id に基づいて CSV ファイルを検索
 	var csvFile Csv
@@ -73,7 +74,6 @@ func GetCsv(c *gin.Context, db *gorm.DB) {
 
 	// レスポンスとして取得したファイルを返す
 	fileData := map[string]interface{}{
-		"csv_id":    csvFile.CsvID,
 		"csv_file":  csvFile.CsvFile,
 		"json_file": csvFile.JsonFile,
 		// 必要に応じて他のメタデータも追加可能

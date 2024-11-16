@@ -1,21 +1,23 @@
-import json
 import base64
 import io
+import json
 import os
 import shutil
 from typing import Any, Dict, List
 
 import google.generativeai as GEMINI
 import pandas as pd
+import requests
 from data_plt import (
     plot_box,
-    read_quantitative,
-    read_qualitative,
-    plot_scatter,
     plot_hist,
+    plot_scatter,
+    read_qualitative,
+    read_quantitative,
 )
 from data_utils import (
     change_umeric_to_categorical,
+    extraction_df,
     feature_value_analysis,
     get_data_info,
     get_miss_columns,
@@ -23,12 +25,10 @@ from data_utils import (
     impute_numeric,
     make_feature_value,
     make_pie,
-    extraction_df,
 )
 from dotenv import load_dotenv
 from flask import jsonify, request
 from read_CSV import read
-import requests
 
 # 環境変数を読み込む
 load_dotenv()
@@ -40,7 +40,7 @@ GEMINI.configure(api_key=GEMINI_API_KEY)
 # データアップロード先の定義
 UPLOAD_PATH = "./uploads"
 
-GO_API_URL="http://localhost:8080"
+GO_API_URL = "http://localhost:8080"
 
 
 def setup_routes(app):
@@ -48,51 +48,73 @@ def setup_routes(app):
     @app.route("/", methods=["GET"])
     def index():
         return {"message": True}
-    
+
     @app.route("/get_csv", methods=["GET"])
     def get_csv():
         try:
+            proxies = {"http": None, "https": None}
             # GoサーバーからCSVデータを取得
-            response = requests.get(f"{GO_API_URL}/get_csv")
-            
+            response = requests.get(
+                f"{GO_API_URL}/get_csv/357addc1-f702-422d-a15b-acf44d3d0ddd",
+                proxies=proxies,
+            )
+
             # レスポンスの内容とステータスコードを表示
             print("Response Status Code:", response.status_code)
             # print("Response Content:", response.text)
             if response.status_code == 200:
                 response_data = response.json()  # JSONデータを取得
-                
+                print(type(response_data))
                 try:
                     # filesキーからCSVデータを取得
-                    csv_files = response_data.get('files', [])
-                    
-                    for i, file_data in enumerate(csv_files):
-                        # バイナリデータを取得
-                        csv_content = file_data.get('csv_file')
-                        json_content = file_data.get('json_file')
-                        if csv_content and json_content:
-                            # バイナリデータをDataFrameに変換
-                            decoded_csv_content = base64.b64decode(csv_content).decode('utf-8')
-                            decoded_json_content = base64.b64decode(json_content).decode('utf-8')
-                            print(decoded_json_content)
-                            df = pd.read_csv(io.StringIO(decoded_csv_content))
-                            print(f"\nDataFrame {i + 1}:")
-                            print(df.head())  # 最初の5行を表示
-                            print("\nColumns:", df.columns.tolist())  # カラム名を表示
-                            print("\nShape:", df.shape)  # データフレームの形状を表示
-                        else:
-                            print(f"No CSV content in file {i + 1}")
-                    
+                    csv_files = response_data.get("file", [])
+                    # print(csv_files)
+                    # for i, file_data in enumerate(csv_files):
+                    # バイナリデータを取得
+                    csv_content = csv_files.get("csv_file")
+                    json_content = csv_files.get("json_file")
+                    if csv_content and json_content:
+                        # バイナリデータをDataFrameに変換
+                        decoded_csv_content = base64.b64decode(csv_content).decode(
+                            "utf-8"
+                        )
+                        decoded_json_content = base64.b64decode(json_content).decode(
+                            "utf-8"
+                        )
+                        print(decoded_json_content)
+                        df = pd.read_csv(io.StringIO(decoded_csv_content))
+                        # print(f"\nDataFrame {i + 1}:")
+                        print(df.head())  # 最初の5行を表示
+                        print("\nColumns:", df.columns.tolist())  # カラム名を表示
+                        print("\nShape:", df.shape)  # データフレームの形状を表示
+                        print(df.isnull().any())
+                    # else:
+                    # print(f"No CSV content in file {i + 1}")
+
                     return jsonify({"message": "success"})
-                    
+
                 except Exception as parse_error:
                     print("Error parsing CSV data:", str(parse_error))
-                    return jsonify({"error": "Error parsing CSV data", "details": str(parse_error)}), 500
-                    
+                    return (
+                        jsonify(
+                            {
+                                "error": "Error parsing CSV data",
+                                "details": str(parse_error),
+                            }
+                        ),
+                        500,
+                    )
+
             else:
                 error_message = response.text
                 print("Error from Go server:", error_message)
-                return jsonify({"error": "Failed to fetch CSV file", "details": error_message}), response.status_code
-                
+                return (
+                    jsonify(
+                        {"error": "Failed to fetch CSV file", "details": error_message}
+                    ),
+                    response.status_code,
+                )
+
         except requests.exceptions.RequestException as e:
             print("Request Error:", str(e))
             return jsonify({"error": "Request failed", "details": str(e)}), 500
@@ -132,17 +154,27 @@ def setup_routes(app):
         file_path = os.path.join(UPLOAD_PATH, "demo.csv")
         file.save(file_path)
 
-        # # CSVデータを直接読み込み
+        # CSVデータを直接読み込み
         # csv_data = file.read().decode("utf-8")  # バイトデータを文字列に変換
-        # df = pd.read_csv(io.StringIO(csv_data))  # データフレームに変換
+        # df = pd.read_csv(
+        #     io.StringIO(csv_data),
+        #     na_values=["null", ""],  # ここでnullや空文字をNaNとして認識
+        #     keep_default_na=True,  # デフォルトのNaN認識を保持
+        # )  # データフレームに変換
+
+        # print(df.isnull().any())
 
         # dtypes = {col: str(dtype) for col, dtype in df.dtypes.items()}
 
         # files = {
-        #     'csv_file': ('data.csv', csv_data.encode('utf-8'), 'text/csv'),
-        #     'json_file': ('data.json', json.dumps(dtypes).encode('utf-8'), 'application/json')
+        #     "csv_file": ("data.csv", csv_data.encode("utf-8"), "text/csv"),
+        #     "json_file": (
+        #         "data.json",
+        #         json.dumps(dtypes).encode("utf-8"),
+        #         "application/json",
+        #     ),
         # }
-        
+
         # filename = file.filename
 
         # form_data = extraction_df(df=df, filename=filename)
@@ -155,12 +187,15 @@ def setup_routes(app):
         #     data=form_data,
         # )
 
-        # # データの型を管理するjsonファイルの作成
-        # # with open("dtypes.json", "w") as json_file:
-        # #     json.dump(empty_json, json_file)
+        # データの型を管理するjsonファイルの作成
+        # with open("dtypes.json", "w") as json_file:
+        #     json.dump(empty_json, json_file)
 
         # if response.status_code == 200:
-        #     return jsonify({"message": f"File {file.filename} uploaded successfully"}), 200
+        #     return (
+        #         jsonify({"message": f"File {file.filename} uploaded successfully"}),
+        #         200,
+        #     )
         # else:
         #     try:
         #         # レスポンスからJSONデータを取得し、エラーメッセージを表示
@@ -286,6 +321,8 @@ def setup_routes(app):
 
         """
 
+        # /csvs/get/data:csv_id
+
         quantitative_list = read_quantitative()
 
         return jsonify({"quantitative_variables": quantitative_list}), 200
@@ -308,6 +345,8 @@ def setup_routes(app):
 
         """
 
+        # /csvs/get/data:csv_id
+
         qualitative_list = read_qualitative()
 
         return jsonify({"qualitative_variables": qualitative_list})
@@ -329,6 +368,8 @@ def setup_routes(app):
             画像データをBase64エンコードされたバイト列をUTF-8でエンコーディングした文字列
 
         """
+
+        # /csvs/get/data:csv_id
 
         data = request.get_json()
         image_data = plot_scatter(data)
@@ -353,6 +394,8 @@ def setup_routes(app):
 
         """
 
+        # /csvs/get/data:csv_id
+
         data = request.get_json()
         image_data = plot_hist(data)
 
@@ -375,6 +418,8 @@ def setup_routes(app):
             画像データをBase64エンコードされたバイト列をUTF-8でエンコーディングした文字列
 
         """
+
+        # /csvs/get/data:csv_id
 
         data = request.get_json()
         image_data = plot_box(data)
@@ -400,6 +445,8 @@ def setup_routes(app):
 
         """
 
+        # /csvs/get/data:csv_id
+
         send_data = get_data_info()
 
         return jsonify(send_data)
@@ -422,6 +469,8 @@ def setup_routes(app):
 
         """
 
+        # /csvs/get/data:csv_id
+
         send_data = get_miss_columns()
 
         return jsonify(send_data)
@@ -443,6 +492,9 @@ def setup_routes(app):
             欠損値があるカラムの情報
 
         """
+
+        # /csvs/get/data:csv_id
+        # /csvs/update
 
         data: Dict[str, str] = request.get_json()
 
@@ -467,6 +519,9 @@ def setup_routes(app):
             バイナリデータ
 
         """
+
+        # /csvs/get/data:csv_id
+
         data: Dict[str, str] = request.get_json()
 
         image_data = make_pie(data)
@@ -544,6 +599,9 @@ def setup_routes(app):
 
         """
 
+        # /csvs/get/data:csv_id
+        # /csvs/update
+
         data: Dict[str, Any] = request.get_json()
 
         print(data)
@@ -570,6 +628,8 @@ def setup_routes(app):
 
         """
 
+        # /csvs/get/data:csv_id
+
         data: Dict[str, str] = request.get_json()
 
         image_data = feature_value_analysis(data)
@@ -593,6 +653,8 @@ def setup_routes(app):
             補完が完了したことを伝えるメッセージ
 
         """
+
+        # /csvs/get/data:csv_id
 
         data: Dict[str, str] = request.get_json()
 
@@ -620,6 +682,8 @@ def setup_routes(app):
             補完が完了したことを伝えるメッセージ
 
         """
+
+        # /csvs/get/data:csv_id
 
         data: Dict[str, str] = request.get_json()
 

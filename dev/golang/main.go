@@ -10,6 +10,7 @@ import (
 	"local.package/csvs"
 	"local.package/users"
 
+	"github.com/cenkalti/backoff/v4"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -40,11 +41,35 @@ func main() {
 	// DSNを構築
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Tokyo", dbHost, dbUser, dbPassword, dbName, dbPort)
 
+	// バックオフ設定
+	b := backoff.NewExponentialBackOff()
+	b.MaxElapsedTime = 30 * time.Second
+
 	// GORMでデータベースに接続
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+	// 接続試行の設定
+	maxRetries := 5
+	retryInterval := time.Second * 3
+
+	var db *gorm.DB
+	for i := 0; i < maxRetries; i++ {
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if err == nil {
+			log.Printf("Successfully connected to database on attempt %d\n", i+1)
+			break
+		}
+		if i < maxRetries-1 {
+			log.Printf("Failed to connect to database (attempt %d/%d): %v\n", i+1, maxRetries, err)
+			time.Sleep(retryInterval)
+		}
 	}
+
+	if err != nil {
+		log.Fatal("Failed to connect to database after all attempts:", err)
+	}
+	// db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	// if err != nil {
+	// 	log.Fatal("Failed to connect to database:", err)
+	// }
 
 	// Ginエンジンのインスタンスを作成
 	r := gin.Default()

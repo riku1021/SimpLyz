@@ -6,7 +6,6 @@ const themeOptions: ThemeOptions = {
             primary: '#595959',
             secondary: '#595959',
             disabled: '#595959',
-            hint: '#595959',
         },
     },
     typography: {

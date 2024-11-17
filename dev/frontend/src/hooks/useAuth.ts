@@ -6,16 +6,16 @@ const useAuth = (): { userId: string | null; csvId: string | null } => {
     const location = useLocation();
     const userId = localStorage.getItem('userId');
     const csvId = localStorage.getItem('csvId');
-
     useEffect(() => {
         const loginStatus = localStorage.getItem('loginStatus');
-        if (location.pathname === '/' && loginStatus === 'ログイン中') {
-            navigate('/manage-csv');
-        } else if (loginStatus !== 'ログイン中') {
+        if (loginStatus !== 'ログイン中') {
             navigate('/');
+            return;
         }
-    }, [navigate, location.pathname]);
-
+        if (!csvId && location.pathname !== '/manage-csv') {
+            navigate('/manage-csv');
+        }
+    }, [navigate, location.pathname, csvId]);
     return { userId, csvId };
 };
 

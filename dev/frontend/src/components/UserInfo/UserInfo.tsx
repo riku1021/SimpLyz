@@ -73,7 +73,7 @@ const UserInfo = () => {
     };
 
     // パスワード入力モーダルを開く関数
-    const handleOpenPasswordModal = (currentAction) => {
+    const handleOpenPasswordModal = (currentAction: string) => {
         setAction(currentAction);
         if (currentAction === 'modify') {
             showInfoAlert('現在のパスワードを<br>入力してください', '')
@@ -162,7 +162,7 @@ const UserInfo = () => {
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 'calc(100vh - 64px)' }}>
             <Box>
                 {/* APIキー管理カード */}
-                <Card sx={{ width: 400, p: 2, borderRadius: '25px' }}>
+                <Card sx={{ width: 400, p: 2, m: 2, borderRadius: '25px' }}>
                     <CardContent>
                         <Typography variant="h5" gutterBottom>
                             GEMINI APIキー管理
@@ -214,7 +214,7 @@ const UserInfo = () => {
                 </Card>
 
                 {/* パスワード管理カード */}
-                <Card sx={{ width: 400, p: 2, mt: 4, borderRadius: '25px' }}>
+                <Card sx={{ width: 400, p: 2, m: 2, borderRadius: '25px' }}>
                     <CardContent>
                         <Typography variant="h5" gutterBottom>
                             パスワード管理

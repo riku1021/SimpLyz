@@ -25,10 +25,12 @@ from data_utils import (
     impute_numeric,
     make_feature_value,
     make_pie,
+    set_dtypes,
 )
 from dotenv import load_dotenv
 from flask import jsonify, request
 from read_CSV import read
+from src.backend.csvs import get_csv, update_csv
 
 # 環境変数を読み込む
 load_dotenv()
@@ -49,78 +51,78 @@ def setup_routes(app):
     def index():
         return {"message": True}
 
-    @app.route("/get_csv", methods=["GET"])
-    def get_csv():
-        try:
-            proxies = {"http": None, "https": None}
-            # GoサーバーからCSVデータを取得
-            response = requests.get(
-                f"{GO_API_URL}/get_csv/357addc1-f702-422d-a15b-acf44d3d0ddd",
-                proxies=proxies,
-            )
+    # @app.route("/get_csv", methods=["GET"])
+    # def get_csv():
+    #     try:
+    #         proxies = {"http": None, "https": None}
+    #         # GoサーバーからCSVデータを取得
+    #         response = requests.get(
+    #             f"{GO_API_URL}/get_csv/357addc1-f702-422d-a15b-acf44d3d0ddd",
+    #             proxies=proxies,
+    #         )
 
-            # レスポンスの内容とステータスコードを表示
-            print("Response Status Code:", response.status_code)
-            # print("Response Content:", response.text)
-            if response.status_code == 200:
-                response_data = response.json()  # JSONデータを取得
-                print(type(response_data))
-                try:
-                    # filesキーからCSVデータを取得
-                    csv_files = response_data.get("file", [])
-                    # print(csv_files)
-                    # for i, file_data in enumerate(csv_files):
-                    # バイナリデータを取得
-                    csv_content = csv_files.get("csv_file")
-                    json_content = csv_files.get("json_file")
-                    if csv_content and json_content:
-                        # バイナリデータをDataFrameに変換
-                        decoded_csv_content = base64.b64decode(csv_content).decode(
-                            "utf-8"
-                        )
-                        decoded_json_content = base64.b64decode(json_content).decode(
-                            "utf-8"
-                        )
-                        print(decoded_json_content)
-                        df = pd.read_csv(io.StringIO(decoded_csv_content))
-                        # print(f"\nDataFrame {i + 1}:")
-                        print(df.head())  # 最初の5行を表示
-                        print("\nColumns:", df.columns.tolist())  # カラム名を表示
-                        print("\nShape:", df.shape)  # データフレームの形状を表示
-                        print(df.isnull().any())
-                    # else:
-                    # print(f"No CSV content in file {i + 1}")
+    #         # レスポンスの内容とステータスコードを表示
+    #         print("Response Status Code:", response.status_code)
+    #         # print("Response Content:", response.text)
+    #         if response.status_code == 200:
+    #             response_data = response.json()  # JSONデータを取得
+    #             print(type(response_data))
+    #             try:
+    #                 # filesキーからCSVデータを取得
+    #                 csv_files = response_data.get("file", [])
+    #                 # print(csv_files)
+    #                 # for i, file_data in enumerate(csv_files):
+    #                 # バイナリデータを取得
+    #                 csv_content = csv_files.get("csv_file")
+    #                 json_content = csv_files.get("json_file")
+    #                 if csv_content and json_content:
+    #                     # バイナリデータをDataFrameに変換
+    #                     decoded_csv_content = base64.b64decode(csv_content).decode(
+    #                         "utf-8"
+    #                     )
+    #                     decoded_json_content = base64.b64decode(json_content).decode(
+    #                         "utf-8"
+    #                     )
+    #                     print(decoded_json_content)
+    #                     df = pd.read_csv(io.StringIO(decoded_csv_content))
+    #                     # print(f"\nDataFrame {i + 1}:")
+    #                     print(df.head())  # 最初の5行を表示
+    #                     print("\nColumns:", df.columns.tolist())  # カラム名を表示
+    #                     print("\nShape:", df.shape)  # データフレームの形状を表示
+    #                     print(df.isnull().any())
+    #                 # else:
+    #                 # print(f"No CSV content in file {i + 1}")
 
-                    return jsonify({"message": "success"})
+    #                 return jsonify({"message": "success"})
 
-                except Exception as parse_error:
-                    print("Error parsing CSV data:", str(parse_error))
-                    return (
-                        jsonify(
-                            {
-                                "error": "Error parsing CSV data",
-                                "details": str(parse_error),
-                            }
-                        ),
-                        500,
-                    )
+    #             except Exception as parse_error:
+    #                 print("Error parsing CSV data:", str(parse_error))
+    #                 return (
+    #                     jsonify(
+    #                         {
+    #                             "error": "Error parsing CSV data",
+    #                             "details": str(parse_error),
+    #                         }
+    #                     ),
+    #                     500,
+    #                 )
 
-            else:
-                error_message = response.text
-                print("Error from Go server:", error_message)
-                return (
-                    jsonify(
-                        {"error": "Failed to fetch CSV file", "details": error_message}
-                    ),
-                    response.status_code,
-                )
+    #         else:
+    #             error_message = response.text
+    #             print("Error from Go server:", error_message)
+    #             return (
+    #                 jsonify(
+    #                     {"error": "Failed to fetch CSV file", "details": error_message}
+    #                 ),
+    #                 response.status_code,
+    #             )
 
-        except requests.exceptions.RequestException as e:
-            print("Request Error:", str(e))
-            return jsonify({"error": "Request failed", "details": str(e)}), 500
-        except Exception as e:
-            print("Unexpected Error:", str(e))
-            return jsonify({"error": "Unexpected error", "details": str(e)}), 500
+    #     except requests.exceptions.RequestException as e:
+    #         print("Request Error:", str(e))
+    #         return jsonify({"error": "Request failed", "details": str(e)}), 500
+    #     except Exception as e:
+    #         print("Unexpected Error:", str(e))
+    #         return jsonify({"error": "Unexpected error", "details": str(e)}), 500
 
     @app.route("/upload", methods=["POST"])
     def upload_csv():
@@ -150,63 +152,75 @@ def setup_routes(app):
 
         file = request.files["file"]
 
+        # user_idとcsv_idを取得する
+        data = request.form.get("jsonData")
+        json_data = json.loads(data)
+        user_id = json_data["user_id"]
+        csv_id = json_data["csv_id"]
+
+        print(user_id, csv_id)
+
         # csvファイルの保存
-        file_path = os.path.join(UPLOAD_PATH, "demo.csv")
-        file.save(file_path)
+        # file_path = os.path.join(UPLOAD_PATH, "demo.csv")
+        # file.save(file_path)
+
+        # file = request.files["file"]
 
         # CSVデータを直接読み込み
-        # csv_data = file.read().decode("utf-8")  # バイトデータを文字列に変換
-        # df = pd.read_csv(
-        #     io.StringIO(csv_data),
-        #     na_values=["null", ""],  # ここでnullや空文字をNaNとして認識
-        #     keep_default_na=True,  # デフォルトのNaN認識を保持
-        # )  # データフレームに変換
+        csv_data = file.read().decode("utf-8")  # バイトデータを文字列に変換
+        df = pd.read_csv(
+            io.StringIO(csv_data),
+            na_values=["null", ""],  # ここでnullや空文字をNaNとして認識
+            keep_default_na=True,  # デフォルトのNaN認識を保持
+        )  # データフレームに変換
 
         # print(df.isnull().any())
 
-        # dtypes = {col: str(dtype) for col, dtype in df.dtypes.items()}
+        dtypes = {col: str(dtype) for col, dtype in df.dtypes.items()}
 
-        # files = {
-        #     "csv_file": ("data.csv", csv_data.encode("utf-8"), "text/csv"),
-        #     "json_file": (
-        #         "data.json",
-        #         json.dumps(dtypes).encode("utf-8"),
-        #         "application/json",
-        #     ),
-        # }
+        files = {
+            "csv_file": ("data.csv", csv_data.encode("utf-8"), "text/csv"),
+            "json_file": (
+                "data.json",
+                json.dumps(dtypes).encode("utf-8"),
+                "application/json",
+            ),
+        }
 
-        # filename = file.filename
+        filename = file.filename
 
-        # form_data = extraction_df(df=df, filename=filename)
+        form_data = extraction_df(
+            df=df, filename=filename, user_id=user_id, csv_id=csv_id
+        )
 
         # # その他データを取得
 
-        # response = requests.post(
-        #     f"{GO_API_URL}/upload_csv",
-        #     files=files,
-        #     data=form_data,
-        # )
+        response = requests.post(
+            f"{GO_API_URL}/upload_csv",
+            files=files,
+            data=form_data,
+        )
 
         # データの型を管理するjsonファイルの作成
         # with open("dtypes.json", "w") as json_file:
         #     json.dump(empty_json, json_file)
 
-        # if response.status_code == 200:
-        #     return (
-        #         jsonify({"message": f"File {file.filename} uploaded successfully"}),
-        #         200,
-        #     )
-        # else:
-        #     try:
-        #         # レスポンスからJSONデータを取得し、エラーメッセージを表示
-        #         error_response = response.json()
-        #         error_message = error_response.get("error", "Unknown error occurred")
-        #         print(f"エラーが発生しました: {error_message}")
-        #     except ValueError:
-        #         # JSONでない場合のエラーメッセージを表示
-        #         print(f"エラーレスポンス: {response.text}")
-        #     return jsonify({"error": "Failed to upload data to Go API"}), 500
-        return jsonify({"message": f"File {file.filename} uploaded successfully"})
+        if response.status_code == 200:
+            return (
+                jsonify({"message": f"File {file.filename} uploaded successfully"}),
+                200,
+            )
+        else:
+            try:
+                # レスポンスからJSONデータを取得し、エラーメッセージを表示
+                error_response = response.json()
+                error_message = error_response.get("error", "Unknown error occurred")
+                print(f"エラーが発生しました: {error_message}")
+            except ValueError:
+                # JSONでない場合のエラーメッセージを表示
+                print(f"エラーレスポンス: {response.text}")
+            return jsonify({"error": "Failed to upload data to Go API"}), 500
+        # return jsonify({"message": f"File {file.filename} uploaded successfully"})
 
     # @app.route("/upload", methods=["POST"])
     # def upload_csv():
@@ -444,8 +458,17 @@ def setup_routes(app):
             各カラムの基本情報
 
         """
+        # csv_id = "357addc1-f702-422d-a15b-acf44d3d0ddd"
+        # # /csvs/get/data:csv_id
+        # data = get_csv(csv_id=csv_id)
 
-        # /csvs/get/data:csv_id
+        # if type(data) == dict:
+        #     return data  # もし辞書型の場合はエラー
+
+        # df, dtypes = data
+
+        # # dfの型適応
+        # df = set_dtypes(df=df, dtypes=dtypes)
 
         send_data = get_data_info()
 
@@ -599,16 +622,39 @@ def setup_routes(app):
 
         """
 
+        # golang test
+
         # /csvs/get/data:csv_id
         # /csvs/update
 
+        # csv_id = "357addc1-f702-422d-a15b-acf44d3d0ddd"
+
+        # # postgresqlからcsvとjsonファイルを取得する。
+        # data = get_csv(csv_id=csv_id)
+
+        # if type(data) == dict:
+        #     return  # もし辞書型の場合はエラー
+
+        # df, dtypes = data
+
+        # # print(dtypes)
+
+        # # dfの型適応
+        # df = set_dtypes(df=df, dtypes=dtypes)
+
         data: Dict[str, Any] = request.get_json()
 
-        print(data)
+        # # print(data)
 
         make_feature_value(data)
 
+        # # postgresqlに保存
+        # message = update_csv(csv_id=csv_id, df=df)
+
+        # print(message)
+
         return jsonify({"message": "make successfully"})
+        # return message
 
     @app.route("/feature_analysis", methods=["POST"])
     def feature_analysis():

@@ -29,7 +29,7 @@ def get_csv(csv_id: str) -> Union[Tuple[DataFrame, Dict[str, str]], Dict[str, st
         # print("Response Content:", response.text)
         if response.status_code == 200:
             response_data = response.json()  # JSONデータを取得
-            print(type(response_data))
+            # print(type(response_data))
             try:
                 # filesキーからCSVデータを取得
                 csv_files = response_data.get("file", [])
@@ -44,17 +44,18 @@ def get_csv(csv_id: str) -> Union[Tuple[DataFrame, Dict[str, str]], Dict[str, st
                     decoded_json_content = base64.b64decode(json_content).decode(
                         "utf-8"
                     )
-                    print(decoded_json_content)
+                    # print(decoded_json_content)
                     df = pd.read_csv(io.StringIO(decoded_csv_content))
+                    dtypes = json.loads(decoded_json_content)
                     # print(f"\nDataFrame {i + 1}:")
-                    print(df.head())  # 最初の5行を表示
-                    print("\nColumns:", df.columns.tolist())  # カラム名を表示
-                    print("\nShape:", df.shape)  # データフレームの形状を表示
-                    print(df.isnull().any())
+                    # print(df.head())  # 最初の5行を表示
+                    # print("\nColumns:", df.columns.tolist())  # カラム名を表示
+                    # print("\nShape:", df.shape)  # データフレームの形状を表示
+                    # print(df.isnull().any())
                 # else:
                 # print(f"No CSV content in file {i + 1}")
 
-                return df, decoded_json_content
+                return df, dtypes
 
             except Exception as parse_error:
                 print("Error parsing CSV data:", str(parse_error))
@@ -119,15 +120,25 @@ def update_csv(csv_id: str, df: DataFrame) -> Dict[str, str]:
         "data_rows": data_rows,
     }
 
+    # print(json_data)
+
     response = requests.post(
-        f"{GO_API_URL}/update_csv",
+        f"{GO_API_URL}/csvs/update",
         files=files,
-        json=json_data,
+        data=json_data,
     )
 
+    print(response.status_code)
+
     if response.status_code == 200:
+        json_response = response.json()
+        print(json_response)
         return (
-            jsonify({"message": f"File {csv_id} update successfully"}),
+            jsonify(
+                {
+                    "message": f"File {json_response.get('file_name', 'not name')} update successfully"
+                }
+            ),
             200,
         )
     else:
@@ -135,7 +146,9 @@ def update_csv(csv_id: str, df: DataFrame) -> Dict[str, str]:
             # レスポンスからJSONデータを取得し、エラーメッセージを表示
             error_response = response.json()
             error_message = error_response.get("error", "Unknown error occurred")
+            message = error_response.get("message", "Unkown message")
             print(f"エラーが発生しました: {error_message}")
+            print(f"メッセージ: {message}")
             return jsonify({"error": f"{error_message}"}), 500
         except ValueError:
             # JSONでない場合のエラーメッセージを表示

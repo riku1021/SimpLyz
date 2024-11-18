@@ -129,8 +129,8 @@ func UploadCsv(c *gin.Context, db *gorm.DB) {
 	}
 
 	// フォームデータの取得
-	// userId := c.PostForm("user_id")
-	userId := "rootId"
+	userId := c.PostForm("user_id")
+	// userId := "rootId"
 	csvId := c.PostForm("csv_id")
 	fileName := c.PostForm("file_name")
 	dataSize, _ := strconv.Atoi(c.PostForm("data_size"))

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Box, Typography, Paper, Card, CardContent } from '@mui/material';
 import { showConfirmationAlert, showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
 import { apiUrl } from '../../urlConfig';
+import { generateUUID } from '../../utils/uuid';
 
 const ManageCSV = () => {
 	const [messages, setMessages] = useState([]);
@@ -22,8 +23,17 @@ const ManageCSV = () => {
 	const uploadFile = async (file, newMessages) => {
 		const formData = new FormData();
 		formData.append('file', file);
+		// テストでuser_idをrootIdにしている
+		formData.append('jsonData', JSON.stringify({
+			"user_id": "rootId",
+			"csv_id": generateUUID(),
+		}))
 		try {
-			const response = await axios.post(`${apiUrl}/upload`, formData);
+			const response = await axios.post(`${apiUrl}/upload`, formData, formData, {
+				headers: {
+				  'Content-Type': 'multipart/form-data', // 必須
+				},
+			});
 			newMessages.push(response.data.message);
 			showSuccessAlert('アップロード完了', response.data.message);
 		} catch (error) {

@@ -829,7 +829,9 @@ def set_dtypes(df: DataFrame, dtypes: Dict[str, str]) -> DataFrame:
     return df
 
 
-def extraction_df(df: DataFrame, filename: str) -> Dict[str, any]:
+def extraction_df(
+    df: DataFrame, filename: str, user_id: str, csv_id: str
+) -> Dict[str, any]:
     """
     説明
     ----------
@@ -850,8 +852,8 @@ def extraction_df(df: DataFrame, filename: str) -> Dict[str, any]:
     """
 
     # 仮にcsv_idとuser_idを生成している
-    csv_id = str(uuid.uuid4())
-    user_id = str(uuid.uuid4())
+    # csv_id = str(uuid.uuid4())
+    # user_id = str(uuid.uuid4())
 
     # メモリ上で一時的にCSVを作成
     csv_buffer = io.StringIO()

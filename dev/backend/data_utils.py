@@ -1,8 +1,8 @@
 import base64
 import io
-from typing import Any, Dict, List, Optional, Tuple
 import os
 import uuid
+from typing import Any, Dict, List, Optional, Tuple
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -15,9 +15,8 @@ matplotlib.use("Agg")
 import json
 
 from scipy import interpolate
-from sklearn.experimental import enable_iterative_imputer # type: ignore
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.experimental import enable_iterative_imputer
+from sklearn.experimental import enable_iterative_imputer  # type: ignore
 from sklearn.impute import IterativeImputer, KNNImputer
 from sklearn.metrics import (
     accuracy_score,
@@ -81,8 +80,15 @@ def entropy(series):
     return -(value_counts * np.log2(value_counts)).sum()
 
 
-# データの詳細情報の取得
 def get_data_info() -> Dict[str, List]:
+    """データの詳細情報を取得する関数
+
+    Args:
+        df (DataFrame): データフレーム
+
+    Returns:
+        Dict[str, List]: 量的変数のカラム名と質的変数のカラム名をリストで管理している
+    """
     df = get_df()
     qualitative_list = []
     quantitative_list = []
@@ -246,7 +252,7 @@ def make_pie(data) -> str:
 
     value_counts = df[column].value_counts()[::-1]
     percentages = (value_counts / len(df) * 100)[::-1]
-    
+
     colors = sns.color_palette("pastel", n_colors=len(value_counts))
 
     # グラフの作成
@@ -338,7 +344,7 @@ def make_feature_value(data: Dict[str, Any]) -> None:
 
     Return
     ----------
-    None
+    DataFrame
 
     """
 
@@ -350,6 +356,8 @@ def make_feature_value(data: Dict[str, Any]) -> None:
     df[new_column_name] = df.apply(lambda row: calculate(formula_list, row), axis=1)
 
     df.to_csv("./uploads/demo.csv", index=False)
+
+    # return df
 
 
 def prepare_data(
@@ -797,7 +805,33 @@ def load_dtype(df: DataFrame, filename: str) -> None:
         elif dtype == "int64":
             df[col] = df[col].astype(int)
 
-def extraction_df(df: DataFrame, filename: str) -> Dict[str, any]:
+
+def set_dtypes(df: DataFrame, dtypes: Dict[str, str]) -> DataFrame:
+    """データフレームの型を適応する関数
+
+    Args:
+        df (DataFrame): データフレーム
+        dtypes (Dict[str, str]): 各カラムの型情報を記載している辞書
+
+    Returns:
+        DataFrame: 型適応後のデータフレーム
+    """
+
+    print(type(dtypes))
+
+    for col, dtype in dtypes.items():
+        if dtype == "object":
+            df[col] = df[col].astype(str)
+            df[col] = df[col].replace("nan", np.nan)
+        elif dtype == "int64":
+            df[col] = df[col].astype(int)
+
+    return df
+
+
+def extraction_df(
+    df: DataFrame, filename: str, user_id: str, csv_id: str
+) -> Dict[str, any]:
     """
     説明
     ----------
@@ -818,27 +852,28 @@ def extraction_df(df: DataFrame, filename: str) -> Dict[str, any]:
     """
 
     # 仮にcsv_idとuser_idを生成している
-    csv_id = str(uuid.uuid4())
-    user_id = str(uuid.uuid4())
+    # csv_id = str(uuid.uuid4())
+    # user_id = str(uuid.uuid4())
 
     # メモリ上で一時的にCSVを作成
     csv_buffer = io.StringIO()
     df.to_csv(csv_buffer, index=False)
-    data_size = len(csv_buffer.getvalue().encode('utf-8'))
+    data_size = len(csv_buffer.getvalue().encode("utf-8"))
 
     data_columns = len(df.columns)
     data_rows = len(df)
 
     form_data = {
-        'csv_id': csv_id,
-        'user_id': user_id,
-        'file_name': filename,
-        'data_size': data_size,
-        'data_columns': data_columns,
-        'data_rows': data_rows
+        "csv_id": csv_id,
+        "user_id": user_id,
+        "file_name": filename,
+        "data_size": data_size,
+        "data_columns": data_columns,
+        "data_rows": data_rows,
     }
 
     return form_data
+
 
 if __name__ == "__main__":
     df = pd.read_csv("./uploads/demo.csv")

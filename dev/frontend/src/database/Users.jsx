@@ -575,36 +575,6 @@ const Users = () => {
             </div>
 
             <div>
-                <h2>過去のユーザー情報を消し、新たにユーザーを登録するAPI</h2>
-                <form onSubmit={handleReCreateUserSubmit}>
-                    <div>
-                        <label>MailAddress:</label>
-                        <input
-                            type="text"
-                            name="mail_address"
-                            value={reCreateUser.mail_address}
-                            onChange={handleReCreateUserDataChange}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label>Password:</label>
-                        <input
-                            type="password"
-                            name="password"
-                            value={reCreateUser.password}
-                            onChange={handleReCreateUserDataChange}
-                            required
-                        />
-                    </div>
-                    <button type="submit">ReMake User</button>
-                    <div>
-                        result: {reCreateUserResult}
-                    </div>
-                </form>
-            </div>
-
-            <div>
                 <h2>過去のユーザー情報を復元するapi</h2>
                 <form onSubmit={handleRestorationUserSubmit}>
                     <div>

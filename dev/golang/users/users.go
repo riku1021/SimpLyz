@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -63,6 +64,21 @@ func GetUser(c *gin.Context, db *gorm.DB) {
 	})
 }
 
+// ハッシュ化を行う関数
+func hashPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
+}
+
+// パスワードを比較する関数
+func comparePasswords(hashedPassword, plainPassword string) error {
+	// bcryptでハッシュ化されたパスワードと平文のパスワードを比較
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(plainPassword))
+}
+
 // ユーザをデータベースに保存する関数
 func CreateUser(c *gin.Context, db *gorm.DB) {
 	// データの受け取り
@@ -90,6 +106,18 @@ func CreateUser(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	// パスワードのハッシュ化
+	hashedPassword, err := hashPassword(user.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "パスワードのハッシュ化に失敗しました",
+			"error":         err.Error(),
+		})
+		return
+	}
+	user.Password = hashedPassword
+
 	// データベースに保存
 	result := db.Create(&user)
 	if result.Error != nil {
@@ -115,8 +143,10 @@ func ReCreateUser(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	fmt.Printf("%+v\n", user)
+
 	// メールアドレスを基にレコードを完全に削除
-	deleteResult := db.Where("mail_address = ?", user.MailAddress).Delete(&user)
+	deleteResult := db.Where("mail_address = ?", user.MailAddress).Delete(&User{})
 	if deleteResult.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"StatusMessage": "Failed",
@@ -125,6 +155,27 @@ func ReCreateUser(c *gin.Context, db *gorm.DB) {
 		})
 		return
 	}
+
+	// 削除が成功したか確認
+	if deleteResult.RowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "指定されたメールアドレスのユーザーが存在しません",
+		})
+		return
+	}
+
+	// パスワードのハッシュ化
+	hashedPassword, err := hashPassword(user.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "パスワードのハッシュ化に失敗しました",
+			"error":         err.Error(),
+		})
+		return
+	}
+	user.Password = hashedPassword
 
 	// データベースに保存
 	result := db.Create(&user)
@@ -164,11 +215,11 @@ func RestorationUser(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	// パスワードが一致するかどうか確認する
-	if dbUser.Password != user.Password { // 一致しなかった場合
-		c.JSON(http.StatusBadRequest, gin.H{
+	// パスワードの比較
+	if err := comparePasswords(dbUser.Password, user.Password); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
 			"StatusMessage": "Failed",
-			"message":       "パスワードが違います！",
+			"message":       "パスワードが間違っています",
 		})
 		return
 	}
@@ -213,11 +264,11 @@ func LoginUser(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	// パスワードが一致するかどうか確認する
-	if dbUser.Password != user.Password { // 一致しなかった場合
-		c.JSON(http.StatusBadRequest, gin.H{
+	// パスワードの比較
+	if err := comparePasswords(dbUser.Password, user.Password); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
 			"StatusMessage": "Failed",
-			"message":       "パスワードが違います！",
+			"message":       "パスワードが間違っています",
 		})
 		return
 	}
@@ -252,7 +303,7 @@ func DeleteUser(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	// パスワードを更新する
+	// 削除状態を更新する
 	dbUser.IsDelete = true
 	updateResult := db.Save(dbUser)
 	if updateResult.Error != nil {
@@ -300,14 +351,26 @@ func ChangePassword(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	// パスワードが一致するかどうか確認する
-	if dbUser.Password != newPassword.Password { // 一致しなかった場合
-		c.JSON(http.StatusBadRequest, gin.H{
+	// パスワードの比較
+	if err := comparePasswords(dbUser.Password, newPassword.Password); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
 			"StatusMessage": "Failed",
-			"message":       "パスワードが違います！",
+			"message":       "パスワードが間違っています",
 		})
 		return
 	}
+
+	// パスワードのハッシュ化
+	hashedPassword, err := hashPassword(newPassword.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "パスワードのハッシュ化に失敗しました",
+			"error":         err.Error(),
+		})
+		return
+	}
+	newPassword.NewPassword = hashedPassword
 
 	// パスワードを更新する
 	dbUser.Password = newPassword.NewPassword
@@ -353,11 +416,11 @@ func AuthenticationPassword(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	// passwordが一致するか確認する
-	if dbUser.Password != user.Password {
-		c.JSON(http.StatusBadRequest, gin.H{
+	// パスワードの比較
+	if err := comparePasswords(dbUser.Password, user.Password); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
 			"StatusMessage": "Failed",
-			"message":       "passwordが一致しません",
+			"message":       "パスワードが間違っています",
 		})
 		return
 	}

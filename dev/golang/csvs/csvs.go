@@ -48,7 +48,7 @@ func bindFront(c *gin.Context) (*Front, error) {
 		return nil, err
 	}
 
-	// エラーがない場合は、front を返す
+	// エラーがない場合は、frontを返す
 	return &front, nil
 }
 
@@ -129,8 +129,8 @@ func UploadCsv(c *gin.Context, db *gorm.DB) {
 	}
 
 	// フォームデータの取得
-	// userId := c.PostForm("user_id")
-	userId := "rootId"
+	userId := c.PostForm("user_id")
+	// userId := "rootId"
 	csvId := c.PostForm("csv_id")
 	fileName := c.PostForm("file_name")
 	dataSize, _ := strconv.Atoi(c.PostForm("data_size"))
@@ -216,5 +216,177 @@ func GetCsvData(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, gin.H{
 		"StatusMessage": "Success",
 		"CsvData":       data,
+	})
+}
+
+// csvファイルを更新する関数
+func UpdateCSV(c *gin.Context, db *gorm.DB) {
+	// csvファイルの取得
+	csvFile, err := c.FormFile("csv_file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "CSV file required"})
+		return
+	}
+
+	// jsonファイルの取得
+	jsonFile, err := c.FormFile("json_file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JSON file required"})
+		return
+	}
+
+	// csvファイルを開く
+	openedCsvFile, err := csvFile.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to open CSV file"})
+		return
+	}
+	defer openedCsvFile.Close() // 関数の最後でファイルを閉じる
+
+	// jsonファイルを開く
+	openedJsonFile, err := jsonFile.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to open JSON file"})
+		return
+	}
+	defer openedJsonFile.Close() // 関数の最後でファイルを閉じる
+
+	// csvファイルの内容を読み込む
+	fileCsvContent, err := io.ReadAll(openedCsvFile)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to read CSV file"})
+		return
+	}
+
+	// jsonファイルの内容を読み込む
+	fileJsonContent, err := io.ReadAll(openedJsonFile)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to read JSON file"})
+		return
+	}
+
+	// データの受け取り
+	csvId := c.PostForm("csv_id")
+	dataSize, _ := strconv.Atoi(c.PostForm("data_size"))
+	dataColumns, _ := strconv.Atoi(c.PostForm("data_columns"))
+	dataRows, _ := strconv.Atoi(c.PostForm("data_rows"))
+
+	// fmt.Printf("%+v\n", backend)
+
+	// csv_idを基にデータベースからcsvデータを取得する
+	var dbCsv Csv
+	result := db.Where("csv_id = ? AND is_delete = ?", csvId, false).First(&dbCsv)
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "データが取得されませんでした",
+			"error":         result.Error.Error(),
+		})
+		return
+	}
+
+	// データの更新
+	dbCsv.CsvFile = fileCsvContent
+	dbCsv.JsonFile = fileJsonContent
+	dbCsv.DataSize = dataSize
+	dbCsv.DataColumns = dataColumns
+	dbCsv.DataRows = dataRows
+	dbCsv.LastAccessedDate = time.Now()
+
+	// データの保存
+	updateResult := db.Save(dbCsv)
+	if updateResult.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "csvファイルを更新できませんでした",
+			"error":         updateResult.Error.Error(),
+		})
+		return
+	}
+
+	// 更新成功
+	c.JSON(http.StatusOK, gin.H{
+		"StatusMessage": "Success",
+		"file_name":     dbCsv.FileName,
+	})
+}
+
+// CSVを削除する関数
+func DeleteCSV(c *gin.Context, db *gorm.DB) {
+	// データの受け取り
+	front, err := bindFront(c)
+	if err != nil {
+		return
+	}
+
+	// csv_idを基にデータベースからcsvデータを取得する
+	var dbCsv Csv
+	result := db.Where("csv_id = ? AND is_delete = ?", front.CsvID, false).First(&dbCsv)
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "データが取得されませんでした",
+			"error":         result.Error.Error(),
+		})
+		return
+	}
+
+	// is_deleteをTrueに変更
+	dbCsv.IsDelete = true
+
+	// 変更部分を更新
+	updateResult := db.Save(dbCsv)
+	if updateResult.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "csvファイルを更新できませんでした",
+			"error":         updateResult.Error.Error(),
+		})
+		return
+	}
+
+	// 更新成功
+	c.JSON(http.StatusOK, gin.H{
+		"StatusMessage": "Success",
+	})
+}
+
+// CSVファイルを復元する関数
+func RestorationCSV(c *gin.Context, db *gorm.DB) {
+	// データの受け取り
+	front, err := bindFront(c)
+	if err != nil {
+		return
+	}
+
+	// csv_idを基にデータベースからcsvデータを取得する
+	var dbCsv Csv
+	result := db.Where("csv_id = ? AND is_delete = ?", front.CsvID, true).First(&dbCsv)
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "データが取得されませんでした",
+			"error":         result.Error.Error(),
+		})
+		return
+	}
+
+	// is_deleteをFalseに変更
+	dbCsv.IsDelete = false
+
+	// 変更部分を更新
+	updateResult := db.Save(dbCsv)
+	if updateResult.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "csvファイルを更新できませんでした",
+			"error":         updateResult.Error.Error(),
+		})
+		return
+	}
+
+	// 更新成功
+	c.JSON(http.StatusOK, gin.H{
+		"StatusMessage": "Success",
 	})
 }

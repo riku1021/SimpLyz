@@ -11,8 +11,10 @@ import {
     showSuccessAlert,
     showConfirmationAlert
 } from '../../utils/alertUtils';
+import useAuth from '../../hooks/useAuth';
 
 const UserInfo = () => {
+    useAuth();
     // APIキー管理用の状態
     const [apiKey, setApiKey] = useState('');
     const [isKeySaved, setIsKeySaved] = useState(false);

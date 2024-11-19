@@ -19,7 +19,8 @@ import { showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
 import useAuth from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { validateEmail, validatePassword } from '../../utils/validation';
-import { generateUUID, createUser, loginUser } from '../../databaseUtils/Users';
+import { createUser, loginUser } from '../../databaseUtils/Users';
+import { generateUUID } from '../../utils/generateUuid';
 
 interface FormData {
     mail_address: string;

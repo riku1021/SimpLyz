@@ -14,8 +14,10 @@ import {
 import { PublishedWithChanges } from '@mui/icons-material';
 import { showErrorAlert, showSuccessAlert, showConfirmationAlert } from '../../utils/alertUtils';
 import { BACKEND_URL } from '../../urlConfig';
+import useAuth from '../../hooks/useAuth';
 
 const ColumnDetail: React.FC = () => {
+	const { csvId } = useAuth();
 	const { columnName, type } = useParams<Record<string, string | undefined>>();
 	const [image, setImage] = useState<string>('');
 	const [loading, setLoading] = useState<boolean>(true);
@@ -25,6 +27,7 @@ const ColumnDetail: React.FC = () => {
 		const fetchImage = async () => {
 			try {
 				const response = await axios.post(`${BACKEND_URL}/feature_analysis`, {
+					csv_id: csvId,
 					column_name: columnName,
 				});
 				setImage(response.data.image_data);
@@ -51,6 +54,7 @@ const ColumnDetail: React.FC = () => {
 		if (result.isConfirmed) {
 			try {
 				const response = await axios.post(`${BACKEND_URL}/change_numeric_to_categorical`, {
+					csv_id: csvId,
 					column_name: columnName,
 				});
 				if (response.status === 200) {

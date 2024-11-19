@@ -3,6 +3,7 @@ import { Box, Button, Card, CardContent, FormControl, InputLabel, MenuItem, Sele
 import { showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
 import axios from 'axios';
 import { BACKEND_URL } from '../../urlConfig';
+import useAuth from '../../hooks/useAuth';
 
 interface ImputationMethod {
 	type: 'numeric' | 'categorical';
@@ -10,6 +11,7 @@ interface ImputationMethod {
 }
 
 const MissingValueImputation: React.FC = () => {
+	const { csvId } = useAuth();
 	const [quantitativeMissList, setQuantitativeMissList] = useState<string[]>([]);
 	const [qualitativeMissList, setQualitativeMissList] = useState<string[]>([]);
 	const [imputationMethods, setImputationMethods] = useState<Record<string, ImputationMethod>>({});
@@ -17,7 +19,9 @@ const MissingValueImputation: React.FC = () => {
 
 	const fetchMissingColumns = async () => {
 		try {
-			const response = await axios.get(`${BACKEND_URL}/get_miss_columns`);
+			const response = await axios.post(`${BACKEND_URL}/get_miss_columns`, {
+				csv_id: csvId
+			});
 			setQuantitativeMissList(response.data.quantitative_miss_list);
 			setQualitativeMissList(response.data.qualitative_miss_list);
 		} catch (error) {
@@ -47,6 +51,7 @@ const MissingValueImputation: React.FC = () => {
 					: `${BACKEND_URL}/complement/categorical`;
 
 				await axios.post(url, {
+					csv_id: csvId,
 					column_name: column,
 					complementary_methods: method,
 				});

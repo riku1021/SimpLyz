@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Card, CardContent, FormControl, InputLabel, MenuItem, Select, Grid, Typography, SelectChangeEvent } from '@mui/material';
 import { BACKEND_URL } from '../../../urlConfig';
@@ -7,7 +7,7 @@ type PieChartProps = {
 	setImage: (image: string) => void;
 };
 
-const PieChart = ({ setImage }: PieChartProps) => {
+const PieChart: React.FC<PieChartProps> = ({ setImage }) => {
 	const [variable, setVariable] = useState<string>('');
 	const [variableList, setVariableList] = useState<string[]>([]);
 

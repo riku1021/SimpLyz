@@ -7,7 +7,7 @@ type BoxhidediagramProps = {
 	setImage: (image: string) => void;
 };
 
-const Boxhidediagram = ({ setImage }: BoxhidediagramProps) => {
+const Boxhidediagram: React.FC<BoxhidediagramProps> = ({ setImage }) => {
 	const [variable1, setVariable1] = useState<string>('');
 	const [variable2, setVariable2] = useState<string>('');
 	const [variableList1, setVariableList1] = useState<string[]>(['1', '2', '3']);

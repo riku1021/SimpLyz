@@ -5,8 +5,8 @@ type DataVisualizationProps = {
     image: string;
 };
 
-const DataVisualization = ({ image }: DataVisualizationProps) => {
-    const [isPortrait, setIsPortrait] = useState < boolean > (false);
+const DataVisualization: React.FC<DataVisualizationProps> = ({ image }) => {
+    const [isPortrait, setIsPortrait] = useState<boolean>(false);
 
     const checkImageAspectRatio = useCallback(() => {
         const img = new Image();

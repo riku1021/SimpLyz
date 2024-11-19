@@ -13,7 +13,7 @@ type TableComponentProps = {
 	type: 'qualitative' | 'quantitative';
 };
 
-const TableComponent = ({ title, data, onClick, type }: TableComponentProps) => {
+const TableComponent: React.FC<TableComponentProps> = ({ title, data, onClick, type }) => {
 	if (!data || data.length === 0) {
 		return null;
 	}

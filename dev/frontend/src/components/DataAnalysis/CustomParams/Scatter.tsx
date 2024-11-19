@@ -7,7 +7,7 @@ type ScatterProps = {
     setImage: (image: string) => void;
 };
 
-const Scatter = ({ setImage }: ScatterProps) => {
+const Scatter: ReactFC<ScatterProps> = ({ setImage }) => {
     const [variable1, setVariable1] = useState<string>('');
     const [variable2, setVariable2] = useState<string>('');
     const [target, setTarget] = useState<string>('');

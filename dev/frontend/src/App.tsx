@@ -4,7 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 
 import UserForm from './components/UserForm/UserForm';
-import ManageCSV from './components/ManageCSV/ManageCSV';
+import ManagementFile from './components/ManagementFile/ManagementFile';
 import Fetch from './components/fetch';
 import DataInfo from './components/DataInfo/DataInfo';
 import ColumnDetail from './components/ColumnDetail/ColumnDetail';
@@ -21,7 +21,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<UserForm />} />
           <Route path="/fetch" element={<Fetch />} />
-          <Route path="/manage-csv" element={<ManageCSV />} />
+          <Route path="/management-file" element={<ManagementFile />} />
           <Route path="/data-info" element={<DataInfo />} />
           <Route path="/data-info/:columnName/:type" element={<ColumnDetail />} />
           <Route path="/miss-input" element={<MissingValueImputation />} />

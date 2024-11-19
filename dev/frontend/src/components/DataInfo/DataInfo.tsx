@@ -16,7 +16,7 @@ type ApiResponse = {
 	quantitative: DataType[];
 };
 
-const DataInfo = () => {
+const DataInfo: React.FC = () => {
 	const [data, setData] = useState<ApiResponse>({ qualitative: [], quantitative: [] });
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);

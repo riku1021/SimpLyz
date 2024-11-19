@@ -4,7 +4,7 @@ import CustomParams from './CustomParams/CustomParams';
 import DataVisualization from './DataVisualization/DataVisualization';
 import AnalysisChat from './AnalysisChat/AnalysisChat';
 
-const DataAnalysis = () => {
+const DataAnalysis: React.FC = () => {
     const [selectChart, setSelectChart] = useState<string>('scatter');
     const [image, setImage] = useState<string>('');
 

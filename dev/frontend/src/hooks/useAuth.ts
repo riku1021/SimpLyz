@@ -12,8 +12,8 @@ const useAuth = (): { userId: string | null; csvId: string | null } => {
             navigate('/');
             return;
         }
-        if (!csvId && location.pathname !== '/manage-csv') {
-            navigate('/manage-csv');
+        if (!csvId && location.pathname !== '/management-file') {
+            navigate('/management-file');
         }
     }, [navigate, location.pathname, csvId]);
     return { userId, csvId };

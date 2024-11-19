@@ -10,7 +10,7 @@ type CustomParamsProps = {
     selectedChart: string;
 };
 
-const CustomParams = ({ setImage, setSelectChart, selectedChart }: CustomParamsProps) => {
+const CustomParams: React.FC<CustomParamsProps> = ({ setImage, setSelectChart, selectedChart }) => {
     const handleButtonClick = (chartType: string) => {
         setSelectChart(chartType);
     };

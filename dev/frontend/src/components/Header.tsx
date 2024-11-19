@@ -66,7 +66,7 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
 						}}
 					>
 						<Box
-							onClick={() => handleNavigate('/manage-csv')}
+							onClick={() => handleNavigate('/management-file')}
 							sx={{
 								display: 'flex',
 								flexDirection: 'column',
@@ -159,11 +159,11 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
 				<Box sx={{ width: 250, paddingRight: '20px' }}>
 					<List>
 						<ListItemButton
-							onClick={() => handleNavigate('/manage-csv')}
+							onClick={() => handleNavigate('/management-file')}
 							sx={{
-								backgroundColor: isActive('/manage-csv') ? '#DEEBF7' : 'inherit',
+								backgroundColor: isActive('/management-file') ? '#DEEBF7' : 'inherit',
 								'&:hover': {
-									backgroundColor: isActive('/manage-csv') ? '#DEEBF7' : 'rgba(0, 0, 0, 0.04)',
+									backgroundColor: isActive('/management-file') ? '#DEEBF7' : 'rgba(0, 0, 0, 0.04)',
 								},
 								borderRadius: '50px'
 							}}

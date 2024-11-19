@@ -15,7 +15,7 @@ type AnalysisChatProps = {
     image: string;
 };
 
-const AnalysisChat = ({ image }: AnalysisChatProps) => {
+const AnalysisChat: React.FC<AnalysisChatProps> = ({ image }) => {
     const [input, setInput] = useState<string>('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [isChartAnalysisMode, setIsChartAnalysisMode] = useState<boolean>(true);

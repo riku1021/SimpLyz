@@ -7,7 +7,7 @@ type HistogramProps = {
 	setImage: (image: string) => void;
 };
 
-const Histogram = ({ setImage }: HistogramProps) => {
+const Histogram: React.FC<HistogramProps> = ({ setImage }) => {
 	const [variable, setVariable] = useState<string>('');
 	const [target, setTarget] = useState<string>('');
 	const [variableList, setVariableList] = useState<string[]>(['1', '2', '3']);

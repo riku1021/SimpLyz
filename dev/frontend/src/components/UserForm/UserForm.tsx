@@ -73,7 +73,7 @@ const UserForm: React.FC = () => {
                     localStorage.setItem('loginStatus', 'ログイン中');
                     localStorage.setItem('userId', userId);
                     setFormData({ mail_address: '', password: '' });
-                    navigate('/manage-csv');
+                    navigate('/management-file');
                 } else {
                     showErrorAlert('エラーが発生しました', 'ユーザーIDが取得できませんでした');
                 }

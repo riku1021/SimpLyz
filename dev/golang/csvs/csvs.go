@@ -199,6 +199,7 @@ func GetCsvData(c *gin.Context, db *gorm.DB) {
 	// csvsのデータを取り出す
 	for _, csv := range csvs {
 		fmt.Printf("%+v\n", csv.FileName)
+		fmt.Printf("%+v\n", csv.UserID)
 		csvData := CsvData{
 			CsvID:            csv.CsvID,
 			FileName:         csv.FileName,

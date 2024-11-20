@@ -80,7 +80,7 @@ def entropy(series):
     return -(value_counts * np.log2(value_counts)).sum()
 
 
-def get_data_info() -> Dict[str, List]:
+def get_data_info(df: DataFrame) -> Dict[str, List]:
     """データの詳細情報を取得する関数
 
     Args:
@@ -89,7 +89,7 @@ def get_data_info() -> Dict[str, List]:
     Returns:
         Dict[str, List]: 量的変数のカラム名と質的変数のカラム名をリストで管理している
     """
-    df = get_df()
+
     qualitative_list = []
     quantitative_list = []
 
@@ -158,7 +158,7 @@ def get_data_info() -> Dict[str, List]:
     return send_data
 
 
-def get_miss_columns() -> Dict[str, List]:
+def get_miss_columns(df: DataFrame) -> Dict[str, List]:
     """
     説明
     ----------
@@ -166,7 +166,7 @@ def get_miss_columns() -> Dict[str, List]:
 
     Parameter
     ----------
-    None
+    df: DataFrame
 
     Return
     ----------
@@ -175,7 +175,7 @@ def get_miss_columns() -> Dict[str, List]:
 
     """
 
-    df = get_df()
+    # df = get_df()
 
     quantitative_miss_list = []
     qualitative_miss_list = []
@@ -198,7 +198,7 @@ def get_miss_columns() -> Dict[str, List]:
     return send_data
 
 
-def change_umeric_to_categorical(data: Dict[str, str]) -> None:
+def change_umeric_to_categorical(data: Dict[str, str], df: DataFrame) -> None:
     """
     説明
     ----------
@@ -217,16 +217,18 @@ def change_umeric_to_categorical(data: Dict[str, str]) -> None:
 
     column = data["column_name"]
 
-    df = get_df()
+    # df = get_df()
 
     df[column] = df[column].astype(str)
 
-    save_dtype(df, "./uploads/dtypes.json")
+    # save_dtype(df, "./uploads/dtypes.json")
 
-    df.to_csv("./uploads/demo.csv", index=False)
+    # df.to_csv("./uploads/demo.csv", index=False)
+
+    return df
 
 
-def make_pie(data) -> str:
+def make_pie(data: Dict[str, Any], df: DataFrame) -> str:
     """
     説明
     ----------
@@ -248,7 +250,7 @@ def make_pie(data) -> str:
 
     column = data["column_name"]
 
-    df = get_df()
+    # df = get_df()
 
     value_counts = df[column].value_counts()[::-1]
     percentages = (value_counts / len(df) * 100)[::-1]
@@ -331,7 +333,7 @@ def calculate(formula_list: List, row: Series) -> int:
     return result
 
 
-def make_feature_value(data: Dict[str, Any]) -> None:
+def make_feature_value(data: Dict[str, Any], df: DataFrame) -> None:
     """
     説明
     ----------
@@ -348,16 +350,14 @@ def make_feature_value(data: Dict[str, Any]) -> None:
 
     """
 
-    df = get_df()
+    # df = get_df()
 
     formula_list = data["formula"]
     new_column_name = data["new_column_name"]
 
     df[new_column_name] = df.apply(lambda row: calculate(formula_list, row), axis=1)
 
-    df.to_csv("./uploads/demo.csv", index=False)
-
-    # return df
+    return df
 
 
 def prepare_data(
@@ -582,7 +582,7 @@ def evaluate_regression_model(
     return plot_url
 
 
-def feature_value_analysis(data: Dict[str, str]) -> str:
+def feature_value_analysis(data: Dict[str, str], df: DataFrame) -> str:
     """
     説明
     ----------
@@ -591,6 +591,8 @@ def feature_value_analysis(data: Dict[str, str]) -> str:
     Parameter
     ----------
     data : Dict[str, Any]
+        frontendからの情報
+    df : DataFrame
         データフレーム
 
     Return
@@ -600,7 +602,7 @@ def feature_value_analysis(data: Dict[str, str]) -> str:
 
     """
 
-    df = get_df()
+    # df = get_df()
 
     column_name = data["column_name"]
     exclude_columns: List[str] = []  # 使わないカラムを指定
@@ -615,7 +617,7 @@ def feature_value_analysis(data: Dict[str, str]) -> str:
     return plot_url
 
 
-def impute_numeric(column: str, method: str = "mean") -> None:
+def impute_numeric(column: str, method: str, df_imputed: DataFrame) -> None:
     """
     説明
     ----------
@@ -634,7 +636,7 @@ def impute_numeric(column: str, method: str = "mean") -> None:
 
     """
 
-    df_imputed = get_df()
+    # df_imputed = get_df()
 
     # 指定されたカラムが数値型かどうかをチェック
     if np.issubdtype(df_imputed[column].dtype, np.number):
@@ -690,10 +692,11 @@ def impute_numeric(column: str, method: str = "mean") -> None:
     else:
         print(f"警告: カラム '{column}' は数値型ではありません。補完は行われません。")
 
-    df_imputed.to_csv("./uploads/demo.csv", index=False)
+    # df_imputed.to_csv("./uploads/demo.csv", index=False)
+    return df_imputed
 
 
-def impute_categorical(column: str, method: str = "mode"):
+def impute_categorical(column: str, method: str, df_imputed: DataFrame):
     """
     説明
     ----------
@@ -712,7 +715,7 @@ def impute_categorical(column: str, method: str = "mode"):
 
     """
 
-    df_imputed = get_df()
+    # df_imputed = get_df()
 
     # 指定されたカラムがカテゴリカル型または文字列型かどうかをチェック
     if (
@@ -749,7 +752,8 @@ def impute_categorical(column: str, method: str = "mode"):
             f"警告: カラム '{column}' はカテゴリカル型または文字列型ではありません。補完は行われません。"
         )
 
-    df_imputed.to_csv("./uploads/demo.csv", index=False)
+    # df_imputed.to_csv("./uploads/demo.csv", index=False)
+    return df_imputed
 
 
 def save_dtype(df: DataFrame, filename: str) -> None:
@@ -816,8 +820,6 @@ def set_dtypes(df: DataFrame, dtypes: Dict[str, str]) -> DataFrame:
     Returns:
         DataFrame: 型適応後のデータフレーム
     """
-
-    print(type(dtypes))
 
     for col, dtype in dtypes.items():
         if dtype == "object":

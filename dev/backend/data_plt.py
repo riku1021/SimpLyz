@@ -16,7 +16,7 @@ import seaborn as sns
 from pandas import DataFrame
 
 # メイリオフォントの設定
-plt.rcParams['font.family'] = 'Noto Sans CJK JP'
+plt.rcParams["font.family"] = "Noto Sans CJK JP"
 
 matplotlib.use("Agg")
 
@@ -78,7 +78,7 @@ def get_df() -> DataFrame:
     return df
 
 
-def read_quantitative() -> List[str]:
+def read_quantitative(df: DataFrame) -> List[str]:
     """
     説明
     ----------
@@ -86,7 +86,7 @@ def read_quantitative() -> List[str]:
 
     Parameter
     ----------
-    None
+    df: DataFrame
 
     Return
     ----------
@@ -95,7 +95,6 @@ def read_quantitative() -> List[str]:
     """
 
     quantitative_variables = []
-    df = get_df()
     columns = df.columns.values
     # apply関数で自作関数を適用
     is_numeric_col = df.apply(is_numeric)
@@ -107,7 +106,7 @@ def read_quantitative() -> List[str]:
     return quantitative_variables
 
 
-def read_qualitative() -> List[str]:
+def read_qualitative(df: DataFrame) -> List[str]:
     """
     説明
     ----------
@@ -126,7 +125,7 @@ def read_qualitative() -> List[str]:
     # passes = read_folder()
     qualitative_variables = []
     # encoding = check_encoding(passes[0])
-    df = get_df()
+    # df = get_df()
     columns = df.columns.values
     # apply関数で自作関数を適用
     is_numeric_col = df.apply(is_numeric)
@@ -170,7 +169,7 @@ def is_numeric(column):
     return all(isinstance(x, (int, float)) for x in column)
 
 
-def plot_scatter(jsons: Dict[str, Any]) -> str:
+def plot_scatter(jsons: Dict[str, Any], df: DataFrame) -> str:
     """
     説明
     ----------
@@ -205,7 +204,7 @@ def plot_scatter(jsons: Dict[str, Any]) -> str:
         if k in list_columns:
             list_columns[k] = v
 
-    df = get_df()
+    # df = get_df()
 
     if list_columns["target"] == "None":
         sns_plot = sns.regplot(
@@ -233,7 +232,7 @@ def plot_scatter(jsons: Dict[str, Any]) -> str:
     return plot_url
 
 
-def plot_hist(jsons: Dict[str, Any]) -> str:
+def plot_hist(jsons: Dict[str, Any], df: DataFrame) -> str:
     """
     説明
     ----------
@@ -242,6 +241,7 @@ def plot_hist(jsons: Dict[str, Any]) -> str:
     Request
     ----------
     Dict[str, Any]
+    DataFrame
 
     Response
     ----------
@@ -259,15 +259,19 @@ def plot_hist(jsons: Dict[str, Any]) -> str:
         if k in list_columns:
             list_columns[k] = v
 
-    df = get_df()
+    # df = get_df()
 
     if list_columns["target"] == "None":
         hist_plot = sns.histplot(x=list_columns["variable"], data=df)
     else:
         order = df[list_columns["target"]].value_counts(ascending=True).index
         hist_plot = sns.histplot(
-            x=list_columns["variable"], hue=list_columns["target"],
-            data=df, hue_order=order, multiple="layer", palette="Set2"
+            x=list_columns["variable"],
+            hue=list_columns["target"],
+            data=df,
+            hue_order=order,
+            multiple="layer",
+            palette="Set2",
         )
 
     # バッファに保存
@@ -279,7 +283,7 @@ def plot_hist(jsons: Dict[str, Any]) -> str:
     return plot_url
 
 
-def plot_box(jsons: Dict[str, Any]) -> str:
+def plot_box(jsons: Dict[str, Any], df: DataFrame) -> str:
     """
     説明
     ----------
@@ -288,6 +292,7 @@ def plot_box(jsons: Dict[str, Any]) -> str:
     Request
     ----------
     Dict[str, Any]
+    DataFrame
 
     Response
     ----------
@@ -301,14 +306,14 @@ def plot_box(jsons: Dict[str, Any]) -> str:
     plt.figure(figsize=(10, 9))
     x = jsons["variable1"]
     y = jsons["variable2"]
-    df = get_df()
-    
+    # df = get_df()
+
     df[x] = df[x].apply(lambda label: label if len(label) <= 25 else label[:25] + "...")
-    
+
     # プロット
     box_plot = sns.boxenplot(x=x, y=y, data=df)
     plt.xticks(rotation=340, fontsize=8)
-    
+
     # バイナリデータにエンコード
     buf = io.BytesIO()
     plt.savefig(buf, format="png")

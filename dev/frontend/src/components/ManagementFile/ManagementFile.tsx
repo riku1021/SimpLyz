@@ -6,7 +6,7 @@ import FileList from './FileList';
 import useAuth from '../../hooks/useAuth';
 
 const ManagementFile: React.FC = () => {
-	useAuth();
+	const { userId } = useAuth();
 	const [csvList, setCsvList] = useState<CsvDataType[]>([]);
 	const [loadingCsvList, setLoadingCsvList] = useState<boolean>(false);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -14,8 +14,10 @@ const ManagementFile: React.FC = () => {
 	const fetchCsvList = async () => {
 		setLoadingCsvList(true);
 		try {
-			const response = await fetchCsvSmallData('rootId');
-			setCsvList(response.CsvData || []);
+			if (userId) {
+				const response = await fetchCsvSmallData(userId);
+				setCsvList(response.CsvData || []);
+			}
 		} catch (error) {
 			console.error('CSV一覧の取得に失敗しました', error);
 		} finally {

@@ -20,21 +20,19 @@ def get_csv(csv_id: str) -> Union[Tuple[DataFrame, Dict[str, str]], Dict[str, st
     Returns:
         Union[Tuple[DataFrame, Dict[str, str]], Dict[str, str]]: DataFrameもしくはエラーを返す
     """
+
     try:
         # GoサーバーからCSVデータを取得
-        response = requests.get(f"{GO_API_URL}/get_csv/{csv_id}")
+        proxies = {"http": None, "https": None}  # 大学で行うときはここを有効に
+        response = requests.get(f"{GO_API_URL}/get_csv/{csv_id}", proxies=proxies)
 
         # レスポンスの内容とステータスコードを表示
         print("Response Status Code:", response.status_code)
-        # print("Response Content:", response.text)
         if response.status_code == 200:
             response_data = response.json()  # JSONデータを取得
-            # print(type(response_data))
             try:
                 # filesキーからCSVデータを取得
                 csv_files = response_data.get("file", [])
-                # print(csv_files)
-                # for i, file_data in enumerate(csv_files):
                 # バイナリデータを取得
                 csv_content = csv_files.get("csv_file")
                 json_content = csv_files.get("json_file")
@@ -44,16 +42,8 @@ def get_csv(csv_id: str) -> Union[Tuple[DataFrame, Dict[str, str]], Dict[str, st
                     decoded_json_content = base64.b64decode(json_content).decode(
                         "utf-8"
                     )
-                    # print(decoded_json_content)
                     df = pd.read_csv(io.StringIO(decoded_csv_content))
                     dtypes = json.loads(decoded_json_content)
-                    # print(f"\nDataFrame {i + 1}:")
-                    # print(df.head())  # 最初の5行を表示
-                    # print("\nColumns:", df.columns.tolist())  # カラム名を表示
-                    # print("\nShape:", df.shape)  # データフレームの形状を表示
-                    # print(df.isnull().any())
-                # else:
-                # print(f"No CSV content in file {i + 1}")
 
                 return df, dtypes
 
@@ -85,7 +75,7 @@ def get_csv(csv_id: str) -> Union[Tuple[DataFrame, Dict[str, str]], Dict[str, st
 
 
 def update_csv(csv_id: str, df: DataFrame) -> Dict[str, str]:
-    """csvをアップロードする関数
+    """csvをアップデートする関数
 
     Args:
         df (DataFrame): アップロードするデータフレーム
@@ -122,10 +112,12 @@ def update_csv(csv_id: str, df: DataFrame) -> Dict[str, str]:
 
     # print(json_data)
 
+    proxies = {"http": None, "https": None}  # 大学で行うときはここを有効に
     response = requests.post(
         f"{GO_API_URL}/csvs/update",
         files=files,
         data=json_data,
+        proxies=proxies,
     )
 
     print(response.status_code)

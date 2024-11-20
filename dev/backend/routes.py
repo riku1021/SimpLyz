@@ -51,79 +51,6 @@ def setup_routes(app):
     def index():
         return {"message": True}
 
-    # @app.route("/get_csv", methods=["GET"])
-    # def get_csv():
-    #     try:
-    #         proxies = {"http": None, "https": None}
-    #         # GoサーバーからCSVデータを取得
-    #         response = requests.get(
-    #             f"{GO_API_URL}/get_csv/357addc1-f702-422d-a15b-acf44d3d0ddd",
-    #             proxies=proxies,
-    #         )
-
-    #         # レスポンスの内容とステータスコードを表示
-    #         print("Response Status Code:", response.status_code)
-    #         # print("Response Content:", response.text)
-    #         if response.status_code == 200:
-    #             response_data = response.json()  # JSONデータを取得
-    #             print(type(response_data))
-    #             try:
-    #                 # filesキーからCSVデータを取得
-    #                 csv_files = response_data.get("file", [])
-    #                 # print(csv_files)
-    #                 # for i, file_data in enumerate(csv_files):
-    #                 # バイナリデータを取得
-    #                 csv_content = csv_files.get("csv_file")
-    #                 json_content = csv_files.get("json_file")
-    #                 if csv_content and json_content:
-    #                     # バイナリデータをDataFrameに変換
-    #                     decoded_csv_content = base64.b64decode(csv_content).decode(
-    #                         "utf-8"
-    #                     )
-    #                     decoded_json_content = base64.b64decode(json_content).decode(
-    #                         "utf-8"
-    #                     )
-    #                     print(decoded_json_content)
-    #                     df = pd.read_csv(io.StringIO(decoded_csv_content))
-    #                     # print(f"\nDataFrame {i + 1}:")
-    #                     print(df.head())  # 最初の5行を表示
-    #                     print("\nColumns:", df.columns.tolist())  # カラム名を表示
-    #                     print("\nShape:", df.shape)  # データフレームの形状を表示
-    #                     print(df.isnull().any())
-    #                 # else:
-    #                 # print(f"No CSV content in file {i + 1}")
-
-    #                 return jsonify({"message": "success"})
-
-    #             except Exception as parse_error:
-    #                 print("Error parsing CSV data:", str(parse_error))
-    #                 return (
-    #                     jsonify(
-    #                         {
-    #                             "error": "Error parsing CSV data",
-    #                             "details": str(parse_error),
-    #                         }
-    #                     ),
-    #                     500,
-    #                 )
-
-    #         else:
-    #             error_message = response.text
-    #             print("Error from Go server:", error_message)
-    #             return (
-    #                 jsonify(
-    #                     {"error": "Failed to fetch CSV file", "details": error_message}
-    #                 ),
-    #                 response.status_code,
-    #             )
-
-    #     except requests.exceptions.RequestException as e:
-    #         print("Request Error:", str(e))
-    #         return jsonify({"error": "Request failed", "details": str(e)}), 500
-    #     except Exception as e:
-    #         print("Unexpected Error:", str(e))
-    #         return jsonify({"error": "Unexpected error", "details": str(e)}), 500
-
     @app.route("/upload", methods=["POST"])
     def upload_csv():
         """
@@ -158,14 +85,6 @@ def setup_routes(app):
         user_id = json_data["user_id"]
         csv_id = json_data["csv_id"]
 
-        print(user_id, csv_id)
-
-        # csvファイルの保存
-        # file_path = os.path.join(UPLOAD_PATH, "demo.csv")
-        # file.save(file_path)
-
-        # file = request.files["file"]
-
         # CSVデータを直接読み込み
         csv_data = file.read().decode("utf-8")  # バイトデータを文字列に変換
         df = pd.read_csv(
@@ -173,8 +92,6 @@ def setup_routes(app):
             na_values=["null", ""],  # ここでnullや空文字をNaNとして認識
             keep_default_na=True,  # デフォルトのNaN認識を保持
         )  # データフレームに変換
-
-        # print(df.isnull().any())
 
         dtypes = {col: str(dtype) for col, dtype in df.dtypes.items()}
 
@@ -187,23 +104,18 @@ def setup_routes(app):
             ),
         }
 
-        filename = file.filename
-
+        # csvを保存する際の情報を取得
         form_data = extraction_df(
-            df=df, filename=filename, user_id=user_id, csv_id=csv_id
+            df=df, filename=file.filename, user_id=user_id, csv_id=csv_id
         )
 
-        # # その他データを取得
-
+        proxies = {"http": None, "https": None}  # 大学で行うときはここを有効に
         response = requests.post(
             f"{GO_API_URL}/upload_csv",
             files=files,
             data=form_data,
+            proxies=proxies,
         )
-
-        # データの型を管理するjsonファイルの作成
-        # with open("dtypes.json", "w") as json_file:
-        #     json.dump(empty_json, json_file)
 
         if response.status_code == 200:
             return (
@@ -220,48 +132,8 @@ def setup_routes(app):
                 # JSONでない場合のエラーメッセージを表示
                 print(f"エラーレスポンス: {response.text}")
             return jsonify({"error": "Failed to upload data to Go API"}), 500
-        # return jsonify({"message": f"File {file.filename} uploaded successfully"})
 
-    # @app.route("/upload", methods=["POST"])
-    # def upload_csv():
-    #     """
-    #     説明
-    #     ----------
-    #     csvをアップロードするapi
-
-    #     Request
-    #     ----------
-    #     ImmutableMultiDict([('file', <FileStorage: 'DA_04.csv' ('text/csv')>)])
-
-    #     Response
-    #     ----------
-    #     {"message": f"File {file.filename} uploaded successfully"}
-
-    #     """
-
-    #     if not os.path.exists(UPLOAD_PATH):
-    #         os.makedirs(UPLOAD_PATH)
-
-    #     if "file" not in request.files:
-    #         return jsonify({"error": "No file part"}), 400
-
-    #     if request.files["file"].filename == "":
-    #         return jsonify({"error": "No selected file"}), 400
-
-    #     file = request.files["file"]
-
-    #     # csvファイルの保存
-    #     file_path = os.path.join(UPLOAD_PATH, "demo.csv")
-    #     file.save(file_path)
-
-    #     empty_json = {}
-
-    #     # データの型を管理するjsonファイルの作成
-    #     with open("dtypes.json", "w") as json_file:
-    #         json.dump(empty_json, json_file)
-
-    #     return jsonify({"message": f"File {file.filename} uploaded successfully"}), 200
-
+    # 今後不要になる
     @app.route("/clear-uploads", methods=["POST"])
     def clear_uploads():
         """
@@ -293,6 +165,7 @@ def setup_routes(app):
 
         return jsonify({"message": "Uploads directory cleared"}), 200
 
+    # 今後不要になる
     @app.route("/get-uploaded-file", methods=["GET"])
     def get_uploaded_file():
         """
@@ -308,6 +181,7 @@ def setup_routes(app):
         ----------
         {"fileName": ファイル名（またはNone）}
         """
+
         # UPLOAD_PATHディレクトリに存在する最初のCSVファイルを取得
         if os.path.exists(UPLOAD_PATH):
             files = [f for f in os.listdir(UPLOAD_PATH) if f.endswith(".csv")]
@@ -335,13 +209,24 @@ def setup_routes(app):
 
         """
 
-        # /csvs/get/data:csv_id
+        # csv取得
+        json_data = request.get_json()
+        csv_id = json_data["csv_id"]
+        data = get_csv(csv_id=csv_id)
 
-        quantitative_list = read_quantitative()
+        if type(data) == dict:
+            return data  # もし辞書型の場合はエラー
+
+        df, dtypes = data
+
+        # dfの型適応
+        df = set_dtypes(df=df, dtypes=dtypes)
+
+        quantitative_list = read_quantitative(df=df)
 
         return jsonify({"quantitative_variables": quantitative_list}), 200
 
-    @app.route("/get_qualitative", methods=["GET"])
+    @app.route("/get_qualitative", methods=["POST"])
     def get_qualitative():
         """
         説明
@@ -359,9 +244,20 @@ def setup_routes(app):
 
         """
 
-        # /csvs/get/data:csv_id
+        # csv取得
+        json_data = request.get_json()
+        csv_id = json_data["csv_id"]
+        data = get_csv(csv_id=csv_id)
 
-        qualitative_list = read_qualitative()
+        if type(data) == dict:
+            return data  # もし辞書型の場合はエラー
+
+        df, dtypes = data
+
+        # dfの型適応
+        df = set_dtypes(df=df, dtypes=dtypes)
+
+        qualitative_list = read_qualitative(df=df)
 
         return jsonify({"qualitative_variables": qualitative_list})
 
@@ -383,10 +279,20 @@ def setup_routes(app):
 
         """
 
-        # /csvs/get/data:csv_id
+        # csv取得
+        json_data = request.get_json()
+        csv_id = json_data["csv_id"]
+        data = get_csv(csv_id=csv_id)
 
-        data = request.get_json()
-        image_data = plot_scatter(data)
+        if type(data) == dict:
+            return data  # もし辞書型の場合はエラー
+
+        df, dtypes = data
+
+        # dfの型適応
+        df = set_dtypes(df=df, dtypes=dtypes)
+
+        image_data = plot_scatter(json_data, df)
 
         return jsonify({"image_data": image_data})
 
@@ -408,10 +314,20 @@ def setup_routes(app):
 
         """
 
-        # /csvs/get/data:csv_id
+        # csv取得
+        json_data = request.get_json()
+        csv_id = json_data["csv_id"]
+        data = get_csv(csv_id=csv_id)
 
-        data = request.get_json()
-        image_data = plot_hist(data)
+        if type(data) == dict:
+            return data  # もし辞書型の場合はエラー
+
+        df, dtypes = data
+
+        # dfの型適応
+        df = set_dtypes(df=df, dtypes=dtypes)
+
+        image_data = plot_hist(json_data, df)
 
         return jsonify({"image_data": image_data})
 
@@ -433,15 +349,25 @@ def setup_routes(app):
 
         """
 
-        # /csvs/get/data:csv_id
+        # csv取得
+        json_data = request.get_json()
+        csv_id = json_data["csv_id"]
+        data = get_csv(csv_id=csv_id)
 
-        data = request.get_json()
-        image_data = plot_box(data)
+        if type(data) == dict:
+            return data  # もし辞書型の場合はエラー
+
+        df, dtypes = data
+
+        # dfの型適応
+        df = set_dtypes(df=df, dtypes=dtypes)
+
+        image_data = plot_box(json_data, df)
 
         return jsonify({"image_data": image_data})
 
     # データの基本情報の取得
-    @app.route("/get_data_info", methods=["GET"])
+    @app.route("/get_data_info", methods=["POST"])
     def get_data():
         """
         説明
@@ -458,23 +384,25 @@ def setup_routes(app):
             各カラムの基本情報
 
         """
-        # csv_id = "357addc1-f702-422d-a15b-acf44d3d0ddd"
-        # # /csvs/get/data:csv_id
-        # data = get_csv(csv_id=csv_id)
 
-        # if type(data) == dict:
-        #     return data  # もし辞書型の場合はエラー
+        # csv取得
+        json_data = request.get_json()
+        csv_id = json_data["csv_id"]
+        data = get_csv(csv_id=csv_id)
 
-        # df, dtypes = data
+        if type(data) == dict:
+            return data  # もし辞書型の場合はエラー
 
-        # # dfの型適応
-        # df = set_dtypes(df=df, dtypes=dtypes)
+        df, dtypes = data
 
-        send_data = get_data_info()
+        # dfの型適応
+        df = set_dtypes(df=df, dtypes=dtypes)
+
+        send_data = get_data_info(df=df)
 
         return jsonify(send_data)
 
-    @app.route("/get_miss_columns", methods=["GET"])
+    @app.route("/get_miss_columns", methods=["POST"])
     def get_miss():
         """
         説明
@@ -492,9 +420,20 @@ def setup_routes(app):
 
         """
 
-        # /csvs/get/data:csv_id
+        # csv取得
+        json_data = request.get_json()
+        csv_id = json_data["csv_id"]
+        data = get_csv(csv_id=csv_id)
 
-        send_data = get_miss_columns()
+        if type(data) == dict:
+            return data  # もし辞書型の場合はエラー
+
+        df, dtypes = data
+
+        # dfの型適応
+        df = set_dtypes(df=df, dtypes=dtypes)
+
+        send_data = get_miss_columns(df=df)
 
         return jsonify(send_data)
 
@@ -516,14 +455,25 @@ def setup_routes(app):
 
         """
 
-        # /csvs/get/data:csv_id
-        # /csvs/update
+        # csv取得
+        json_data = request.get_json()
+        csv_id = json_data["csv_id"]
+        data = get_csv(csv_id=csv_id)
 
-        data: Dict[str, str] = request.get_json()
+        if type(data) == dict:
+            return data  # もし辞書型の場合はエラー
 
-        change_umeric_to_categorical(data)
+        df, dtypes = data
 
-        return jsonify({"message": "change successfully"})
+        # dfの型適応
+        df = set_dtypes(df=df, dtypes=dtypes)
+
+        df = change_umeric_to_categorical(json_data, df)
+
+        # csvファイルを更新
+        message = update_csv(csv_id=csv_id, df=df)
+
+        return message
 
     @app.route("/get_pie", methods=["POST"])
     def get_pie():
@@ -543,14 +493,24 @@ def setup_routes(app):
 
         """
 
-        # /csvs/get/data:csv_id
+        # csv取得
+        json_data = request.get_json()
+        csv_id = json_data["csv_id"]
+        data = get_csv(csv_id=csv_id)
 
-        data: Dict[str, str] = request.get_json()
+        if type(data) == dict:
+            return data  # もし辞書型の場合はエラー
 
-        image_data = make_pie(data)
+        df, dtypes = data
+
+        # dfの型適応
+        df = set_dtypes(df=df, dtypes=dtypes)
+
+        image_data = make_pie(json_data, df)
 
         return jsonify({"image_data": image_data})
 
+    # 今後不要になる
     @app.route("/read-csv", methods=["GET"])
     def read_csv():
         """
@@ -622,39 +582,25 @@ def setup_routes(app):
 
         """
 
-        # golang test
+        # csv取得
+        json_data = request.get_json()
+        csv_id = json_data["csv_id"]
+        data = get_csv(csv_id=csv_id)
 
-        # /csvs/get/data:csv_id
-        # /csvs/update
+        if type(data) == dict:
+            return data  # もし辞書型の場合はエラー
 
-        # csv_id = "357addc1-f702-422d-a15b-acf44d3d0ddd"
+        df, dtypes = data
 
-        # # postgresqlからcsvとjsonファイルを取得する。
-        # data = get_csv(csv_id=csv_id)
+        # dfの型適応
+        df = set_dtypes(df=df, dtypes=dtypes)
 
-        # if type(data) == dict:
-        #     return  # もし辞書型の場合はエラー
+        df = make_feature_value(json_data, df=df)
 
-        # df, dtypes = data
+        # postgresqlに保存
+        message = update_csv(csv_id=csv_id, df=df)
 
-        # # print(dtypes)
-
-        # # dfの型適応
-        # df = set_dtypes(df=df, dtypes=dtypes)
-
-        data: Dict[str, Any] = request.get_json()
-
-        # # print(data)
-
-        make_feature_value(data)
-
-        # # postgresqlに保存
-        # message = update_csv(csv_id=csv_id, df=df)
-
-        # print(message)
-
-        return jsonify({"message": "make successfully"})
-        # return message
+        return message
 
     @app.route("/feature_analysis", methods=["POST"])
     def feature_analysis():
@@ -674,11 +620,22 @@ def setup_routes(app):
 
         """
 
-        # /csvs/get/data:csv_id
+        # csv取得
+        json_data = request.get_json()
+        csv_id = json_data["csv_id"]
+        data = get_csv(csv_id=csv_id)
 
-        data: Dict[str, str] = request.get_json()
+        if type(data) == dict:
+            return data  # もし辞書型の場合はエラー
 
-        image_data = feature_value_analysis(data)
+        df, dtypes = data
+
+        # dfの型適応
+        df = set_dtypes(df=df, dtypes=dtypes)
+
+        # data: Dict[str, str] = request.get_json()
+
+        image_data = feature_value_analysis(json_data, df)
 
         return jsonify({"image_data": image_data})
 
@@ -700,16 +657,28 @@ def setup_routes(app):
 
         """
 
-        # /csvs/get/data:csv_id
+        # csv取得
+        json_data = request.get_json()
+        csv_id = json_data["csv_id"]
+        data = get_csv(csv_id=csv_id)
 
-        data: Dict[str, str] = request.get_json()
+        if type(data) == dict:
+            return data  # もし辞書型の場合はエラー
 
-        column = data["column_name"]
-        methods = data["complementary_methods"]
+        df, dtypes = data
 
-        impute_numeric(column, methods)
+        # dfの型適応
+        df = set_dtypes(df=df, dtypes=dtypes)
 
-        return jsonify({"message": "complement numeric successfully"})
+        column = json_data["column_name"]
+        methods = json_data["complementary_methods"]
+
+        df = impute_numeric(column, methods, df)
+
+        # postgresqlに保存
+        message = update_csv(csv_id=csv_id, df=df)
+
+        return message
 
     @app.route("/complement/categorical", methods=["POST"])
     def complement_categorical():
@@ -729,16 +698,30 @@ def setup_routes(app):
 
         """
 
-        # /csvs/get/data:csv_id
+        # csv取得
+        json_data = request.get_json()
+        csv_id = json_data["csv_id"]
+        data = get_csv(csv_id=csv_id)
 
-        data: Dict[str, str] = request.get_json()
+        if type(data) == dict:
+            return data  # もし辞書型の場合はエラー
 
-        column = data["column_name"]
-        methods = data["complementary_methods"]
+        df, dtypes = data
 
-        impute_categorical(column, methods)
+        # dfの型適応
+        df = set_dtypes(df=df, dtypes=dtypes)
 
-        return jsonify({"message": "complement categorical successfully"})
+        # data: Dict[str, str] = request.get_json()
+
+        column = json_data["column_name"]
+        methods = json_data["complementary_methods"]
+
+        df = impute_categorical(column, methods, df)
+
+        # postgresqlに保存
+        message = update_csv(csv_id=csv_id, df=df)
+
+        return message
 
     @app.route("/gemini/image", methods=["POST"])
     def gemini_image():

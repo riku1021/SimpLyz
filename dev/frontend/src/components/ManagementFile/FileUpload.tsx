@@ -1,9 +1,10 @@
 import React from 'react';
 import { Card, CardContent, Paper, Typography } from '@mui/material';
 import { showConfirmationAlert, showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
-import { generateUUID } from '../../databaseUtils/Users';
+import { generateUUID } from '../../utils/generateUuid';
 import axios from 'axios';
 import { BACKEND_URL } from '../../urlConfig';
+import useAuth from '../../hooks/useAuth';
 
 interface FileUploadProps {
     fileInputRef: React.RefObject<HTMLInputElement>;
@@ -11,6 +12,7 @@ interface FileUploadProps {
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({ fileInputRef, fetchCsvList }) => {
+    const { userId } = useAuth();
     const handleFiles = (files: FileList) => {
         const file = files[0];
         if (file.name.endsWith('.csv')) {
@@ -26,7 +28,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ fileInputRef, fetchCsvList }) =
         formData.append(
             'jsonData',
             JSON.stringify({
-                user_id: 'rootId',
+                user_id: userId,
                 csv_id: generateUUID(),
             })
         );

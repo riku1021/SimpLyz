@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Card, CardContent, FormControl, InputLabel, MenuItem, Select, Grid, Typography, SelectChangeEvent } from '@mui/material';
 import { BACKEND_URL } from '../../../urlConfig';
+import useAuth from '../../../hooks/useAuth';
 
 type PieChartProps = {
 	setImage: (image: string) => void;
 };
 
 const PieChart: React.FC<PieChartProps> = ({ setImage }) => {
+	const { csvId } = useAuth();
 	const [variable, setVariable] = useState<string>('');
 	const [variableList, setVariableList] = useState<string[]>([]);
 
@@ -15,7 +17,9 @@ const PieChart: React.FC<PieChartProps> = ({ setImage }) => {
 	useEffect(() => {
 		const fetchVariable = async () => {
 			try {
-				const response = await axios.get(`${BACKEND_URL}/get_qualitative`);
+				const response = await axios.post(`${BACKEND_URL}/get_qualitative`, {
+					csv_id: csvId
+				});
 				const data = response.data;
 				setVariableList(data.qualitative_variables);
 				setVariable(data.qualitative_variables[0]);
@@ -31,9 +35,11 @@ const PieChart: React.FC<PieChartProps> = ({ setImage }) => {
 	// 画像データを取得
 	useEffect(() => {
 		const fetchImage = async () => {
-			const sentData = { column_name: variable };
 			try {
-				const response = await axios.post(`${BACKEND_URL}/get_pie`, sentData);
+				const response = await axios.post(`${BACKEND_URL}/get_pie`, {
+					csv_id: csvId,
+					column_name: variable
+				});
 				const data = response.data;
 				setImage(data.image_data);
 				console.log(data);

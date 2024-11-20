@@ -4,6 +4,7 @@ import TableComponent from './TableComponent';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { BACKEND_URL } from '../../urlConfig';
+import useAuth from '../../hooks/useAuth';
 
 type DataType = {
 	column_name: string;
@@ -17,6 +18,7 @@ type ApiResponse = {
 };
 
 const DataInfo: React.FC = () => {
+	const { csvId } = useAuth();
 	const [data, setData] = useState<ApiResponse>({ qualitative: [], quantitative: [] });
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
@@ -25,7 +27,9 @@ const DataInfo: React.FC = () => {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const response = await axios.get<ApiResponse>(`${BACKEND_URL}/get_data_info`);
+				const response = await axios.post<ApiResponse>(`${BACKEND_URL}/get_data_info`, {
+					csv_id: csvId
+				});
 				setData(response.data);
 				setLoading(false);
 			} catch (error) {

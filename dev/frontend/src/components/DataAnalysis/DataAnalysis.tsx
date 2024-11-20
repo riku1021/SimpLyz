@@ -3,8 +3,10 @@ import { useState } from 'react';
 import CustomParams from './CustomParams/CustomParams';
 import DataVisualization from './DataVisualization/DataVisualization';
 import AnalysisChat from './AnalysisChat/AnalysisChat';
+import useAuth from '../../hooks/useAuth';
 
 const DataAnalysis: React.FC = () => {
+    useAuth();
     const [selectChart, setSelectChart] = useState<string>('scatter');
     const [image, setImage] = useState<string>('');
 

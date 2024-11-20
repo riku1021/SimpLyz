@@ -4,6 +4,7 @@ import { Box, Button, Typography, Select, MenuItem, TextField, Card, CardContent
 import { Add as AddIcon } from '@mui/icons-material';
 import { showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
 import { BACKEND_URL } from '../../urlConfig';
+import useAuth from '../../hooks/useAuth';
 
 type FormulaItem = {
 	type: 'column' | 'operation' | 'number' | 'parenthesis';
@@ -11,6 +12,7 @@ type FormulaItem = {
 };
 
 const FeatureCreation = () => {
+	const { csvId } = useAuth();
 	const [quantitativeColumns, setQuantitativeColumns] = useState<string[]>([]);
 	const [currentColumn, setCurrentColumn] = useState<string>('');
 	const [currentOperation, setCurrentOperation] = useState<string>('addition');
@@ -22,7 +24,9 @@ const FeatureCreation = () => {
 	useEffect(() => {
 		const fetchQuantitativeColumns = async () => {
 			try {
-				const response = await axios.post<{ quantitative_variables: string[] }>(`${BACKEND_URL}/get_quantitative`);
+				const response = await axios.post<{ quantitative_variables: string[] }>(`${BACKEND_URL}/get_quantitative`, {
+					csv_id: csvId
+				});
 				setQuantitativeColumns(response.data.quantitative_variables);
 				setCurrentColumn(response.data.quantitative_variables[0]);
 			} catch (error) {
@@ -142,6 +146,7 @@ const FeatureCreation = () => {
 
 		try {
 			await axios.post(`${BACKEND_URL}/make_feature`, {
+				csv_id: csvId,
 				formula: formula.map(item => item.value),
 				new_column_name: newColumnName
 			});

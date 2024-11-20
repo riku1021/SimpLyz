@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Card, CardContent, FormControl, InputLabel, MenuItem, Select, Grid, Typography, SelectChangeEvent } from '@mui/material';
 import { BACKEND_URL } from '../../../urlConfig';
+import useAuth from '../../../hooks/useAuth';
 
 type BoxhidediagramProps = {
 	setImage: (image: string) => void;
 };
 
 const Boxhidediagram: React.FC<BoxhidediagramProps> = ({ setImage }) => {
+	const { csvId } = useAuth();
 	const [variable1, setVariable1] = useState<string>('');
 	const [variable2, setVariable2] = useState<string>('');
 	const [variableList1, setVariableList1] = useState<string[]>(['1', '2', '3']);
@@ -17,7 +19,10 @@ const Boxhidediagram: React.FC<BoxhidediagramProps> = ({ setImage }) => {
 	useEffect(() => {
 		const fetchVariable = async () => {
 			try {
-				const response = await axios.post(`${BACKEND_URL}/get_quantitative`, { a: 0 });
+				const response = await axios.post(`${BACKEND_URL}/get_quantitative`, {
+					csv_id: csvId,
+					a: 0
+				});
 				const data = response.data;
 				setVariableList2(data.quantitative_variables);
 				setVariable2(data.quantitative_variables[0]);
@@ -29,7 +34,9 @@ const Boxhidediagram: React.FC<BoxhidediagramProps> = ({ setImage }) => {
 
 		const fetchTarget = async () => {
 			try {
-				const response = await axios.get(`${BACKEND_URL}/get_qualitative`);
+				const response = await axios.post(`${BACKEND_URL}/get_qualitative`, {
+					csv_id: csvId
+				});
 				const data = response.data;
 				setVariableList1(data.qualitative_variables);
 				setVariable1(data.qualitative_variables[0]);
@@ -46,12 +53,12 @@ const Boxhidediagram: React.FC<BoxhidediagramProps> = ({ setImage }) => {
 	// 画像データを取得
 	useEffect(() => {
 		const fetchImage = async () => {
-			const sentData = {
-				variable1,
-				variable2,
-			};
 			try {
-				const response = await axios.post(`${BACKEND_URL}/box`, sentData);
+				const response = await axios.post(`${BACKEND_URL}/box`, {
+					variable1,
+					variable2,
+					csv_id: csvId,
+				});
 				const data = response.data;
 				setImage(data.image_data);
 				console.log(data);

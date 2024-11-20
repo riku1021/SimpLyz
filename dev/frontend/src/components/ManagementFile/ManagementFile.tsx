@@ -3,8 +3,10 @@ import { Box } from '@mui/material';
 import { fetchCsvSmallData, CsvDataType } from '../../databaseUtils/Csvs';
 import FileUpload from './FileUpload';
 import FileList from './FileList';
+import useAuth from '../../hooks/useAuth';
 
 const ManagementFile: React.FC = () => {
+	useAuth();
 	const [csvList, setCsvList] = useState<CsvDataType[]>([]);
 	const [loadingCsvList, setLoadingCsvList] = useState<boolean>(false);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);

@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Card, CardContent, FormControl, InputLabel, MenuItem, Select, Grid, Typography, SelectChangeEvent } from '@mui/material';
 import { BACKEND_URL } from '../../../urlConfig';
+import useAuth from '../../../hooks/useAuth';
 
 type ScatterProps = {
     setImage: (image: string) => void;
 };
 
 const Scatter: React.FC<ScatterProps> = ({ setImage }) => {
+    const { csvId } = useAuth();
     const [variable1, setVariable1] = useState<string>('');
     const [variable2, setVariable2] = useState<string>('');
     const [target, setTarget] = useState<string>('');
@@ -19,7 +21,10 @@ const Scatter: React.FC<ScatterProps> = ({ setImage }) => {
     useEffect(() => {
         const fetchVariable = async () => {
             try {
-                const response = await axios.post(`${BACKEND_URL}/get_quantitative`, { a: 0 });
+                const response = await axios.post(`${BACKEND_URL}/get_quantitative`, {
+                    csv_id: csvId,
+                    a: 0
+                });
                 const data = response.data;
                 setVariableList(data.quantitative_variables);
                 setVariable1(data.quantitative_variables[0]);
@@ -31,7 +36,9 @@ const Scatter: React.FC<ScatterProps> = ({ setImage }) => {
 
         const fetchTarget = async () => {
             try {
-                const response = await axios.get(`${BACKEND_URL}/get_qualitative`);
+                const response = await axios.post(`${BACKEND_URL}/get_qualitative`, {
+                    csv_id: csvId
+                });
                 const data = response.data;
                 const targets = [...data.qualitative_variables, 'None'];
                 setTarget('None');
@@ -47,15 +54,15 @@ const Scatter: React.FC<ScatterProps> = ({ setImage }) => {
 
     useEffect(() => {
         const fetchImage = async () => {
-            const sentData = {
-                variable1,
-                variable2,
-                target,
-                fit_reg: reg,
-                order: dimension
-            };
             try {
-                const response = await axios.post(`${BACKEND_URL}/scatter`, sentData);
+                const response = await axios.post(`${BACKEND_URL}/scatter`, {
+                    csv_id: csvId,
+                    variable1,
+                    variable2,
+                    target,
+                    fit_reg: reg,
+                    order: dimension
+                });
                 const data = response.data;
                 setImage(data.image_data);
             } catch (error) {

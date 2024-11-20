@@ -8,8 +8,12 @@ const useAuth = (): { userId: string | null; csvId: string | null } => {
     const csvId = localStorage.getItem('selectedCsvId');
     useEffect(() => {
         const loginStatus = localStorage.getItem('loginStatus');
-        if (loginStatus !== 'ログイン中') {
-            navigate('/');
+        if (!loginStatus && location.pathname !== '/signup') {
+            navigate('/signup');
+            return;
+        }
+        else if (loginStatus === 'ログインアウト中' && location.pathname !== '/login') {
+            navigate('/login');
             return;
         }
         if (!csvId && location.pathname !== '/management-file') {

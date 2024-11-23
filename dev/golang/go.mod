@@ -6,6 +6,8 @@ replace local.package/users => ./users
 
 replace local.package/csvs => ./csvs
 
+replace local.package/chats => ./chats
+
 require (
 	github.com/cenkalti/backoff/v4 v4.3.0
 	github.com/gin-contrib/cors v1.7.2
@@ -13,6 +15,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.12
+	local.package/chats v0.0.0-00010101000000-000000000000
 	local.package/csvs v0.0.0-00010101000000-000000000000
 	local.package/users v0.0.0-00010101000000-000000000000
 )

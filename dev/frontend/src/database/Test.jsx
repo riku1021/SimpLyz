@@ -1,5 +1,6 @@
 import Users from './Users'
 import Csvs from './Csvs'
+import Chats from './Chats'
 
 const Test = () => {
     return (
@@ -7,6 +8,8 @@ const Test = () => {
             <Users />
 
             <Csvs />
+
+            <Chats />
         </div>
     )
 }

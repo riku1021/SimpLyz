@@ -12,7 +12,7 @@ import FeatureCreation from "./components/FeatureCreation/FeatureCreation";
 import MissingValueImputation from "./components/MissingValueImputation/MissingValueImputation";
 import DataAnalysis from "./components/DataAnalysis/DataAnalysis";
 import UserInfo from "./components/UserInfo/UserInfo";
-import Test from "./database/Test";
+// import Test from "./database/Test";
 
 const App: React.FC = () => {
   return (
@@ -34,7 +34,7 @@ const App: React.FC = () => {
           <Route path="/data-analysis" element={<DataAnalysis />} />
           <Route path="/user-info" element={<UserInfo />} />
           {/* データベース・テスト用 */}
-          <Route path="/test-db" element={<Test />} />
+          {/* <Route path="/test-db" element={<Test />} /> */}
         </Routes>
       </Header>
     </BrowserRouter>

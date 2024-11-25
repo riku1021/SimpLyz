@@ -100,7 +100,7 @@ func CreateUser(c *gin.Context, db *gorm.DB) {
 	} else if !errors.Is(overlapResult.Error, gorm.ErrRecordNotFound) { // 予期せぬエラーの場合
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"StatusMessage": "Failed",
-			"massage":       "データベースエラーが発生しました",
+			"message":       "データベースエラーが発生しました",
 			"error":         overlapResult.Error.Error(),
 		})
 		return
@@ -123,7 +123,7 @@ func CreateUser(c *gin.Context, db *gorm.DB) {
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"StatusMessage": "Failed",
-			"massage":       "データベースに保存できませんでした",
+			"message":       "データベースに保存できませんでした",
 			"error":         result.Error.Error(),
 		})
 		return
@@ -150,7 +150,7 @@ func ReCreateUser(c *gin.Context, db *gorm.DB) {
 	if deleteResult.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"StatusMessage": "Failed",
-			"massage":       "ユーザー情報を削除できませんでした",
+			"message":       "ユーザー情報を削除できませんでした",
 			"error":         deleteResult.Error.Error(),
 		})
 		return
@@ -182,7 +182,7 @@ func ReCreateUser(c *gin.Context, db *gorm.DB) {
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"StatusMessage": "Failed",
-			"massage":       "データベースに保存できませんでした",
+			"message":       "データベースに保存できませんでした",
 			"error":         result.Error.Error(),
 		})
 		return

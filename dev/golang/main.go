@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"local.package/chats"
 	"local.package/csvs"
 	"local.package/users"
 
@@ -169,6 +170,27 @@ func main() {
 	// CSVファイルを復元するAPI
 	r.POST("/csvs/restoration", func(c *gin.Context) {
 		csvs.RestorationCSV(c, db)
+	})
+
+	// chats
+	// roomテーブルにroom_idを保存するAPI
+	r.POST("/chats/save/room_id", func(c *gin.Context) {
+		chats.SaveRoomId(c, db)
+	})
+
+	// chatを保存するAPI
+	r.POST("/chats/save/chat", func(c *gin.Context) {
+		chats.SaveChat(c, db)
+	})
+
+	// chatを取得するAPI
+	r.POST("/chats/get/chat", func(c *gin.Context) {
+		chats.GetChats(c, db)
+	})
+
+	// chatをリセットするAPI
+	r.POST("/chats/reset/chat", func(c *gin.Context) {
+		chats.ResetChats(c, db)
 	})
 
 	// 8080ポートでサーバーを起動

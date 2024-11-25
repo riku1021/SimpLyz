@@ -17,6 +17,8 @@ const UserLogin: React.FC = () => {
                 localStorage.setItem('userId', result.userId);
                 showSuccessAlert('ログインが成功しました', '');
                 navigate('/management-file');
+            } else {
+                showErrorAlert('ログインに失敗しました', '');
             }
         } catch (err: any) {
             showErrorAlert('ログインに失敗しました', err.message || '詳細不明のエラーです');

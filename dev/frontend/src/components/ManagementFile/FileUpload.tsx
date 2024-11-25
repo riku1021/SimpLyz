@@ -43,6 +43,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ fileInputRef, fetchCsvList }) =
             fetchCsvList();
         } catch (error) {
             showErrorAlert('エラー', `ファイル ${file.name} のアップロードに失敗しました。`);
+            console.log(`error: ${error}`);
         }
     };
 

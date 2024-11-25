@@ -3,6 +3,7 @@
 /uploads
 .env
 /dist
+*.py[cod]
 
 # venv
 .venv

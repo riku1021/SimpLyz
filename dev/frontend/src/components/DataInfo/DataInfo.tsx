@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Box, CircularProgress, Typography, Grid } from '@mui/material';
-import TableComponent from './TableComponent';
-import { useNavigate } from 'react-router-dom';
+import { Box, CircularProgress, Typography } from '@mui/material';
 import axios from 'axios';
 import { BACKEND_URL } from '../../urlConfig';
 import useAuth from '../../hooks/useAuth';
+import DataTable from './DataTable';
 
 type DataType = {
 	column_name: string;
@@ -22,13 +21,13 @@ const DataInfo: React.FC = () => {
 	const [data, setData] = useState<ApiResponse>({ qualitative: [], quantitative: [] });
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
-	const navigate = useNavigate();
+	const [currentType, setCurrentType] = useState<'qualitative' | 'quantitative'>('qualitative');
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
 				const response = await axios.post<ApiResponse>(`${BACKEND_URL}/get_data_info`, {
-					csv_id: csvId
+					csv_id: csvId,
 				});
 				setData(response.data);
 				setLoading(false);
@@ -40,11 +39,15 @@ const DataInfo: React.FC = () => {
 		};
 
 		fetchData();
-	}, []);
+	}, [csvId]);
+
+	const handleTypeChange = () => {
+		setCurrentType((prevType) => (prevType === 'qualitative' ? 'quantitative' : 'qualitative'));
+	};
 
 	if (loading) {
 		return (
-			<Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+			<Box display="flex" justifyContent="center" alignItems="center" height="calc(100vh - 64px)">
 				<CircularProgress />
 			</Box>
 		);
@@ -52,26 +55,29 @@ const DataInfo: React.FC = () => {
 
 	if (error) {
 		return (
-			<Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+			<Box display="flex" justifyContent="center" alignItems="center" height="calc(100vh - 64px)">
 				<Typography color="error">エラー: {error}</Typography>
 			</Box>
 		);
 	}
 
-	const handleClick = (columnName: string, type: 'qualitative' | 'quantitative') => {
-		navigate(`/data-info/${columnName}/${type}`);
-	};
-
 	return (
-		<Box p={3}>
-			<Grid container spacing={3}>
-				<Grid item xs={12}>
-					<TableComponent title="質的データ" data={data.qualitative} onClick={handleClick} type="qualitative" />
-				</Grid>
-				<Grid item xs={12}>
-					<TableComponent title="量的データ" data={data.quantitative} onClick={handleClick} type="quantitative" />
-				</Grid>
-			</Grid>
+		<Box sx={{ overflow: 'hidden', height: 'calc(100vh - 64px)' }}>
+			{currentType === 'qualitative' ? (
+				<DataTable
+					title="質的データ"
+					tableData={data.qualitative}
+					type="qualitative"
+					onTypeChange={handleTypeChange}
+				/>
+			) : (
+				<DataTable
+					title="量的データ"
+					tableData={data.quantitative}
+					type="quantitative"
+					onTypeChange={handleTypeChange}
+				/>
+			)}
 		</Box>
 	);
 };

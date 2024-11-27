@@ -39,6 +39,24 @@ export const fetchCsvSmallData = async (
   }
 };
 
+// 削除したCSVファイルの情報を取得するAPI
+export const fetchDeletedCsvFiles = async (
+  userId: string
+): Promise<{ StatusMessage: string; DeleteFiles: CsvDataType[] }> => {
+  const requestData = { user_id: userId };
+  try {
+    const response = await axios.post(
+      "http://localhost:8080/csvs/get/deletefiles",
+      requestData
+    );
+    console.log("Success:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error:", error);
+    throw new Error("データ取得に失敗しました");
+  }
+};
+
 // CSVファイル削除API
 export const deleteCsvFile = async (csvId: string): Promise<string> => {
   const requestData = { csv_id: csvId };
@@ -60,6 +78,21 @@ export const restoreCsvFile = async (csvId: string): Promise<string> => {
   try {
     const response = await axios.post(
       "http://localhost:8080/csvs/restoration",
+      requestData
+    );
+    console.log("Success:", response.data);
+    return response.data.StatusMessage;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+// CSVファイルを完全に削除するAPI
+export const deleteCsvFilePermanently = async (csvId: string): Promise<string> => {
+  const requestData = { csv_id: csvId };
+  try {
+    const response = await axios.post(
+      "http://localhost:8080/csvs/delete/permanently",
       requestData
     );
     console.log("Success:", response.data);

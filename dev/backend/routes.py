@@ -29,6 +29,7 @@ from data_utils import (
 )
 from dotenv import load_dotenv
 from flask import jsonify, request
+from flask.wrappers import Response
 from read_CSV import read
 from src.backend.csvs import get_csv, update_csv
 
@@ -390,7 +391,7 @@ def setup_routes(app):
         csv_id = json_data["csv_id"]
         data = get_csv(csv_id=csv_id)
 
-        if type(data) == dict:
+        if type(data[0]) == Response:
             return data  # もし辞書型の場合はエラー
 
         df, dtypes = data

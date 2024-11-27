@@ -88,6 +88,43 @@ const Csvs = () => {
             setRestorationCsvResult(err.response.data.StatusMessage);
         }
     }
+
+    // 削除したCSVファイルの情報を取得するAPI
+    const [getDeleteFile, setGetDeleteFile] = useState({
+        user_id: "340ba42a-e900-4411-bb1c-ad848392aec8",
+    });
+
+    const [getDeleteFileResult, setGetDeleteFileResult] = useState("");
+
+    const handleClickGetDeleteFile = async () => {
+        try {
+            const response = await axios.post('http://localhost:8080/csvs/get/deletefiles', getDeleteFile);
+            console.log('Success:', response.data);
+            setGetDeleteFileResult(response.data.StatusMessage);
+        } catch (err) {
+            console.error('Error:', err.response.data);
+            setGetDeleteFileResult(err.response.data.StatusMessage);
+        }
+    };
+
+    // CSVファイルを完全に削除するAPI
+    const [deletePermanently, setDeletePermanently] = useState({
+        csv_id: "c4e38368-0a99-4f56-9917-2ddb64d3fb55",
+    });
+
+    const [deletePermanentlyResult, setDeletePermanentlyResult] = useState("");
+
+    const handleClickDeletePermanently = async () => {
+        try {
+            const response = await axios.post('http://localhost:8080/csvs/delete/permanently', deletePermanently);
+            console.log('Success:', response.data);
+            setDeletePermanentlyResult(response.data.StatusMessage);
+        } catch (err) {
+            console.error('Error:', err.response.data);
+            setDeletePermanentlyResult(err.response.data.StatusMessage);
+        }
+    };
+
     return (
         <div>
             <h1>csvs</h1>
@@ -149,6 +186,20 @@ const Csvs = () => {
                         result: {restorationCsvResult}
                     </div>
                 </form>
+            </div>
+            <div>
+                <h2>削除したCSVファイルの情報を取得するAPI</h2>
+                <button onClick={handleClickGetDeleteFile}>get delete csv</button>
+                <div>
+                    result: {getDeleteFileResult}
+                </div>
+            </div>
+            <div>
+                <h2>CSVファイルを完全に削除するAPI</h2>
+                <button onClick={handleClickDeletePermanently}>delete permanently csv</button>
+                <div>
+                    result: {deletePermanentlyResult}
+                </div>
             </div>
         </div>
     )

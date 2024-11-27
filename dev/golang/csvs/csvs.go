@@ -391,3 +391,50 @@ func RestorationCSV(c *gin.Context, db *gorm.DB) {
 		"StatusMessage": "Success",
 	})
 }
+
+// 削除したCSVファイルの情報を取得する関数
+func GetDeleteFiles(c *gin.Context, db *gorm.DB) {
+	// データの受け取り
+	front, err := bindFront(c)
+	if err != nil {
+		return
+	}
+
+	// csv_idを基にデータベースから削除されているcsvデータを取得する
+	var dbCsvs []Csv
+	result := db.Where("user_id = ? AND is_delete = ?", front.UserID, true).Find(&dbCsvs)
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "データが取得されませんでした",
+			"error":         result.Error.Error(),
+		})
+		return
+	}
+
+	// 更新成功
+	c.JSON(http.StatusOK, gin.H{
+		"StatusMessage": "Success",
+		"DeleteFiles":   dbCsvs,
+	})
+}
+
+// CSVファイルを完全に削除する関数
+func Delete(c *gin.Context, db *gorm.DB) {
+	// データの受け取り
+	front, err := bindFront(c)
+	if err != nil {
+		return
+	}
+
+	// Chatsテーブルのレコードを全て削除
+	deleteResult := db.Where("csv_id = ?", front.CsvID).Delete(&Csv{})
+	if deleteResult.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "CSVファイルを削除できませんでした",
+			"error":         deleteResult.Error.Error(),
+		})
+		return
+	}
+}

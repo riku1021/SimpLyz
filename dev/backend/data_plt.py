@@ -205,6 +205,7 @@ def plot_scatter(jsons: Dict[str, Any], df: DataFrame) -> str:
             list_columns[k] = v
 
     # df = get_df()
+    print(list_columns)
 
     if list_columns["target"] == "None":
         sns_plot = sns.regplot(
@@ -212,7 +213,6 @@ def plot_scatter(jsons: Dict[str, Any], df: DataFrame) -> str:
             y=list_columns["variable2"],
             data=df,
             fit_reg=list_columns["fit_reg"],
-            order=list_columns["order"],
         )
     else:
         sns_plot = sns.lmplot(
@@ -221,7 +221,7 @@ def plot_scatter(jsons: Dict[str, Any], df: DataFrame) -> str:
             hue=list_columns["target"],
             data=df,
             fit_reg=list_columns["fit_reg"],
-            order=list_columns["order"],
+            order=int(list_columns["order"]),
         )
 
     buf = io.BytesIO()

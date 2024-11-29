@@ -137,7 +137,7 @@ func main() {
 	})
 
 	// データベース内のユーザー情報を確認するAPI
-	r.POST("/uesrs/check/user", func(c *gin.Context) {
+	r.POST("/users/check/user", func(c *gin.Context) {
 		users.CheckUser(c, db)
 	})
 

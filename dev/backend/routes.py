@@ -31,6 +31,7 @@ from dotenv import load_dotenv
 from flask import jsonify, request
 from flask.wrappers import Response
 from read_CSV import read
+from src.backend.chats import save_chat
 from src.backend.csvs import get_csv, update_csv
 
 # 環境変数を読み込む
@@ -557,10 +558,25 @@ def setup_routes(app):
         data: Dict[str, List[Dict[str, str]]] = request.get_json()
 
         message = data.get("message")
+        user_message = data.get("user_message")
+        room_id = data.get("room_id")
+        post_id = data.get("post_id")
         if not message:
             return jsonify({"reply": "メッセージが空です。"}), 400
         try:
             reply = model.generate_content(message)
+            # databaseに保存
+            user_response = save_chat(
+                room_id=room_id, user_chat=True, message=user_message, post_id=post_id
+            )
+            print(user_response)
+            bot_response = save_chat(
+                room_id=room_id,
+                user_chat=False,
+                message=reply.text,
+                post_id=post_id + 1,
+            )
+            print(bot_response)
             return jsonify({"reply": reply.text})
         except Exception as e:
             return jsonify({"reply": f"エラーが発生しました: {str(e)}"}), 500
@@ -742,23 +758,34 @@ def setup_routes(app):
 
         """
 
-        model = GEMINI.GenerativeModel("gemini-1.5-flash")
-        data: Dict[str, str] = request.get_json()
+        try:
+            model = GEMINI.GenerativeModel("gemini-1.5-flash")
+            data: Dict[str, str] = request.get_json()
 
-        image_data = data["image_data"]
-        cookie_picture = {"mime_type": "image/png", "data": image_data}
+            image_data = data["image_data"]
+            room_id = data["room_id"]
+            cookie_picture = {"mime_type": "image/png", "data": image_data}
 
-        prompt = """
-        このグラフから読み取れることを詳細に解説してください。\n
-        ※日本語で表示してください。また、マークダウン装飾を付けるようにしてください。\n
-        Let's first understand the problem and devise a plan to solve the problem.
-        Then, let's carry out the plan and solve the problem step by step.
-        """
-        response = model.generate_content(
-            contents=[prompt, cookie_picture],
-            generation_config=GEMINI.types.GenerationConfig(
-                candidate_count=1, temperature=1.0
-            ),
-        )
+            prompt = """
+            このグラフから読み取れることを詳細に解説してください。\n
+            ※日本語で表示してください。また、マークダウン装飾を付けるようにしてください。\n
+            Let's first understand the problem and devise a plan to solve the problem.
+            Then, let's carry out the plan and solve the problem step by step.
+            """
+            response = model.generate_content(
+                contents=[prompt, cookie_picture],
+                generation_config=GEMINI.types.GenerationConfig(
+                    candidate_count=1, temperature=1.0
+                ),
+            )
 
-        return jsonify({"text": response.text})
+            # データベースに保存
+            response_database = save_chat(
+                room_id=room_id, user_chat=False, message=response.text, post_id=0
+            )
+
+            print(response_database)
+
+            return jsonify({"text": response.text}), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500

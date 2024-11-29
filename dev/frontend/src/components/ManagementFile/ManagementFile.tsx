@@ -1,13 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Box } from "@mui/material";
-import { fetchCsvSmallData, CsvDataType } from "../../databaseUtils/Csvs";
+import { fetchCsvSmallData, fetchDeletedCsvFiles, CsvDataType } from "../../databaseUtils/Csvs";
 import FileUpload from "./FileUpload";
 import FileList from "./FileList";
 import useAuth from "../../hooks/useAuth";
 
 const ManagementFile: React.FC = () => {
   const { userId } = useAuth();
-  const [csvList, setCsvList] = useState<CsvDataType[]>([]);
+  const [activeCsvList, setActiveCsvList] = useState<CsvDataType[]>([]);
+  const [deleteCsvList, setDeleteCsvList] = useState<CsvDataType[]>([]);
   const [loadingCsvList, setLoadingCsvList] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -15,8 +16,11 @@ const ManagementFile: React.FC = () => {
     setLoadingCsvList(true);
     try {
       if (userId) {
-        const response = await fetchCsvSmallData(userId);
-        setCsvList(response.CsvData || []);
+        const activeCsvResponse = await fetchCsvSmallData(userId);
+        const deleteCsvResponse = await fetchDeletedCsvFiles(userId);
+        console.log(`DeleteData: ${activeCsvResponse.CsvData}`);
+        setActiveCsvList(activeCsvResponse.CsvData || []);
+        setDeleteCsvList(deleteCsvResponse.DeleteFiles || []);
       }
     } catch (error) {
       console.error("CSV一覧の取得に失敗しました", error);
@@ -33,7 +37,8 @@ const ManagementFile: React.FC = () => {
     <Box>
       <FileUpload fileInputRef={fileInputRef} fetchCsvList={fetchCsvList} />
       <FileList
-        csvList={csvList}
+        activeCsvList={activeCsvList}
+        deleteCsvList={deleteCsvList}
         loadingCsvList={loadingCsvList}
         fetchCsvList={fetchCsvList}
       />

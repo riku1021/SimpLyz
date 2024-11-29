@@ -3,19 +3,19 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 
 import Header from "./components/Header";
 
-import UserSignup from './components/UserForm/UserSignup';
-import UserLogin from './components/UserForm/UserLogin';
-import ManagementFile from './components/ManagementFile/ManagementFile';
-import Fetch from './components/fetch';
-import DataInfo from './components/DataInfo/DataInfo';
-import ColumnDetail from './components/ColumnDetail/ColumnDetail';
-import FeatureCreation from './components/FeatureCreation/FeatureCreation';
-import MissingValueImputation from './components/MissingValueImputation/MissingValueImputation';
-import DataAnalysis from './components/DataAnalysis/DataAnalysis';
-import UserInfo from './components/UserInfo/UserInfo';
-import NotFound from './components/NotFound/NotFound';
-import Redux from "./components/Redux/Redux";
-// import Test from './database/Test';
+import UserSignup from "./components/UserForm/UserSignup";
+import UserLogin from "./components/UserForm/UserLogin";
+import ManagementFile from "./components/ManagementFile/ManagementFile";
+import Fetch from "./components/fetch";
+import DataInfo from "./components/DataInfo/DataInfo";
+import ColumnDetail from "./components/ColumnDetail/ColumnDetail";
+import FeatureCreation from "./components/FeatureCreation/FeatureCreation";
+import MissingValueImputation from "./components/MissingValueImputation/MissingValueImputation";
+import DataAnalysis from "./components/DataAnalysis/DataAnalysis";
+import UserInfo from "./components/UserInfo/UserInfo";
+import NotFound from "./components/NotFound/NotFound";
+// import Redux from "./components/Redux/Redux";
+// import Test from "./database/Test";
 
 const App: React.FC = () => {
   return (
@@ -41,7 +41,7 @@ const App: React.FC = () => {
           <Route path="/user-info" element={<UserInfo />} />
           {/* データベース・テスト用 */}
           {/* <Route path="/test-db" element={<Test />} /> */}
-          <Route path="redux" element={<Redux />} />
+          {/* <Route path="redux" element={<Redux />} /> */}
         </Routes>
       </Header>
     </BrowserRouter>

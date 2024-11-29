@@ -172,6 +172,16 @@ func main() {
 		csvs.RestorationCSV(c, db)
 	})
 
+	// 削除したCSVファイルの情報を取得するAPI
+	r.POST("/csvs/get/deletefiles", func(c *gin.Context) {
+		csvs.GetDeleteFiles(c, db)
+	})
+
+	// CSVファイルを完全に削除するAPI
+	r.POST("/csvs/delete/permanently", func(c *gin.Context) {
+		csvs.Delete(c, db)
+	})
+
 	// chats
 	// roomテーブルにroom_idを保存するAPI
 	r.POST("/chats/save/room_id", func(c *gin.Context) {

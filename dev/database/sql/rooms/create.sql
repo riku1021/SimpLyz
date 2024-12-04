@@ -6,5 +6,6 @@ CREATE TABLE rooms (
     horizontal VARCHAR(255) NOT NULL,
     target VARCHAR(255) NOT NULL,
     regression VARCHAR(255) NOT NULL,
+    dimension VARCHAR(255) NOT NULL,
     FOREIGN KEY (csv_id) REFERENCES csvs(csv_id)
 )

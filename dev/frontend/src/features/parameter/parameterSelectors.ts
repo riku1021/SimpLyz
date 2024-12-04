@@ -13,3 +13,6 @@ export const selectTarget = (state: RootState) => state.parameter.target;
 // regressionの値を取得するセレクタ
 export const selectRegression = (state: RootState) =>
   state.parameter.regression;
+
+// dimensionの値を取得するセレクタ
+export const selectDimension = (state: RootState) => state.parameter.dimension;

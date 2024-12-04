@@ -15,6 +15,7 @@ type Rooms struct {
 	Horizontal        string `json:"horizontal" gorm:"not null;column:horizontal"`
 	Target            string `json:"target" gorm:"not null;column:target"`
 	Regression        string `json:"regression" gorm:"not null;column:regression"`
+	Dimension         string `json:"dimension" gorm:"not null;column:dimension"`
 }
 
 type Chats struct {
@@ -111,10 +112,10 @@ func GetChats(c *gin.Context, db *gorm.DB) {
 
 	// room_idの取得
 	var dbRoom Rooms
-	roomResult := db.Where("csv_id = ? AND visualization_type = ? AND vertical = ? AND target = ? AND regression = ?", room.CsvID, room.VisualizationType, room.Vertical, room.Target, room.Regression).First(&dbRoom)
+	roomResult := db.Where("csv_id = ? AND visualization_type = ? AND vertical = ? AND horizontal = ? AND target = ? AND regression = ?", room.CsvID, room.VisualizationType, room.Vertical, room.Horizontal, room.Target, room.Regression).First(&dbRoom)
 
 	if roomResult.Error != nil { // レコードが見つからなかった場合
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"StatusMessage": "Success",
 			"chats":         []string{},
 		})

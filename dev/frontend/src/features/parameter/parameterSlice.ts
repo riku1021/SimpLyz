@@ -6,6 +6,7 @@ interface ParameterState {
   horizontal: string;
   target: string;
   regression: string;
+  dimension: string;
 }
 
 // 初期状態
@@ -13,7 +14,8 @@ const initialState: ParameterState = {
   vertical: "",
   horizontal: "",
   target: "",
-  regression: "",
+  regression: "false",
+  dimension: "",
 };
 
 // スライスの作成
@@ -21,7 +23,7 @@ const parameterSlice = createSlice({
   name: "parameter",
   initialState,
   reducers: {
-    // verticalの値を変更するアクション
+    // variableの値を変更するアクション
     changeVertical(state, action: PayloadAction<string>) {
       state.vertical = action.payload;
     },
@@ -40,6 +42,11 @@ const parameterSlice = createSlice({
     changeRegression(state, action: PayloadAction<string>) {
       state.regression = action.payload;
     },
+
+    // dimensionの値を変更するアクション
+    changeDimension(state, action: PayloadAction<string>) {
+      state.dimension = action.payload;
+    },
   },
 });
 
@@ -49,6 +56,7 @@ export const {
   changeHorizontal,
   changeTarget,
   changeRegression,
+  changeDimension,
 } = parameterSlice.actions;
 
 // デフォルトエクスポートとしてリデューサー関数をエクスポート

@@ -145,6 +145,7 @@ const FileList: React.FC<FileListProps> = ({
               borderRadius: "50px",
               padding: "8px 16px",
               fontWeight: "bold",
+              marginBottom: "10px"
             }}
             onClick={() => setIsTrashMode((prev) => !prev)}
           >

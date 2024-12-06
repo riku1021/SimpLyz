@@ -62,7 +62,10 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
 					{/* ヘッダー右側のメニューアイテム */}
 					<Box
 						sx={{
-							display: { xs: 'none', sm: 'flex' },
+							display: 'flex',
+							'@media (max-width: 700px)': {
+								display: 'none',
+							},
 						}}
 					>
 						<Box

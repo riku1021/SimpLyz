@@ -327,7 +327,7 @@ const UserInfo: React.FC = () => {
                                 onClick={handleDeleteUser}
                                 sx={{ mt: 1, borderRadius: "50px", width: "90%" }}
                             >
-                                ユーザーを削除
+                                ログアウト
                             </Button>
                         </Box>
                     )}

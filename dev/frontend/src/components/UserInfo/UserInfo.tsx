@@ -9,7 +9,10 @@ import {
     IconButton,
     Button,
 } from "@mui/material";
-import RefreshIcon from "@mui/icons-material/Refresh";
+import {
+    Refresh as RefreshIcon,
+    Upload as UploadIcon
+} from "@mui/icons-material";
 import useAuth from "../../hooks/useAuth";
 import {
     checkPassword,
@@ -261,7 +264,7 @@ const UserInfo: React.FC = () => {
                                         </Typography>
                                     </Box>
                                     <IconButton onClick={handleUpdateApiKey}>
-                                        <RefreshIcon />
+                                        {apiKeyRegistered ? <RefreshIcon /> : <UploadIcon />}
                                     </IconButton>
                                 </Box>
                             </Box>
@@ -316,8 +319,8 @@ const UserInfo: React.FC = () => {
                                             {renderStatus(passwordRegistered)}
                                         </Typography>
                                     </Box>
-                                    <IconButton onClick={handleUpdatePassword}>
-                                        <RefreshIcon />
+                                    <IconButton onClick={handleUpdateApiKey}>
+                                        {passwordRegistered ? <RefreshIcon /> : <UploadIcon />}
                                     </IconButton>
                                 </Box>
                             </Box>

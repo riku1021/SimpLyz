@@ -8,7 +8,10 @@ import {
   Typography,
   CircularProgress,
 } from "@mui/material";
-import SendIcon from "@mui/icons-material/Send";
+import {
+  Send as SendIcon,
+  HighlightOff as HighlightOffIcon
+} from "@mui/icons-material";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { BACKEND_URL } from "../../../urlConfig";
@@ -245,34 +248,11 @@ const AnalysisChat: React.FC<AnalysisChatProps> = ({ image }) => {
           <CircularProgress />
         </Box>
       )}
-      {isChartAnalysisMode ? (
-        <></>
-      ) : (
-        <Box>
-          <Button
-            onClick={() => handleClear(roomId)}
-            variant="contained"
-            color="error"
-            sx={{
-              fontSize: "16px",
-              fontWeight: "bold",
-              borderRadius: "50px",
-              padding: "5px 10px 5px 10px",
-              borderTop: "1px solid #ddd",
-              marginBottom: 1,
-              boxShadow: "0px -2px 5px rgba(0, 0, 0, 0.1)",
-              cursor: "pointer",
-            }}
-          >
-            クリア
-          </Button>
-        </Box>
-      )}
       <Box
         sx={{
           flex: 1,
           overflowY: "auto",
-          maxHeight: "calc(100vh - 155px - 55px)",
+          maxHeight: "calc(100vh - 147px)",
           mb: 2,
           display: "flex",
           flexDirection: "column",
@@ -287,7 +267,7 @@ const AnalysisChat: React.FC<AnalysisChatProps> = ({ image }) => {
               alignSelf: msg.user_chat === true ? "flex-end" : "flex-start",
               bgcolor: msg.user_chat === true ? "#1976d2" : "#ffffff",
               color: msg.user_chat === true ? "#ffffff" : "#404040",
-              borderRadius: "16px",
+              borderRadius: "24px",
               m: 1,
               p: "8px 12px",
               boxShadow: 1,
@@ -359,48 +339,70 @@ const AnalysisChat: React.FC<AnalysisChatProps> = ({ image }) => {
             right: 0,
             display: "flex",
             alignItems: "center",
-            bgcolor: "#fff",
-            padding: "5px 7px 5px 20px",
             margin: 2,
-            borderTop: "1px solid #ddd",
-            boxShadow: "0px -2px 5px rgba(0, 0, 0, 0.1)",
-            borderRadius: "50px",
           }}
         >
-          <TextField
-            multiline
-            fullWidth
-            variant="standard"
-            placeholder="メッセージを入力してください"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            InputProps={{
-              disableUnderline: true,
-            }}
+          <Box
             sx={{
-              mr: 1,
-              "& .MuiInputBase-input": {
-                maxHeight: "6em",
-                overflowY: "auto",
-              },
+              display: "flex",
+              alignItems: "center",
+              bgcolor: "#fff",
+              padding: "5px 7px 5px 20px",
+              flex: 1,
+              borderTop: "1px solid #ddd",
+              boxShadow: "0px -2px 5px rgba(0, 0, 0, 0.1)",
+              borderRadius: "50px",
             }}
-            inputProps={{
-              maxRows: 3,
-            }}
-          />
-          <IconButton
-            onClick={sendMessage}
-            sx={{
-              bgcolor: loading ? "#e0e0e0" : "#1976d2",
-              color: loading ? "#9e9e9e" : "#fff",
-              cursor: loading ? "default" : "pointer",
-              "&:hover": {
-                bgcolor: loading ? "#e0e0e0" : "#1565c0",
-              },
-            }}
-            disabled={loading}
           >
-            <SendIcon />
+            <TextField
+              multiline
+              fullWidth
+              variant="standard"
+              placeholder="メッセージを入力してください"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              InputProps={{
+                disableUnderline: true,
+              }}
+              sx={{
+                mr: 1,
+                "& .MuiInputBase-input": {
+                  maxHeight: "6em",
+                  overflowY: "auto",
+                },
+              }}
+              inputProps={{
+                maxRows: 3,
+              }}
+            />
+            <IconButton
+              onClick={sendMessage}
+              sx={{
+                bgcolor: loading ? "#e0e0e0" : "#1976d2",
+                color: loading ? "#9e9e9e" : "#fff",
+                cursor: loading ? "default" : "pointer",
+                "&:hover": {
+                  bgcolor: loading ? "#e0e0e0" : "#1565c0",
+                },
+              }}
+              disabled={loading}
+            >
+              <SendIcon />
+            </IconButton>
+          </Box>
+          <IconButton
+            onClick={() => handleClear(roomId)}
+            sx={{
+              ml: 0.5,
+              backgroundColor: "#d32f2f",
+              color: "white",
+              "&:hover": {
+                backgroundColor: "#b71c1c",
+                color: "#f5f5f5",
+              },
+            }}
+          >
+            <HighlightOffIcon />
           </IconButton>
         </Box>
       )}

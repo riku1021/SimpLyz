@@ -116,6 +116,11 @@ func main() {
 		users.DeleteUser(c, db)
 	})
 
+	// mailaddressを取得するAPI
+	r.POST("users/get/mailaddress", func(c *gin.Context) {
+		users.GetMailAddress(c, db)
+	})
+
 	// Passwordを変更するAPI
 	r.POST("/users/change/password", func(c *gin.Context) {
 		users.ChangePassword(c, db)
@@ -124,6 +129,16 @@ func main() {
 	// Passwordを認証するAPI
 	r.POST("/users/check/password", func(c *gin.Context) {
 		users.AuthenticationPassword(c, db)
+	})
+
+	// passwordの存在確認API
+	r.POST("/users/verify/password", func(c *gin.Context) {
+		users.VerifyPassword(c, db)
+	})
+
+	// gemini_api_keyの存在確認API
+	r.POST("/users/verify/api", func(c *gin.Context) {
+		users.VerifyGeminiApiKey(c, db)
 	})
 
 	// GeminiApiKeyを保存するAPI

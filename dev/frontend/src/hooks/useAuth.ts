@@ -26,6 +26,9 @@ const useAuth = (): { userId: string | null; csvId: string | null } => {
             return;
         }
 
+        // `/user-info` ページへのアクセスを許可
+        if (location.pathname === '/user-info') return;
+
         // CSVファイル選択の確認
         if (!csvId && location.pathname !== '/management-file') {
             navigate('/management-file');

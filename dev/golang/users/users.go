@@ -227,7 +227,7 @@ func RestorationUser(c *gin.Context, db *gorm.DB) {
 	// 論理削除を解除
 	dbUser.IsDelete = false
 
-	updateResult := db.Save(dbUser)
+	updateResult := db.Save(&dbUser)
 	if updateResult.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"StatusMessage": "Failed",
@@ -237,9 +237,10 @@ func RestorationUser(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	// 更新成功
+	// 更新成功、user_idを返す
 	c.JSON(http.StatusOK, gin.H{
 		"StatusMessage": "Success",
+		"userId":        dbUser.UserID,
 	})
 }
 
@@ -318,6 +319,39 @@ func DeleteUser(c *gin.Context, db *gorm.DB) {
 	// 更新成功
 	c.JSON(http.StatusOK, gin.H{
 		"StatusMessage": "Success",
+	})
+}
+
+// メールアドレスを取得する関数
+func GetMailAddress(c *gin.Context, db *gorm.DB) {
+	// データの受け取り
+	user, err := bindUser(c)
+	if err != nil { // データ受け取りに失敗した場合
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "ユーザー情報の取得に失敗しました",
+			"error":         err.Error(),
+		})
+		return
+	}
+
+	// user_idに一致するデータがあるか確認する
+	var dbUser User
+	overlapResult := db.Where("user_id = ?", user.UserID).First(&dbUser)
+
+	if overlapResult.Error != nil { // user_idが存在しなかった場合
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "UserIdが存在しません",
+			"error":         overlapResult.Error.Error(),
+		})
+		return
+	}
+
+	// メールアドレスを返す
+	c.JSON(http.StatusOK, gin.H{
+		"StatusMessage": "Success",
+		"MailAddress":   dbUser.MailAddress,
 	})
 }
 
@@ -428,6 +462,74 @@ func AuthenticationPassword(c *gin.Context, db *gorm.DB) {
 	// 更新成功
 	c.JSON(http.StatusOK, gin.H{
 		"StatusMessage": "Success",
+	})
+}
+
+// passwordの存在を確認する関数
+func VerifyPassword(c *gin.Context, db *gorm.DB) {
+	// データの受け取り
+	user, err := bindUser(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "リクエストデータが不正です",
+			"error":         err.Error(),
+		})
+		return
+	}
+
+	// user_idに一致するデータがあるか確認する
+	var dbUser User
+	result := db.Where("user_id = ?", user.UserID).First(&dbUser)
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "UserIdが存在しません",
+			"error":         result.Error.Error(),
+		})
+		return
+	}
+
+	// passwordの存在を確認
+	passwordExists := dbUser.Password != ""
+
+	c.JSON(http.StatusOK, gin.H{
+		"StatusMessage":  "Success",
+		"passwordExists": passwordExists,
+	})
+}
+
+// gemini_api_keyの存在を確認する関数
+func VerifyGeminiApiKey(c *gin.Context, db *gorm.DB) {
+	// データの受け取り
+	user, err := bindUser(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "リクエストデータが不正です",
+			"error":         err.Error(),
+		})
+		return
+	}
+
+	// user_idに一致するデータがあるか確認する
+	var dbUser User
+	result := db.Where("user_id = ?", user.UserID).First(&dbUser)
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "UserIdが存在しません",
+			"error":         result.Error.Error(),
+		})
+		return
+	}
+
+	// gemini_api_keyの存在を確認
+	geminiApiKeyExists := dbUser.GeminiApiKey != ""
+
+	c.JSON(http.StatusOK, gin.H{
+		"StatusMessage":      "Success",
+		"geminiApiKeyExists": geminiApiKeyExists,
 	})
 }
 

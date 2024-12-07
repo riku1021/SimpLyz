@@ -190,7 +190,7 @@ const UserInfo: React.FC = () => {
                 setApiKeyRegistered(null);
                 setPasswordRegistered(null);
                 setMailAddress(null);
-                showSuccessAlert("成功", "ユーザーが削除され、ログアウトしました");
+                showSuccessAlert("成功", "ユーザーが削除されました。");
                 window.location.href = "/login";
             } else {
                 showErrorAlert("エラー", deleteResult);
@@ -319,7 +319,7 @@ const UserInfo: React.FC = () => {
                                             {renderStatus(passwordRegistered)}
                                         </Typography>
                                     </Box>
-                                    <IconButton onClick={handleUpdateApiKey}>
+                                    <IconButton onClick={handleUpdatePassword}>
                                         {passwordRegistered ? <RefreshIcon /> : <UploadIcon />}
                                     </IconButton>
                                 </Box>

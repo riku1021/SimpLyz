@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   TextField,
@@ -35,6 +36,7 @@ import { useDispatch } from "react-redux";
 import { changeRoomId } from "../../../features/roomId/roomIdSice";
 import { selectRoomId } from "../../../features/roomId/roomIdSelectors";
 import { generateUUID } from "../../../utils/generateUuid";
+import { verifyGeminiApiKey } from "../../../databaseUtils/Users";
 
 type Message = {
   user_chat: boolean;
@@ -47,12 +49,15 @@ type AnalysisChatProps = {
 
 const AnalysisChat: React.FC<AnalysisChatProps> = ({ image }) => {
   const { userId, csvId } = useAuth();
+  const navigate = useNavigate();
+
   const [input, setInput] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isChartAnalysisMode, setIsChartAnalysisMode] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [analyzeMessage, setAnalyzeMessage] = useState<Message | null>(null);
+  const [apiKeyRegistered, setApiKeyRegistered] = useState<boolean | undefined>(undefined);
 
   // redux
   const chartType = useSelector(selectType);
@@ -117,6 +122,23 @@ const AnalysisChat: React.FC<AnalysisChatProps> = ({ image }) => {
   ]);
 
   useEffect(() => {
+    const checkGeminiApiKeyStatus = async () => {
+      try {
+        const { geminiApiKeyExists, message } = await verifyGeminiApiKey(userId);
+        setApiKeyRegistered(geminiApiKeyExists);
+        if (!geminiApiKeyExists) {
+          console.warn("Gemini APIキーが存在しません:", message);
+        }
+      } catch (error) {
+        console.error("パスワードの確認に失敗しました", error);
+        setApiKeyRegistered(undefined);
+      }
+    };
+
+    checkGeminiApiKeyStatus();
+  }, [userId]);
+
+  useEffect(() => {
     setIsChartAnalysisMode(true);
     setMessages([]);
     setAnalyzeMessage(null);
@@ -165,7 +187,21 @@ const AnalysisChat: React.FC<AnalysisChatProps> = ({ image }) => {
     setLoading(false);
   };
 
-  const analyzeImage = async () => {
+  const handleAnalyzeImage = async () => {
+    if (apiKeyRegistered === false) {
+      showConfirmationAlert(
+        "Gemini APIキーが未登録です",
+        "APIキーを登録してください。登録ページに移動しますか？",
+        "はい",
+        "いいえ"
+      ).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/user-info");
+        }
+      });
+      return;
+    }
+
     setIsAnalyzing(true);
     const newRoomId = generateUUID();
     // golang
@@ -230,9 +266,7 @@ const AnalysisChat: React.FC<AnalysisChatProps> = ({ image }) => {
   };
 
   return (
-    <Box
-      sx={{ p: 2, display: "flex", flexDirection: "column", height: "100%" }}
-    >
+    <Box sx={{ p: 2, display: "flex", flexDirection: "column", height: "100%" }}>
       {isAnalyzing && (
         <Box
           sx={{
@@ -311,7 +345,7 @@ const AnalysisChat: React.FC<AnalysisChatProps> = ({ image }) => {
         >
           <Button
             fullWidth
-            onClick={analyzeImage}
+            onClick={handleAnalyzeImage}
             sx={{
               color: isAnalyzing ? "#9e9e9e" : "#fff",
               bgcolor: isAnalyzing ? "#e0e0e0" : "#1976d2",

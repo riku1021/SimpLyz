@@ -46,7 +46,7 @@ type AnalysisChatProps = {
 };
 
 const AnalysisChat: React.FC<AnalysisChatProps> = ({ image }) => {
-  const { csvId } = useAuth();
+  const { userId, csvId } = useAuth();
   const [input, setInput] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isChartAnalysisMode, setIsChartAnalysisMode] = useState<boolean>(true);
@@ -146,6 +146,7 @@ const AnalysisChat: React.FC<AnalysisChatProps> = ({ image }) => {
         : getCombinedMessages(lastTenMessages);
 
       const response = await axios.post(`${BACKEND_URL}/api/chat`, {
+        user_id: userId,
         message: combinedMessages,
         user_message: newMessage.text,
         room_id: roomId,
@@ -188,6 +189,7 @@ const AnalysisChat: React.FC<AnalysisChatProps> = ({ image }) => {
     // python
     try {
       const response = await axios.post(`${BACKEND_URL}/gemini/image`, {
+        user_id: userId,
         image_data: image,
         room_id: newRoomId,
       });

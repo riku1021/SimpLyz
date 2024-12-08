@@ -12,7 +12,6 @@ services:
       - VITE_API_URL=http://localhost:5000
     depends_on:
       - backend
-
   backend:
     build:
       context: ./backend

@@ -38,6 +38,29 @@ CREATE TABLE csvs (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
+-- roomsテーブルの作成
+CREATE TABLE rooms (
+    room_id VARCHAR(255) PRIMARY KEY,
+    csv_id VARCHAR(255) NOT NULL,
+    visualization_type VARCHAR(255) NOT NULL,
+    vertical VARCHAR(255) NOT NULL,
+    horizontal VARCHAR(255) NOT NULL,
+    target VARCHAR(255) NOT NULL,
+    regression VARCHAR(255) NOT NULL,
+    dimension VARCHAR(255) NOT NULL,
+    FOREIGN KEY (csv_id) REFERENCES csvs(csv_id)
+);
+
+-- chatsテーブルの作成
+CREATE TABLE chats (
+    chat_id VARCHAR(255) PRIMARY KEY,
+    room_id VARCHAR(255) NOT NULL,
+    message VARCHAR(10000) NOT NULL,
+    user_chat BOOLEAN NOT NULL,
+    post_id INT NOT NULL,
+    FOREIGN KEY (room_id) REFERENCES rooms(room_id)
+);
+
 -- テストユーザーの挿入
 INSERT INTO users (user_id, mail_address, password)
 VALUES ('rootId', 'root@root.com', 'root');

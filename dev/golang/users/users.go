@@ -355,6 +355,50 @@ func GetMailAddress(c *gin.Context, db *gorm.DB) {
 	})
 }
 
+// メールアドレスを保存する関数
+func SaveMailAddress(c *gin.Context, db *gorm.DB) {
+	// データの受け取り
+	user, err := bindUser(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "リクエストデータが不正です",
+			"error":         err.Error(),
+		})
+		return
+	}
+
+	// user_idに一致するデータがあるか確認する
+	var dbUser User
+	overlapResult := db.Where("user_id = ?", user.UserID).First(&dbUser)
+
+	if overlapResult.Error != nil { // user_idが存在しなかった場合
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "UserIdが存在しません",
+			"error":         overlapResult.Error.Error(),
+		})
+		return
+	}
+
+	// mail_addressを保存する
+	dbUser.MailAddress = user.MailAddress
+	updateResult := db.Save(&dbUser)
+	if updateResult.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"StatusMessage": "Failed",
+			"message":       "MailAddressを保存できませんでした",
+			"error":         updateResult.Error.Error(),
+		})
+		return
+	}
+
+	// 更新成功
+	c.JSON(http.StatusOK, gin.H{
+		"StatusMessage": "Success",
+	})
+}
+
 // passwordを更新する関数
 func ChangePassword(c *gin.Context, db *gorm.DB) {
 	// データの受け取り

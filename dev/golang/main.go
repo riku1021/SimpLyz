@@ -121,6 +121,11 @@ func main() {
 		users.GetMailAddress(c, db)
 	})
 
+	// MailAddressを保存するAPI
+	r.POST("/users/save/mailaddress", func(c *gin.Context) {
+		users.SaveMailAddress(c, db)
+	})
+
 	// Passwordを変更するAPI
 	r.POST("/users/change/password", func(c *gin.Context) {
 		users.ChangePassword(c, db)

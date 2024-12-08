@@ -194,6 +194,27 @@ export const getMailAddress = async (
   }
 };
 
+// メールアドレスを保存するAPI
+export const saveMailAddress = async (
+  userId: string | null,
+  mailAddress: string
+): Promise<string> => {
+  const requestData = { user_id: userId, mail_address: mailAddress };
+  try {
+    const response = await axios.post<ApiResponse>(
+      "http://localhost:8080/users/save/mailaddress",
+      requestData
+    );
+    if (response.data.StatusMessage === "Success") {
+      return response.data.StatusMessage;
+    } else {
+      return response.data.message;
+    }
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
 // パスワードを変更するAPI
 export const changePassword = async (
   userId: string | null,

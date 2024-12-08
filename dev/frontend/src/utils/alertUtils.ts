@@ -34,15 +34,24 @@ export const showErrorAlert = (title: string, text: string): Promise<SweetAlertR
 };
 
 // 情報アラート
-export const showInfoAlert = (title: string, text: string): Promise<SweetAlertResult> => {
+export const showInfoAlert = (
+	title: string,
+	text: string,
+	inputType: 'password' | 'text' | 'none' = 'password'
+): Promise<SweetAlertResult> => {
+	const inputConfig = inputType === 'none'
+		? {}
+		: {
+			input: inputType,
+			inputAttributes: {
+				autocapitalize: 'off',
+			},
+		};
 	return Swal.fire({
 		icon: 'info' as SweetAlertIcon,
 		title: title,
 		html: text,
-		input: 'password',
-		inputAttributes: {
-			autocapitalize: 'off',
-		},
+		...inputConfig,
 		showCancelButton: true,
 		confirmButtonColor: '#1976d2',
 		confirmButtonText: 'はい',

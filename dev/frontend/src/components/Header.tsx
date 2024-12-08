@@ -153,7 +153,7 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
 				</Toolbar>
 			</AppBar>
 
-			<Drawer anchor='left' open={drawerOpen} onClose={toggleDrawer} PaperProps={{ sx: { width: 250 } }}>
+			<Drawer anchor='left' open={drawerOpen} onClose={toggleDrawer} PaperProps={{ sx: { width: 250, overflow: "hidden" } }}>
 				<Box sx={{ backgroundColor: 'primary.main', color: 'white', display: 'flex', alignItems: 'center', padding: '10px' }}>
 					<Typography variant="h6" sx={{ flexGrow: 1 }}>メニュー</Typography>
 					<IconButton onClick={toggleDrawer} sx={{ color: 'white' }}>

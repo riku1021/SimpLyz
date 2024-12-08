@@ -1,291 +1,341 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
-    TextField, Button, Box, Card, CardContent, Typography,
-    IconButton, InputAdornment, Dialog, DialogTitle,
-    DialogContent, DialogActions
-} from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+    Box,
+    Card,
+    CardContent,
+    Typography,
+    Divider,
+    CircularProgress,
+    IconButton,
+    Button,
+} from "@mui/material";
 import {
+    Refresh as RefreshIcon,
+    Upload as UploadIcon
+} from "@mui/icons-material";
+import useAuth from "../../hooks/useAuth";
+import {
+    checkPassword,
+    getMailAddress,
+    changePassword,
+    saveGeminiApiKey,
+    deleteUser,
+    verifyPassword,
+    verifyGeminiApiKey,
+} from "../../databaseUtils/Users";
+import {
+    showSuccessAlert,
     showErrorAlert,
     showInfoAlert,
-    showSuccessAlert,
-    showConfirmationAlert
-} from '../../utils/alertUtils';
-import useAuth from '../../hooks/useAuth';
+    showConfirmationAlert,
+} from "../../utils/alertUtils";
+import { validatePassword } from '../../utils/validation';
 
-const UserInfo = () => {
-    useAuth();
-    // APIキー管理用の状態
-    const [apiKey, setApiKey] = useState('');
-    const [isKeySaved, setIsKeySaved] = useState(false);
-    const [showApiKey, setShowApiKey] = useState(false);
+const UserInfo: React.FC = () => {
+    const { userId } = useAuth();
+    const [apiKeyRegistered, setApiKeyRegistered] = useState<boolean | null>(null);
+    const [passwordRegistered, setPasswordRegistered] = useState<boolean | null>(null);
+    const [mailAddress, setMailAddress] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
 
-    // パスワード管理用の状態
-    const [isPasswordSaved, setIsPasswordSaved] = useState(false);
-    const [showPasswordModal, setShowPasswordModal] = useState(false);
-    const [passwordInput, setPasswordInput] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
-    const [action, setAction] = useState('register');
+    const checkRegistration = async () => {
+        try {
+            setLoading(true);
 
-    // 初回レンダリングでAPIキーとパスワードの存在を確認
-    useEffect(() => {
-        const storedApiKey = localStorage.getItem('geminiApiKey');
-        if (storedApiKey) {
-            setApiKey(storedApiKey);
-            setIsKeySaved(true);
+            const [apiKeyStatus, passwordStatus, mailResult] = await Promise.all([
+                verifyGeminiApiKey(userId),
+                verifyPassword(userId),
+                getMailAddress(userId),
+            ]);
+
+            // Gemini APIキーの登録状況をセット
+            if (apiKeyStatus.message === "Success") {
+                setApiKeyRegistered(apiKeyStatus.geminiApiKeyExists || false);
+            } else {
+                setApiKeyRegistered(null);
+            }
+
+            // パスワードの登録状況をセット
+            if (passwordStatus.message === "Success") {
+                setPasswordRegistered(passwordStatus.passwordExists || false);
+            } else {
+                setPasswordRegistered(null);
+            }
+
+            // メールアドレスの取得結果をセット
+            if (mailResult.message === "Success") {
+                setMailAddress(mailResult.mailAddress || "未登録");
+            } else {
+                setMailAddress("確認不可");
+            }
+        } catch (error) {
+            console.error("登録状況の確認に失敗しました:", error);
+            setApiKeyRegistered(null);
+            setPasswordRegistered(null);
+            setMailAddress("確認不可");
+        } finally {
+            setLoading(false);
         }
+    };
 
-        const storedPassword = localStorage.getItem('userPassword');
-        setIsPasswordSaved(Boolean(storedPassword));
+
+    useEffect(() => {
+        checkRegistration();
     }, []);
 
-    // APIキーを保存する関数
-    const handleSaveApiKey = () => {
-        if (!apiKey) {
-            showErrorAlert('エラー', 'APIキーを入力してください');
-            return;
-        }
-
-        showConfirmationAlert(
-            `「${apiKey}」でAPIキーを登録します。よろしいですか？`,
-            '',
-            'はい',
-            'いいえ'
-        ).then((result) => {
-            if (result.isConfirmed) {
-                localStorage.setItem('geminiApiKey', apiKey);
-                setIsKeySaved(true);
-                showSuccessAlert('保存完了', 'APIキーが保存されました。');
+    const handleUpdateApiKey = async () => {
+        try {
+            const passwordResult = await showInfoAlert(
+                "GeminiApiKeyの更新",
+                "現在のパスワードを入力してください"
+            );
+            if (!passwordResult.isConfirmed || !passwordResult.value) {
+                return;
             }
-        });
-    };
+            const password = passwordResult.value;
 
-    // APIキーを削除する関数
-    const handleDeleteApiKey = () => {
-        showConfirmationAlert('APIキーを削除しますか？', '', 'はい', 'いいえ')
-            .then((result) => {
-                if (result.isConfirmed) {
-                    localStorage.removeItem('geminiApiKey');
-                    setApiKey('');
-                    setIsKeySaved(false);
-                    setShowApiKey(false);
-                    showSuccessAlert('削除完了', 'APIキーが削除されました。');
-                }
-            });
-    };
+            const passwordCheckResult = await checkPassword(userId, password);
+            if (passwordCheckResult !== "Success") {
+                return showErrorAlert("エラー", "パスワードが正しくありません");
+            }
 
-    // パスワード入力モーダルを開く関数
-    const handleOpenPasswordModal = (currentAction: string) => {
-        setAction(currentAction);
-        if (currentAction === 'modify') {
-            showInfoAlert('現在のパスワードを<br>入力してください', '')
-                .then((result) => {
-                    if (result.isConfirmed) {
-                        const enteredPassword = result.value;
-                        const storedPassword = localStorage.getItem('userPassword');
-                        if (storedPassword && enteredPassword === storedPassword) {
-                            setShowPasswordModal(true);
-                        } else {
-                            showErrorAlert('認証エラー', '現在のパスワードが正しくありません。');
-                        }
-                    }
-                });
-        } else {
-            setShowPasswordModal(true);
+            const apiKeyResult = await showInfoAlert(
+                "新しいGeminiApiKeyの入力",
+                "新しいGeminiApiKeyを入力してください"
+            );
+            if (!apiKeyResult.isConfirmed || !apiKeyResult.value) {
+                return;
+            }
+            const newApiKey = apiKeyResult.value;
+
+            const saveApiKeyResult = await saveGeminiApiKey(userId, newApiKey);
+            if (saveApiKeyResult === "Success") {
+                showSuccessAlert("成功", "GeminiApiKeyが更新されました");
+                checkRegistration();
+            } else {
+                showErrorAlert("エラー", saveApiKeyResult);
+            }
+        } catch (error) {
+            console.error("GeminiApiKeyの更新に失敗しました:", error);
+            showErrorAlert("エラー", "GeminiApiKeyの更新に失敗しました");
         }
     };
 
-    // パスワード入力モーダルを閉じる関数
-    const handleClosePasswordModal = () => {
-        setShowPasswordModal(false);
-    };
+    const handleUpdatePassword = async () => {
+        try {
+            const passwordResult = await showInfoAlert(
+                "パスワードの変更",
+                "現在のパスワードを入力してください"
+            );
+            if (!passwordResult.isConfirmed || !passwordResult.value) {
+                return;
+            }
+            const currentPassword = passwordResult.value;
 
-    // パスワードを保存する関数
-    const handleSavePassword = () => {
-        if (!passwordInput) {
-            showErrorAlert('エラー', 'パスワードを入力してください');
-            return;
+            const passwordCheckResult = await checkPassword(userId, currentPassword);
+            if (passwordCheckResult !== "Success") {
+                return showErrorAlert("エラー", "現在のパスワードが正しくありません");
+            }
+
+            const newPasswordResult = await showInfoAlert(
+                "新しいパスワードの入力",
+                "新しいパスワードを入力してください（4文字以上、英字と数字を含む必要があります）"
+            );
+            if (!newPasswordResult.isConfirmed || !newPasswordResult.value) {
+                return;
+            }
+            const newPassword = newPasswordResult.value;
+
+            if (!validatePassword(newPassword)) {
+                return showErrorAlert(
+                    "エラー",
+                    "無効なパスワード形式です。英字と数字を含み、4文字以上である必要があります。"
+                );
+            }
+
+            const changePasswordResult = await changePassword(
+                userId,
+                currentPassword,
+                newPassword
+            );
+            if (changePasswordResult === "Success") {
+                showSuccessAlert("成功", "パスワードが更新されました");
+                checkRegistration();
+            } else {
+                showErrorAlert("エラー", changePasswordResult);
+            }
+        } catch (error) {
+            console.error("パスワードの更新に失敗しました:", error);
+            showErrorAlert("エラー", "パスワードの更新に失敗しました");
         }
-
-        localStorage.setItem('userPassword', passwordInput);
-        setIsPasswordSaved(true);
-        setShowPasswordModal(false);
-        showSuccessAlert('保存完了', `パスワードが${action === 'modify' ? '修正' : '登録'}されました。`);
     };
 
-    // パスワード表示/非表示の切り替え
-    const handleToggleShowPassword = () => {
-        setShowPassword((prev) => !prev);
-    };
+    const handleDeleteUser = async () => {
+        try {
+            const confirmation = await showConfirmationAlert(
+                "ユーザー削除",
+                "本当にこのユーザーを削除してもよろしいですか？",
+                "削除",
+                "キャンセル"
+            );
+            if (!confirmation.isConfirmed) {
+                return;
+            }
 
-    // APIキー表示/非表示の切り替え関数
-    const handleToggleShowApiKey = () => {
-        if (!isPasswordSaved) {
-            showErrorAlert('パスワードを登録してください', 'まだ、パスワードが登録されていません。');
-            return;
-        }
-
-        if (!showApiKey) {
-            showInfoAlert('パスワードを入力してください', '')
-                .then((result) => {
-                    if (result.isConfirmed) {
-                        const enteredPassword = result.value;
-                        const storedPassword = localStorage.getItem('userPassword');
-                        if (storedPassword && enteredPassword === storedPassword) {
-                            setShowApiKey(true);
-                        } else {
-                            showErrorAlert('認証エラー', 'パスワードが正しくありません。');
-                        }
-                    }
-                });
-        } else {
-            setShowApiKey(false);
+            const deleteResult = await deleteUser(userId);
+            if (deleteResult === "Success") {
+                localStorage.removeItem("userId");
+                localStorage.removeItem("selectedCsvId");
+                localStorage.setItem("loginStatus", "ログアウト中");
+                setApiKeyRegistered(null);
+                setPasswordRegistered(null);
+                setMailAddress(null);
+                showSuccessAlert("成功", "ユーザーが削除されました。");
+                window.location.href = "/login";
+            } else {
+                showErrorAlert("エラー", deleteResult);
+            }
+        } catch (error) {
+            console.error("ユーザー削除に失敗しました:", error);
+            showErrorAlert("エラー", "ユーザー削除に失敗しました");
         }
     };
 
-    // API及びパスワード初期化ハンドラー
-    const handleReset = () => {
-        showConfirmationAlert('APIキーとパスワードを初期化しますがよろしいですか？', '', 'OK', 'キャンセル')
-            .then((result) => {
-                if (result.isConfirmed) {
-                    localStorage.removeItem('geminiApiKey');
-                    localStorage.removeItem('userPassword');
-                    setApiKey('');
-                    setIsKeySaved(false);
-                    setShowApiKey(false);
-                    setIsPasswordSaved(false);
-                    setShowPasswordModal(false);
-                    showSuccessAlert('初期化完了', 'APIキーとパスワードが初期化されました。');
-                }
-            });
+    const renderStatus = (isRegistered: boolean | null) => {
+        if (isRegistered === null) return "確認不可";
+        return isRegistered ? "登録済み" : "未登録";
     };
 
     return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 'calc(100vh - 64px)' }}>
-            <Box>
-                {/* APIキー管理カード */}
-                <Card sx={{ width: 400, p: 2, m: 2, borderRadius: '25px' }}>
-                    <CardContent>
-                        <Typography variant="h5" gutterBottom>
-                            GEMINI APIキー管理
-                        </Typography>
-                        <TextField
-                            label="APIキー"
-                            variant="outlined"
-                            fullWidth
-                            type={showApiKey ? 'text' : 'password'}
-                            value={apiKey}
-                            onChange={(e) => setApiKey(e.target.value)}
-                            sx={{
-                                mb: 2,
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: '50px'
-                                }
-                            }}
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton onClick={handleToggleShowApiKey} edge="end">
-                                            {showApiKey ? <Visibility /> : <VisibilityOff />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={handleSaveApiKey}
-                                sx={{ flexGrow: 1, mr: 1, borderRadius: '50px' }}
-                            >
-                                {isKeySaved ? 'APIキーを更新' : 'APIキーを保存'}
-                            </Button>
-                            {isKeySaved && (
-                                <Button
-                                    variant="outlined"
-                                    color="error"
-                                    onClick={handleDeleteApiKey}
-                                    sx={{ flexGrow: 1, borderRadius: '50px' }}
-                                >
-                                    APIキーを削除
-                                </Button>
-                            )}
+        <Box
+            sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: "calc(100vh - 64px)",
+                overflow: "hidden",
+            }}
+        >
+            <Card sx={{ borderRadius: "25px", boxShadow: 3, width: "600px" }}>
+                <CardContent>
+                    <Typography variant="h5" align="center" gutterBottom>
+                        ユーザー情報
+                    </Typography>
+                    <Divider
+                        sx={{
+                            width: "80%",
+                            mx: "auto",
+                            mt: 2,
+                            mb: 2,
+                            borderWidth: "1.25px",
+                        }}
+                    />
+                    {loading ? (
+                        <Box display="flex" justifyContent="center" mt={2}>
+                            <CircularProgress />
                         </Box>
-                    </CardContent>
-                </Card>
-
-                {/* パスワード管理カード */}
-                <Card sx={{ width: 400, p: 2, m: 2, borderRadius: '25px' }}>
-                    <CardContent>
-                        <Typography variant="h5" gutterBottom>
-                            パスワード管理
-                        </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                            <Box sx={{
-                                backgroundColor: '#EAEAEA',
-                                padding: '4px 16px',
-                                flexGrow: 1,
-                                marginRight: '16px',
-                                borderRadius: '25px'
-                            }}>
-                                <Typography variant="h6">
-                                    {isPasswordSaved ? '登録済み' : '未登録'}
-                                </Typography>
+                    ) : (
+                        <Box display="flex" flexDirection="column" alignItems="center">
+                            <Box
+                                display="flex"
+                                justifyContent="space-between"
+                                alignItems="center"
+                                sx={{
+                                    width: "90%",
+                                    p: 2,
+                                    mb: 2,
+                                    backgroundColor: "#F9F9F9",
+                                    borderRadius: "50px",
+                                }}
+                            >
+                                <Typography variant="h6">GeminiApiKey</Typography>
+                                <Box sx={{ display: "flex", alignItems: "center" }}>
+                                    <Box
+                                        sx={{
+                                            backgroundColor: "#EAEAEA",
+                                            px: 2,
+                                            py: 0.5,
+                                            borderRadius: "50px",
+                                            mr: 1,
+                                        }}
+                                    >
+                                        <Typography variant="body1">
+                                            {renderStatus(apiKeyRegistered)}
+                                        </Typography>
+                                    </Box>
+                                    <IconButton onClick={handleUpdateApiKey}>
+                                        {apiKeyRegistered ? <RefreshIcon /> : <UploadIcon />}
+                                    </IconButton>
+                                </Box>
+                            </Box>
+                            <Box
+                                display="flex"
+                                justifyContent="space-between"
+                                alignItems="center"
+                                sx={{
+                                    width: "90%",
+                                    p: 2,
+                                    mb: 2,
+                                    backgroundColor: "#F9F9F9",
+                                    borderRadius: "50px",
+                                }}
+                            >
+                                <Typography variant="h6">メールアドレス</Typography>
+                                <Box
+                                    sx={{
+                                        backgroundColor: "#EAEAEA",
+                                        px: 2,
+                                        py: 0.5,
+                                        borderRadius: "50px",
+                                    }}
+                                >
+                                    <Typography variant="body1">{mailAddress}</Typography>
+                                </Box>
+                            </Box>
+                            <Box
+                                display="flex"
+                                justifyContent="space-between"
+                                alignItems="center"
+                                sx={{
+                                    width: "90%",
+                                    p: 2,
+                                    mb: 2,
+                                    backgroundColor: "#F9F9F9",
+                                    borderRadius: "50px",
+                                }}
+                            >
+                                <Typography variant="h6">パスワード</Typography>
+                                <Box sx={{ display: "flex", alignItems: "center" }}>
+                                    <Box
+                                        sx={{
+                                            backgroundColor: "#EAEAEA",
+                                            px: 2,
+                                            py: 0.5,
+                                            borderRadius: "50px",
+                                            mr: 1,
+                                        }}
+                                    >
+                                        <Typography variant="body1">
+                                            {renderStatus(passwordRegistered)}
+                                        </Typography>
+                                    </Box>
+                                    <IconButton onClick={handleUpdatePassword}>
+                                        {passwordRegistered ? <RefreshIcon /> : <UploadIcon />}
+                                    </IconButton>
+                                </Box>
                             </Box>
                             <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={() => handleOpenPasswordModal(isPasswordSaved ? 'modify' : 'register')}
-                                sx={{ borderRadius: '50px' }}
+                                variant="outlined"
+                                color="error"
+                                onClick={handleDeleteUser}
+                                sx={{ mt: 1, borderRadius: "50px", width: "90%" }}
                             >
-                                {isPasswordSaved ? '修正' : '登録'}
+                                ログアウト
                             </Button>
                         </Box>
-                        <Button
-                            variant="outlined"
-                            color="error"
-                            fullWidth
-                            onClick={handleReset}
-                            sx={{ borderRadius: '50px' }}
-                        >
-                            初期化
-                        </Button>
-                    </CardContent>
-                </Card>
-
-                {/* パスワード入力モーダル */}
-                <Dialog open={showPasswordModal} onClose={handleClosePasswordModal}>
-                    <DialogTitle>{action === 'modify' ? 'パスワード修正' : 'パスワード登録'}</DialogTitle>
-                    <DialogContent>
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            label="パスワード"
-                            type={showPassword ? 'text' : 'password'}
-                            fullWidth
-                            variant="outlined"
-                            value={passwordInput}
-                            onChange={(e) => setPasswordInput(e.target.value)}
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton onClick={handleToggleShowPassword} edge="end">
-                                            {showPassword ? <Visibility /> : <VisibilityOff />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleClosePasswordModal} sx={{ borderRadius: '50px' }}>キャンセル</Button>
-                        <Button onClick={handleSavePassword} variant="contained" color="primary" sx={{ borderRadius: '50px' }}>
-                            保存
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </Box>
+                    )}
+                </CardContent>
+            </Card>
         </Box>
     );
 };

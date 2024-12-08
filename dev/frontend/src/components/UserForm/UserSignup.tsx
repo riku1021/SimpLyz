@@ -28,7 +28,6 @@ const UserSignup: React.FC = () => {
                 showErrorAlert('登録できません', 'すでに登録済みのメールアドレスです。ログインしてください。');
                 navigate('/login');
             } else if (userCase === 'restoration') {
-                // 選択肢を提示
                 const userChoice = await showConfirmationAlert(
                     '選択してください',
                     '過去のユーザー情報を消して新たに登録する場合は「再登録」を、復元する場合は「復元」を選択してください。',
@@ -36,18 +35,23 @@ const UserSignup: React.FC = () => {
                     '復元'
                 );
 
-                if (userChoice) {
+                if (userChoice.isConfirmed) {
                     // 再登録
                     const statusMessage = await recreateUser(mail, password);
                     showSuccessAlert(statusMessage || '再登録が成功しました', '');
                     localStorage.setItem('loginStatus', 'ログイン中');
                     navigate('/management-file');
-                } else {
+                } else if (userChoice.isDismissed) {
                     // 復元
-                    const statusMessage = await restoreUser(mail, password);
-                    showSuccessAlert(statusMessage || '復元が成功しました', '');
-                    localStorage.setItem('loginStatus', 'ログイン中');
-                    navigate('/management-file');
+                    const { userId, message: statusMessage } = await restoreUser(mail, password);
+                    if (userId) {
+                        showSuccessAlert(statusMessage || '復元が成功しました', '');
+                        localStorage.setItem('loginStatus', 'ログイン中');
+                        localStorage.setItem('userId', userId);
+                        navigate('/management-file');
+                    } else {
+                        showErrorAlert('復元エラー', statusMessage || '復元に失敗しました。');
+                    }
                 }
             } else {
                 showErrorAlert('エラー', message || '不明なエラーが発生しました。');

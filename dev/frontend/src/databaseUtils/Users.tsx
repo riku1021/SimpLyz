@@ -6,6 +6,9 @@ interface SuccessResponse {
   StatusMessage: "Success";
   UserId?: string;
   GeminiApiKey?: string;
+  MailAddress?: string;
+  geminiApiKeyExists?: boolean;
+  passwordExists?: boolean;
   case?: string;
 }
 
@@ -106,7 +109,7 @@ export const recreateUser = async (
 export const restoreUser = async (
   mailAddress: string,
   password: string
-): Promise<string> => {
+): Promise<{ userId: string | undefined; message: string }> => {
   const requestData = { mail_address: mailAddress, password: password };
   try {
     const response = await axios.post<ApiResponse>(
@@ -114,12 +117,15 @@ export const restoreUser = async (
       requestData
     );
     if (response.data.StatusMessage === "Success") {
-      return response.data.StatusMessage;
+      return {
+        userId: response.data.UserId || undefined,
+        message: response.data.StatusMessage,
+      };
     } else {
-      return response.data.message;
+      return { userId: undefined, message: response.data.message };
     }
   } catch (error) {
-    return handleApiError(error);
+    return { userId: undefined, message: handleApiError(error) };
   }
 };
 
@@ -148,7 +154,7 @@ export const loginUser = async (
 };
 
 // ユーザーを削除するAPI
-export const deleteUser = async (userId: string): Promise<string> => {
+export const deleteUser = async (userId: string | null): Promise<string> => {
   const requestData = { user_id: userId };
   try {
     const response = await axios.post<ApiResponse>(
@@ -165,9 +171,32 @@ export const deleteUser = async (userId: string): Promise<string> => {
   }
 };
 
+// MailAddressを取得するAPI
+export const getMailAddress = async (
+  userId: string | null
+): Promise<{ mailAddress: string | undefined; message: string }> => {
+  const requestData = { user_id: userId };
+  try {
+    const response = await axios.post<ApiResponse>(
+      "http://localhost:8080/users/get/mailaddress",
+      requestData
+    );
+    if (response.data.StatusMessage === "Success") {
+      return {
+        mailAddress: response.data.MailAddress,
+        message: response.data.StatusMessage,
+      };
+    } else {
+      return { mailAddress: undefined, message: response.data.message };
+    }
+  } catch (error) {
+    return { mailAddress: undefined, message: handleApiError(error) };
+  }
+};
+
 // パスワードを変更するAPI
 export const changePassword = async (
-  userId: string,
+  userId: string | null,
   currentPassword: string,
   newPassword: string
 ): Promise<string> => {
@@ -191,9 +220,49 @@ export const changePassword = async (
   }
 };
 
+// Gemini APIキーの存在確認API
+export const verifyGeminiApiKey = async (
+  userId: string | null
+): Promise<{ geminiApiKeyExists: boolean | undefined; message: string }> => {
+  const requestData = { user_id: userId };
+  try {
+    const response = await axios.post<ApiResponse>(
+      "http://localhost:8080/users/verify/api",
+      requestData
+    );
+    if (response.data.StatusMessage === "Success") {
+      return { geminiApiKeyExists: response.data.geminiApiKeyExists, message: response.data.StatusMessage };
+    } else {
+      return { geminiApiKeyExists: undefined, message: response.data.message };
+    }
+  } catch (error) {
+    return { geminiApiKeyExists: undefined, message: handleApiError(error) };
+  }
+};
+
+// パスワードの存在確認API
+export const verifyPassword = async (
+  userId: string | null
+): Promise<{ passwordExists: boolean | undefined; message: string }> => {
+  const requestData = { user_id: userId };
+  try {
+    const response = await axios.post<ApiResponse>(
+      "http://localhost:8080/users/verify/password",
+      requestData
+    );
+    if (response.data.StatusMessage === "Success") {
+      return { passwordExists: response.data.passwordExists, message: response.data.StatusMessage };
+    } else {
+      return { passwordExists: undefined, message: response.data.message };
+    }
+  } catch (error) {
+    return { passwordExists: undefined, message: handleApiError(error) };
+  }
+};
+
 // Gemini APIキーを保存するAPI
 export const saveGeminiApiKey = async (
-  userId: string,
+  userId: string | null,
   geminiApiKey: string
 ): Promise<string> => {
   const requestData = { user_id: userId, gemini_api_key: geminiApiKey };
@@ -237,7 +306,7 @@ export const getGeminiApiKey = async (
 
 // パスワードを認証するAPI
 export const checkPassword = async (
-  userId: string,
+  userId: string | null,
   password: string
 ): Promise<string> => {
   const requestData = { user_id: userId, password: password };

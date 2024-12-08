@@ -16,7 +16,8 @@ import {
 	Info as InfoIcon,
 	QueryStats as QueryStatsIcon,
 	AccountTree as AccountTreeIcon,
-	Create as CreateIcon
+	Create as CreateIcon,
+	AccountCircle as AccountCircleIcon
 } from '@mui/icons-material';
 import { useState, ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -225,6 +226,19 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
 						>
 							<ListItemIcon><QueryStatsIcon /></ListItemIcon>
 							<ListItemText primary="データ分析" primaryTypographyProps={{ fontWeight: 'bold' }} />
+						</ListItemButton>
+						<ListItemButton
+							onClick={() => handleNavigate('/user-info')}
+							sx={{
+								backgroundColor: isActive('/user-info') ? '#DEEBF7' : 'inherit',
+								'&:hover': {
+									backgroundColor: isActive('user-info') ? '#DEEBF7' : 'rgba(0, 0, 0, 0.04)',
+								},
+								borderRadius: '50px'
+							}}
+						>
+							<ListItemIcon><AccountCircleIcon /></ListItemIcon>
+							<ListItemText primary="ユーザー情報" primaryTypographyProps={{ fontWeight: 'bold' }} />
 						</ListItemButton>
 					</List>
 				</Box>

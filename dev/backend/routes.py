@@ -37,10 +37,6 @@ from src.backend.csvs import get_csv, update_csv
 # 環境変数を読み込む
 load_dotenv()
 
-# APIキーを設定
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI.configure(api_key=GEMINI_API_KEY)
-
 # データアップロード先の定義
 UPLOAD_PATH = "./uploads"
 
@@ -557,6 +553,20 @@ def setup_routes(app):
 
         data: Dict[str, List[Dict[str, str]]] = request.get_json()
 
+        user_id = data.get("user_id")
+        
+        proxies = {"http": None, "https": None}  # 大学で行うときはここを有効に
+        response = requests.post(
+            f"{GO_API_URL}/users/get/api",
+            json={"user_id": user_id},
+            proxies=proxies,
+        )
+
+        response = response.json()
+
+        GEMINI_API_KEY = response.get("GeminiApiKey")
+        GEMINI.configure(api_key=GEMINI_API_KEY)
+        
         message = data.get("message")
         user_message = data.get("user_message")
         room_id = data.get("room_id")
@@ -761,6 +771,20 @@ def setup_routes(app):
         try:
             model = GEMINI.GenerativeModel("gemini-1.5-flash")
             data: Dict[str, str] = request.get_json()
+
+            user_id = data.get("user_id")
+
+            proxies = {"http": None, "https": None}  # 大学で行うときはここを有効に
+            response = requests.post(
+                f"{GO_API_URL}/users/get/api",
+                json={"user_id": user_id},
+                proxies=proxies,
+            )
+
+            response = response.json()
+
+            GEMINI_API_KEY = response.get("GeminiApiKey")
+            GEMINI.configure(api_key=GEMINI_API_KEY)
 
             image_data = data["image_data"]
             room_id = data["room_id"]

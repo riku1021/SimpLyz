@@ -36,7 +36,8 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
     const [qualitativeData, setQualitativeData] = useState<Record<string, string[]>>({});
     const [quantitativeColumns, setQuantitativeColumns] = useState<string[]>([]);
     const [selectedColumn, setSelectedColumn] = useState<string>('');
-    const [selectedOperation, setSelectedOperation] = useState<string>('==');
+    const [selectedQualitativeOperation, setSelectedQualitativeOperation] = useState<string>('==');
+    const [selectedQuantitativeOperation, setSelectedQuantitativeOperation] = useState<string>('==');
     const [selectedValue, setSelectedValue] = useState<string>('');
     const [currentColumn, setCurrentColumn] = useState<string>('');
     const [currentNumber, setCurrentNumber] = useState<number>(0);
@@ -83,8 +84,12 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
         setSelectedValue(firstValue);
     };
 
-    const handleOperationChange = (event: SelectChangeEvent<string>) => {
-        setSelectedOperation(event.target.value);
+    const handleQualitativeOperationChange = (event: SelectChangeEvent<string>) => {
+        setSelectedQualitativeOperation(event.target.value);
+    };
+
+    const handleQuantitativeOperationChange = (event: SelectChangeEvent<string>) => {
+        setSelectedQuantitativeOperation(event.target.value);
     };
 
     const handleValueChange = (event: SelectChangeEvent<string>) => {
@@ -174,7 +179,7 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
     const handleAddQualitativeFormula = async () => {
         const newItems: FormulaItem[] = [
             { type: 'column', value: selectedColumn },
-            { type: 'operation', value: selectedOperation },
+            { type: 'operation', value: selectedQualitativeOperation },
             { type: 'string', value: selectedValue },
         ];
         for (const item of newItems) {
@@ -194,7 +199,7 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
     const handleAddQuantitativeFormula = async () => {
         const newItems: FormulaItem[] = [
             { type: 'column', value: currentColumn },
-            { type: 'operation', value: selectedOperation },
+            { type: 'operation', value: selectedQuantitativeOperation },
             { type: 'number', value: currentNumber },
         ];
 
@@ -307,13 +312,13 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
                             </Select>
                         </FormControl>
 
-                        {/* 演算子選択 */}
+                        {/* 質的データの演算子選択 */}
                         <FormControl variant="outlined" sx={{ width: '70px' }}>
-                            <InputLabel id="operation-select-label">演算子</InputLabel>
+                            <InputLabel id="qualitative-operation-select-label">演算子</InputLabel>
                             <Select
-                                labelId="operation-select-label"
-                                value={selectedOperation}
-                                onChange={handleOperationChange}
+                                labelId="qualitative-operation-select-label"
+                                value={selectedQualitativeOperation}
+                                onChange={handleQualitativeOperationChange}
                                 label="演算子"
                                 sx={selectStyles}
                                 inputProps={{
@@ -398,13 +403,13 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
                             </Select>
                         </FormControl>
 
-                        {/* 演算子選択 */}
+                        {/* 量的データの演算子選択 */}
                         <FormControl variant="outlined" sx={{ width: '70px' }}>
-                            <InputLabel id="operation-select-label">演算子</InputLabel>
+                            <InputLabel id="quantitative-operation-select-label">演算子</InputLabel>
                             <Select
-                                labelId="operation-select-label"
-                                value={selectedOperation}
-                                onChange={handleOperationChange}
+                                labelId="quantitative-operation-select-label"
+                                value={selectedQuantitativeOperation}
+                                onChange={handleQuantitativeOperationChange}
                                 label="演算子"
                                 sx={selectStyles}
                                 inputProps={{

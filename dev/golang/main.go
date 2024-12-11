@@ -36,8 +36,8 @@ func main() {
 	dbUser := os.Getenv("POSTGRES_USER")
 	dbPassword := os.Getenv("POSTGRES_PASSWORD")
 	dbName := os.Getenv("POSTGRES_DB")
-	dbHost := "localhost" // または環境変数から取得
-	dbPort := "5432"      // または環境変数から取得
+	dbHost := os.Getenv("POSTGRES_HOST") // または環境変数から取得
+	dbPort := "5432"                     // または環境変数から取得
 
 	// DSNを構築
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Tokyo", dbHost, dbUser, dbPassword, dbName, dbPort)
@@ -76,14 +76,7 @@ func main() {
 	r := gin.Default()
 
 	// CORSミドルウェアの設定
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:5000"}, // ReactとFlaskのオリジン
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
+	r.Use(cors.Default())
 
 	// users
 	// ルートURL ("/") に対するGETリクエストをハンドル

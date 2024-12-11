@@ -40,7 +40,7 @@ load_dotenv()
 # データアップロード先の定義
 UPLOAD_PATH = "./uploads"
 
-GO_API_URL = "http://localhost:8080"
+GO_API_URL = os.getenv("DB_API_URL")
 
 
 def setup_routes(app):
@@ -594,7 +594,7 @@ def setup_routes(app):
         data: Dict[str, List[Dict[str, str]]] = request.get_json()
 
         user_id = data.get("user_id")
-        
+
         proxies = {"http": None, "https": None}  # 大学で行うときはここを有効に
         response = requests.post(
             f"{GO_API_URL}/users/get/api",
@@ -606,7 +606,7 @@ def setup_routes(app):
 
         GEMINI_API_KEY = response.get("GeminiApiKey")
         GEMINI.configure(api_key=GEMINI_API_KEY)
-        
+
         message = data.get("message")
         user_message = data.get("user_message")
         room_id = data.get("room_id")

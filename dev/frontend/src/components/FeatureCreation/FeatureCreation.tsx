@@ -163,7 +163,6 @@ const FeatureCreation: React.FC = () => {
 							mt: 2,
 							backgroundColor: '#EAEAEA',
 							borderRadius: '25px',
-							border: '1px solid #EAEAEA',
 							padding: '16px 20px',
 							minHeight: '30px',
 							display: 'flex',

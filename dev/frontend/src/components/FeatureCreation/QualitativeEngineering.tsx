@@ -273,7 +273,7 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
         <Box sx={{ mt: 2 }}>
             <Box
                 sx={{
-                    backgroundColor: '#F2F2F2',
+                    backgroundColor: '#EAEAEA',
                     borderRadius: '20px',
                     padding: 1,
                     mt: 1,

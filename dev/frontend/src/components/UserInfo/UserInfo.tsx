@@ -226,8 +226,8 @@ const UserInfo: React.FC = () => {
     const handleDeleteUser = async () => {
         try {
             const confirmation = await showConfirmationAlert(
-                "ユーザー削除",
-                "本当にこのユーザーを削除してもよろしいですか？",
+                "ログアウト確認",
+                "ログアウトしてもよろしいですか？",
                 "削除",
                 "キャンセル"
             );

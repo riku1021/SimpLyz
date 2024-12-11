@@ -1,5 +1,6 @@
 import axios from "axios";
 import { generateUUID } from "../utils/generateUuid";
+import { DATABASE_URL } from "../urlConfig"
 
 // 成功時レスポンス型
 interface SuccessResponse {
@@ -41,7 +42,7 @@ export const checkUser = async (
   const requestData = { mail_address: mailAddress };
   try {
     const response = await axios.post<ApiResponse>(
-      "http://localhost:8080/users/check/user",
+      `${DATABASE_URL}users/check/user`,
       requestData
     );
     if (response.data.StatusMessage === "Success") {
@@ -67,7 +68,7 @@ export const createUser = async (
   };
   try {
     const response = await axios.post<ApiResponse>(
-      "http://localhost:8080/users/create",
+      `${DATABASE_URL}users/create`,
       requestData
     );
     if (response.data.StatusMessage === "Success") {
@@ -92,7 +93,7 @@ export const recreateUser = async (
   };
   try {
     const response = await axios.post<ApiResponse>(
-      "http://localhost:8080/users/recreate",
+      `${DATABASE_URL}users/recreate`,
       requestData
     );
     if (response.data.StatusMessage === "Success") {
@@ -113,7 +114,7 @@ export const restoreUser = async (
   const requestData = { mail_address: mailAddress, password: password };
   try {
     const response = await axios.post<ApiResponse>(
-      "http://localhost:8080/users/restoration",
+      `${DATABASE_URL}users/restoration`,
       requestData
     );
     if (response.data.StatusMessage === "Success") {
@@ -137,7 +138,7 @@ export const loginUser = async (
   const requestData = { mail_address: mailAddress, password: password };
   try {
     const response = await axios.post<ApiResponse>(
-      "http://localhost:8080/users/login",
+      `${DATABASE_URL}users/login`,
       requestData
     );
     if (response.data.StatusMessage === "Success") {
@@ -158,7 +159,7 @@ export const deleteUser = async (userId: string | null): Promise<string> => {
   const requestData = { user_id: userId };
   try {
     const response = await axios.post<ApiResponse>(
-      "http://localhost:8080/users/delete",
+      `${DATABASE_URL}users/delete`,
       requestData
     );
     if (response.data.StatusMessage === "Success") {
@@ -178,7 +179,7 @@ export const getMailAddress = async (
   const requestData = { user_id: userId };
   try {
     const response = await axios.post<ApiResponse>(
-      "http://localhost:8080/users/get/mailaddress",
+      `${DATABASE_URL}users/get/mailaddress`,
       requestData
     );
     if (response.data.StatusMessage === "Success") {
@@ -202,7 +203,7 @@ export const saveMailAddress = async (
   const requestData = { user_id: userId, mail_address: mailAddress };
   try {
     const response = await axios.post<ApiResponse>(
-      "http://localhost:8080/users/save/mailaddress",
+      `${DATABASE_URL}users/save/mailaddress`,
       requestData
     );
     if (response.data.StatusMessage === "Success") {
@@ -228,7 +229,7 @@ export const changePassword = async (
   };
   try {
     const response = await axios.post<ApiResponse>(
-      "http://localhost:8080/users/change/password",
+      `${DATABASE_URL}users/change/password`,
       requestData
     );
     if (response.data.StatusMessage === "Success") {
@@ -248,7 +249,7 @@ export const verifyGeminiApiKey = async (
   const requestData = { user_id: userId };
   try {
     const response = await axios.post<ApiResponse>(
-      "http://localhost:8080/users/verify/api",
+      `${DATABASE_URL}users/verify/api`,
       requestData
     );
     if (response.data.StatusMessage === "Success") {
@@ -268,7 +269,7 @@ export const verifyPassword = async (
   const requestData = { user_id: userId };
   try {
     const response = await axios.post<ApiResponse>(
-      "http://localhost:8080/users/verify/password",
+      `${DATABASE_URL}users/verify/password`,
       requestData
     );
     if (response.data.StatusMessage === "Success") {
@@ -289,7 +290,7 @@ export const saveGeminiApiKey = async (
   const requestData = { user_id: userId, gemini_api_key: geminiApiKey };
   try {
     const response = await axios.post<ApiResponse>(
-      "http://localhost:8080/users/save/api",
+      `${DATABASE_URL}users/save/api`,
       requestData
     );
     if (response.data.StatusMessage === "Success") {
@@ -309,7 +310,7 @@ export const getGeminiApiKey = async (
   const requestData = { user_id: userId };
   try {
     const response = await axios.post<ApiResponse>(
-      "http://localhost:8080/users/get/api",
+      `${DATABASE_URL}users/get/api`,
       requestData
     );
     if (response.data.StatusMessage === "Success") {
@@ -333,7 +334,7 @@ export const checkPassword = async (
   const requestData = { user_id: userId, password: password };
   try {
     const response = await axios.post<ApiResponse>(
-      "http://localhost:8080/users/check/password",
+      `${DATABASE_URL}users/check/password`,
       requestData
     );
     if (response.data.StatusMessage === "Success") {

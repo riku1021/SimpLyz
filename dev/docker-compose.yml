@@ -6,6 +6,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    image: simplyz20241211.azurecr.io/dev-frontend:latest
     ports:
       - "5173:5173"
     environment:
@@ -17,10 +18,12 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: simplyz20241211.azurecr.io/dev-backend:latest
     ports:
       - "5000:5000"
     environment:
       - FLASK_ENV=development
+      - DB_API_URL=http://golang:8080
     volumes:
       - ./backend:/app
     command: python app.py
@@ -31,6 +34,7 @@ services:
     build:
       context: ./database
       dockerfile: Dockerfile
+    image: simplyz20241211.azurecr.io/dev-postgres:latest
     volumes:
       - ./database/db_data:/var/lib/postgres/data
       - ./database/init:/docker-entrypoint-initdb.d
@@ -43,8 +47,11 @@ services:
     build:
       context: ./golang
       dockerfile: Dockerfile
+    image: simplyz20241211.azurecr.io/dev-golang:latest
     ports:
       - "8080:8080"
+    environment:
+      - POSTGRES_HOST=postgres
     depends_on:
       - postgres
     command: go run .

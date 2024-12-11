@@ -17,6 +17,7 @@ import useAuth from "../../hooks/useAuth";
 import {
     checkPassword,
     getMailAddress,
+    saveMailAddress,
     changePassword,
     saveGeminiApiKey,
     deleteUser,
@@ -29,7 +30,7 @@ import {
     showInfoAlert,
     showConfirmationAlert,
 } from "../../utils/alertUtils";
-import { validatePassword } from '../../utils/validation';
+import { validateEmail, validatePassword } from '../../utils/validation';
 
 const UserInfo: React.FC = () => {
     const { userId } = useAuth();
@@ -87,7 +88,8 @@ const UserInfo: React.FC = () => {
         try {
             const passwordResult = await showInfoAlert(
                 "GeminiApiKeyの更新",
-                "現在のパスワードを入力してください"
+                "現在のパスワードを入力してください",
+                "password"
             );
             if (!passwordResult.isConfirmed || !passwordResult.value) {
                 return;
@@ -101,7 +103,8 @@ const UserInfo: React.FC = () => {
 
             const apiKeyResult = await showInfoAlert(
                 "新しいGeminiApiKeyの入力",
-                "新しいGeminiApiKeyを入力してください"
+                "新しいGeminiApiKeyを入力してください",
+                "text"
             );
             if (!apiKeyResult.isConfirmed || !apiKeyResult.value) {
                 return;
@@ -121,11 +124,60 @@ const UserInfo: React.FC = () => {
         }
     };
 
+    const handleUpdateMailAddress = async () => {
+        try {
+            const passwordResult = await showInfoAlert(
+                "メールアドレスの変更",
+                "現在のパスワードを入力してください",
+                "password"
+            );
+            if (!passwordResult.isConfirmed || !passwordResult.value) {
+                return;
+            }
+            const currentPassword = passwordResult.value;
+
+            const passwordCheckResult = await checkPassword(userId, currentPassword);
+            if (passwordCheckResult !== "Success") {
+                return showErrorAlert("エラー", "現在のパスワードが正しくありません");
+            }
+
+            const newMailAddressResult = await showInfoAlert(
+                "メールアドレスの変更",
+                "新しいメールアドレスを入力してください",
+                "text"
+            );
+            if (!newMailAddressResult.isConfirmed || !newMailAddressResult.value) {
+                return;
+            }
+            const newMailAddress = newMailAddressResult.value;
+
+            if (!validateEmail(newMailAddress)) {
+                return showErrorAlert(
+                    "エラー",
+                    "無効なメールアドレス形式です。正しいメールアドレスを入力してください。"
+                );
+            }
+
+            // メールアドレスを保存
+            const saveMailResult = await saveMailAddress(userId, newMailAddress);
+            if (saveMailResult === "Success") {
+                showSuccessAlert("成功", "メールアドレスが更新されました");
+                checkRegistration();
+            } else {
+                showErrorAlert("エラー", saveMailResult);
+            }
+        } catch (error) {
+            console.error("メールアドレスの更新に失敗しました:", error);
+            showErrorAlert("エラー", "メールアドレスの更新に失敗しました");
+        }
+    };
+
     const handleUpdatePassword = async () => {
         try {
             const passwordResult = await showInfoAlert(
                 "パスワードの変更",
-                "現在のパスワードを入力してください"
+                "現在のパスワードを入力してください",
+                "password"
             );
             if (!passwordResult.isConfirmed || !passwordResult.value) {
                 return;
@@ -139,7 +191,8 @@ const UserInfo: React.FC = () => {
 
             const newPasswordResult = await showInfoAlert(
                 "新しいパスワードの入力",
-                "新しいパスワードを入力してください（4文字以上、英字と数字を含む必要があります）"
+                "新しいパスワードを入力してください（4文字以上、英字と数字を含む必要があります）",
+                "text"
             );
             if (!newPasswordResult.isConfirmed || !newPasswordResult.value) {
                 return;
@@ -248,7 +301,7 @@ const UserInfo: React.FC = () => {
                                     borderRadius: "50px",
                                 }}
                             >
-                                <Typography variant="h6">GeminiApiKey</Typography>
+                                <Typography variant="h6">メールアドレス</Typography>
                                 <Box sx={{ display: "flex", alignItems: "center" }}>
                                     <Box
                                         sx={{
@@ -259,37 +312,11 @@ const UserInfo: React.FC = () => {
                                             mr: 1,
                                         }}
                                     >
-                                        <Typography variant="body1">
-                                            {renderStatus(apiKeyRegistered)}
-                                        </Typography>
+                                        <Typography variant="body1">{mailAddress}</Typography>
                                     </Box>
-                                    <IconButton onClick={handleUpdateApiKey}>
-                                        {apiKeyRegistered ? <RefreshIcon /> : <UploadIcon />}
+                                    <IconButton onClick={handleUpdateMailAddress}>
+                                        <RefreshIcon />
                                     </IconButton>
-                                </Box>
-                            </Box>
-                            <Box
-                                display="flex"
-                                justifyContent="space-between"
-                                alignItems="center"
-                                sx={{
-                                    width: "90%",
-                                    p: 2,
-                                    mb: 2,
-                                    backgroundColor: "#F9F9F9",
-                                    borderRadius: "50px",
-                                }}
-                            >
-                                <Typography variant="h6">メールアドレス</Typography>
-                                <Box
-                                    sx={{
-                                        backgroundColor: "#EAEAEA",
-                                        px: 2,
-                                        py: 0.5,
-                                        borderRadius: "50px",
-                                    }}
-                                >
-                                    <Typography variant="body1">{mailAddress}</Typography>
                                 </Box>
                             </Box>
                             <Box
@@ -321,6 +348,38 @@ const UserInfo: React.FC = () => {
                                     </Box>
                                     <IconButton onClick={handleUpdatePassword}>
                                         {passwordRegistered ? <RefreshIcon /> : <UploadIcon />}
+                                    </IconButton>
+                                </Box>
+                            </Box>
+                            <Box
+                                display="flex"
+                                justifyContent="space-between"
+                                alignItems="center"
+                                sx={{
+                                    width: "90%",
+                                    p: 2,
+                                    mb: 2,
+                                    backgroundColor: "#F9F9F9",
+                                    borderRadius: "50px",
+                                }}
+                            >
+                                <Typography variant="h6">GeminiApiKey</Typography>
+                                <Box sx={{ display: "flex", alignItems: "center" }}>
+                                    <Box
+                                        sx={{
+                                            backgroundColor: "#EAEAEA",
+                                            px: 2,
+                                            py: 0.5,
+                                            borderRadius: "50px",
+                                            mr: 1,
+                                        }}
+                                    >
+                                        <Typography variant="body1">
+                                            {renderStatus(apiKeyRegistered)}
+                                        </Typography>
+                                    </Box>
+                                    <IconButton onClick={handleUpdateApiKey}>
+                                        {apiKeyRegistered ? <RefreshIcon /> : <UploadIcon />}
                                     </IconButton>
                                 </Box>
                             </Box>

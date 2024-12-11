@@ -127,6 +127,11 @@ const QuantitativeEngineering: React.FC<QuantitativeEngineeringProps> = ({ formu
             const lastItem = formula[formula.length - 1];
             const openParentheses = calculateOpenParentheses(formula);
 
+            if (lastItem.type === 'parenthesis' && lastItem.value === ')') {
+                showErrorAlert('追加エラー', '閉じ括弧 ")" は式の最初に追加できません。');
+                return false;
+            }
+
             if (openParentheses <= 0) {
                 showErrorAlert('追加エラー', '閉じ括弧 ")" を追加するための開き括弧 "(" がありません');
                 return;

@@ -63,8 +63,8 @@ const FeatureCreation: React.FC = () => {
 	};
 
 	const validateFormula = (): boolean => {
-		if (formula.length === 0 || formula[formula.length - 1].type === 'operation') {
-			showErrorAlert('エラー', '最後に数値またはカラムを追加してください');
+		if (formula.length === 0) {
+			showErrorAlert('エラー', '数式を入力してください');
 			return false;
 		}
 
@@ -81,9 +81,29 @@ const FeatureCreation: React.FC = () => {
 			return false;
 		}
 
-		for (let i = 0; i < formula.length; i++) {
-			if (formula[i].type === 'operation' && formula[i].value === 'division' && formula[i + 1]?.value === 0) {
+		for (let i = 0; i < formula.length - 1; i++) {
+			const current = formula[i];
+			const next = formula[i + 1];
+			if (
+				current.type === 'operation' &&
+				(!next || (next.type !== 'number' && next.type !== 'column'))
+			) {
+				showErrorAlert('エラー', '演算子の後には数値またはカラムを置く必要があります');
+				return false;
+			}
+			if (current.type === 'operation' && current.value === 'division' && next?.value === 0) {
 				showErrorAlert('エラー', '0で割ることはできません');
+				return false;
+			}
+		}
+
+		if (!isQuantitative) {
+			const lastItem = formula[formula.length - 1];
+			if (
+				lastItem?.type === 'logicalOperation' ||
+				(lastItem?.type === 'parenthesis' && lastItem?.value === '(')
+			) {
+				showErrorAlert('エラー', `'and'、'or'、または'('で数式を終えることはできません`);
 				return false;
 			}
 		}

@@ -228,7 +228,7 @@ const UserInfo: React.FC = () => {
             const confirmation = await showConfirmationAlert(
                 "ログアウト確認",
                 "ログアウトしてもよろしいですか？",
-                "削除",
+                "はい",
                 "キャンセル"
             );
             if (!confirmation.isConfirmed) {

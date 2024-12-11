@@ -1,4 +1,3 @@
-// components/FeatureCreation/QuantitativeEngineering.tsx
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Select, MenuItem, TextField, Grid } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
@@ -7,10 +6,13 @@ import { showErrorAlert } from '../../utils/alertUtils';
 import { BACKEND_URL } from '../../urlConfig';
 import useAuth from '../../hooks/useAuth';
 
-type FormulaItem = {
-    type: 'column' | 'operation' | 'number' | 'parenthesis';
-    value: string | number;
-};
+type FormulaItem =
+    | { type: 'column'; value: string }
+    | { type: 'operation'; value: string }
+    | { type: 'number'; value: number }
+    | { type: 'string'; value: string }
+    | { type: 'parenthesis'; value: '(' | ')' }
+    | { type: 'logicalOperation'; value: 'and' | 'or' };
 
 type QuantitativeEngineeringProps = {
     formula: FormulaItem[];
@@ -58,27 +60,57 @@ const QuantitativeEngineering: React.FC<QuantitativeEngineeringProps> = ({ formu
         setPreview(formulaPreview);
     }, [formula, setPreview]);
 
+    // 括弧の開閉数を計算する関数
+    const calculateOpenParentheses = (formula: FormulaItem[]): number => {
+        let count = 0;
+        for (const item of formula) {
+            if (item.type === 'parenthesis') {
+                if (item.value === '(') {
+                    count += 1;
+                } else if (item.value === ')') {
+                    count -= 1;
+                }
+            }
+        }
+        return count;
+    };
+
     const handleAddColumn = () => {
-        if (formula.length === 0 || formula[formula.length - 1].type === 'operation' || (formula[formula.length - 1].type === 'parenthesis' && formula[formula.length - 1].value === '(')) {
+        const lastItem = formula[formula.length - 1];
+        if (
+            formula.length === 0 ||
+            lastItem.type === 'operation' ||
+            (lastItem.type === 'parenthesis' && lastItem.value === '(')
+        ) {
             setFormula([...formula, { type: 'column', value: currentColumn }]);
         } else {
-            showErrorAlert('エラー', '演算子を追加してください（カラムが連続していないか確認してください）');
+            showErrorAlert('追加エラー', '演算子を追加してください（カラムが連続していないか確認してください）');
         }
     };
 
     const handleAddOperation = () => {
-        if (formula.length > 0 && formula[formula.length - 1].type !== 'operation' && formula[formula.length - 1].value !== '(') {
+        const lastItem = formula[formula.length - 1];
+        if (
+            formula.length > 0 &&
+            lastItem.type !== 'operation' &&
+            !(lastItem.type === 'parenthesis' && lastItem.value === '(')
+        ) {
             setFormula([...formula, { type: 'operation', value: currentOperation }]);
         } else {
-            showErrorAlert('エラー', '数値またはカラムを追加してください（演算子が連続していないか確認してください）');
+            showErrorAlert('追加エラー', '数値またはカラムを追加してください（演算子が連続していないか確認してください）');
         }
     };
 
     const handleAddNumber = () => {
-        if (formula.length === 0 || formula[formula.length - 1].type === 'operation' || formula[formula.length - 1].value === '(') {
+        const lastItem = formula[formula.length - 1];
+        if (
+            formula.length === 0 ||
+            lastItem.type === 'operation' ||
+            (lastItem.type === 'parenthesis' && lastItem.value === '(')
+        ) {
             setFormula([...formula, { type: 'number', value: currentNumber }]);
         } else {
-            showErrorAlert('エラー', '演算子を追加してください（数値が連続していないか確認してください）');
+            showErrorAlert('追加エラー', '演算子を追加してください（数値が連続していないか確認してください）');
         }
     };
 
@@ -87,14 +119,21 @@ const QuantitativeEngineering: React.FC<QuantitativeEngineeringProps> = ({ formu
             const lastItem = formula[formula.length - 1];
 
             if (lastItem && (lastItem.type === 'column' || lastItem.type === 'number' || lastItem.value === ')')) {
-                showErrorAlert('エラー', 'カラムや数値、閉じ括弧の直後に開き括弧を追加することはできません');
+                showErrorAlert('追加エラー', 'カラムや数値、閉じ括弧の直後に開き括弧を追加することはできません');
             } else {
                 setFormula([...formula, { type: 'parenthesis', value: '(' }]);
             }
         } else if (type === 'close') {
             const lastItem = formula[formula.length - 1];
+            const openParentheses = calculateOpenParentheses(formula);
+
+            if (openParentheses <= 0) {
+                showErrorAlert('追加エラー', '閉じ括弧 ")" を追加するための開き括弧 "(" がありません');
+                return;
+            }
+
             if (!lastItem || lastItem.type === 'operation' || lastItem.value === '(') {
-                showErrorAlert('エラー', '演算子の後や空の括弧に閉じ括弧は使用できません');
+                showErrorAlert('追加エラー', '演算子の後や空の括弧に閉じ括弧は使用できません');
             } else {
                 setFormula([...formula, { type: 'parenthesis', value: ')' }]);
             }

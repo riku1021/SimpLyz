@@ -9,16 +9,20 @@ import {
     SelectChangeEvent,
     Button,
     IconButton,
-    TextField
+    TextField,
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { BACKEND_URL } from '../../urlConfig';
 import useAuth from '../../hooks/useAuth';
+import { showErrorAlert } from '../../utils/alertUtils';
 
-type FormulaItem = {
-    type: 'column' | 'operation' | 'number' | 'parenthesis';
-    value: string | number;
-};
+type FormulaItem =
+    | { type: 'column'; value: string }
+    | { type: 'operation'; value: string }
+    | { type: 'number'; value: number }
+    | { type: 'string'; value: string }
+    | { type: 'parenthesis'; value: '(' | ')' }
+    | { type: 'logicalOperation'; value: 'and' | 'or' };
 
 type QualitativeEngineeringProps = {
     formula: FormulaItem[];
@@ -43,16 +47,12 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
             const response = await axios.post(`${BACKEND_URL}/get_qualitative_with_values`, {
                 csv_id: csvId,
             });
-
             const data = response.data.qualitative_variables;
             setQualitativeData(data);
-
             const firstColumn = Object.keys(data)[0];
             const firstValue = data[firstColumn][0];
             setSelectedColumn(firstColumn);
             setSelectedValue(firstValue);
-
-            setFormula([{ type: 'column', value: firstValue }]);
         } catch (error) {
             console.error("Error fetching qualitative data:", error);
         }
@@ -76,28 +76,142 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
         fetchQuantitativeColumns();
     }, [csvId]);
 
-    // ドロップダウンの変更ハンドラー
     const handleColumnChange = (event: SelectChangeEvent<string>) => {
         const column = event.target.value;
         setSelectedColumn(column);
         const firstValue = qualitativeData[column][0];
         setSelectedValue(firstValue);
-        setFormula([{ type: 'column', value: firstValue }]);
     };
 
     const handleOperationChange = (event: SelectChangeEvent<string>) => {
-        const operation = event.target.value;
-        setSelectedOperation(operation);
-        setFormula([...formula, { type: 'operation', value: operation }]);
+        setSelectedOperation(event.target.value);
     };
 
     const handleValueChange = (event: SelectChangeEvent<string>) => {
-        const value = event.target.value;
-        setSelectedValue(value);
-        setFormula([...formula, { type: 'column', value }]);
+        setSelectedValue(event.target.value);
     };
 
-    // カスタムスタイルの定義
+    const updatePreview = (newFormula: FormulaItem[]) => {
+        const preview = newFormula.map(item => item.value.toString()).join(' ');
+        setPreview(preview);
+    };
+
+    // 括弧の開閉数を計算する関数
+    const calculateOpenParentheses = (formula: FormulaItem[]): number => {
+        let count = 0;
+        for (const item of formula) {
+            if (item.type === 'parenthesis') {
+                if (item.value === '(') {
+                    count += 1;
+                } else if (item.value === ')') {
+                    count -= 1;
+                }
+            }
+        }
+        return count;
+    };
+
+    // 追加前のバリデーションを行う関数
+    const validateAddition = (newItem: FormulaItem): boolean => {
+        if (formula.length === 0) {
+            if (newItem.type === 'logicalOperation') {
+                showErrorAlert('追加エラー', '論理演算子は式の最初に追加できません。');
+                return false;
+            }
+            if (newItem.type === 'parenthesis' && newItem.value === ')') {
+                showErrorAlert('追加エラー', '閉じ括弧 ")" は式の最初に追加できません。');
+                return false;
+            }
+            return true;
+        }
+
+        const lastItem = formula[formula.length - 1];
+
+        const isLastItemExpression = ['column', 'operation', 'number', 'string', 'parenthesis'].includes(lastItem.type) && !(lastItem.type === 'parenthesis' && lastItem.value === '(');
+        const isNewItemExpression = ['column', 'operation', 'number', 'string'].includes(newItem.type) || (newItem.type === 'parenthesis' && newItem.value === '(');
+
+        if (isLastItemExpression && isNewItemExpression) {
+            showErrorAlert('追加エラー', '式の後に式を追加することはできません。');
+            return false;
+        }
+
+        const isLastItemLogical = lastItem.type === 'logicalOperation';
+        const isNewItemLogical = newItem.type === 'logicalOperation';
+
+        if (isLastItemLogical && isNewItemLogical) {
+            showErrorAlert('追加エラー', '論理演算子の後に論理演算子を追加することはできません。');
+            return false;
+        }
+
+        if (newItem.type === 'parenthesis' && newItem.value === '(') {
+            if (isLastItemExpression) {
+                showErrorAlert('追加エラー', '式の後に "(" を追加することはできません。');
+                return false;
+            }
+            return true;
+        }
+
+        if (newItem.type === 'parenthesis' && newItem.value === ')') {
+            if (lastItem.type === 'parenthesis' && lastItem.value === '(') {
+                showErrorAlert('追加エラー', '"(" の後に ")" を追加することはできません。');
+                return false;
+            }
+            const currentOpenParentheses = calculateOpenParentheses(formula);
+            if (currentOpenParentheses <= 0) {
+                showErrorAlert('追加エラー', '閉じ括弧 ")" を追加するための開き括弧 "(" がありません。');
+                return false;
+            }
+            if (!isLastItemExpression && !(lastItem.type === 'parenthesis' && lastItem.value === ')')) {
+                showErrorAlert('追加エラー', '閉じ括弧 ")" の前には式または閉じ括弧 ")" が必要です。');
+                return false;
+            }
+            return true;
+        }
+
+        return true;
+    };
+
+    const handleAddQualitativeFormula = async () => {
+        const newItems: FormulaItem[] = [
+            { type: 'column', value: selectedColumn },
+            { type: 'operation', value: selectedOperation },
+            { type: 'string', value: selectedValue },
+        ];
+        for (const item of newItems) {
+            if (!validateAddition(item)) {
+                return;
+            }
+        }
+
+        const newFormula: FormulaItem[] = [
+            ...formula,
+            ...newItems,
+        ];
+        setFormula(newFormula);
+        updatePreview(newFormula);
+    };
+
+    const handleAddQuantitativeFormula = async () => {
+        const newItems: FormulaItem[] = [
+            { type: 'column', value: currentColumn },
+            { type: 'operation', value: selectedOperation },
+            { type: 'number', value: currentNumber },
+        ];
+
+        for (const item of newItems) {
+            if (!validateAddition(item)) {
+                return;
+            }
+        }
+
+        const newFormula: FormulaItem[] = [
+            ...formula,
+            ...newItems,
+        ];
+        setFormula(newFormula);
+        updatePreview(newFormula);
+    };
+
     const formControlStyles = {
         flex: 1,
     };
@@ -121,6 +235,35 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
         padding: "10px 14px",
     };
 
+    const handleAddLogicalOperation = async (op: 'and' | 'or') => {
+        const newItem: FormulaItem = { type: 'logicalOperation', value: op };
+        if (!validateAddition(newItem)) {
+            return;
+        }
+
+        const newFormula: FormulaItem[] = [
+            ...formula,
+            newItem,
+        ];
+        setFormula(newFormula);
+        updatePreview(newFormula);
+    };
+
+    const handleAddParenthesis = async (paren: '(' | ')') => {
+        const newItem: FormulaItem = { type: 'parenthesis', value: paren };
+        if (!validateAddition(newItem)) {
+            return;
+        }
+
+        const newFormula: FormulaItem[] = [
+            ...formula,
+            newItem,
+        ];
+
+        setFormula(newFormula);
+        updatePreview(newFormula);
+    };
+
     return (
         <Box sx={{ mt: 2 }}>
             <Box
@@ -132,6 +275,7 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
                     mb: 1,
                 }}
             >
+                {/* 質的データを用いた式作成 */}
                 <Box
                     sx={{
                         backgroundColor: '#FFFFFF',
@@ -215,12 +359,14 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
                                 borderRadius: '50%',
                                 '&:hover': { backgroundColor: '#1565c0' },
                             }}
+                            onClick={handleAddQualitativeFormula}
                         >
                             <AddIcon />
                         </IconButton>
                     </Box>
                 </Box>
 
+                {/* 量的データを用いた式作成 */}
                 <Box
                     sx={{
                         backgroundColor: '#FFFFFF',
@@ -231,7 +377,7 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
                     }}
                 >
                     <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                        {/* 量的データのカラム表示 */}
+                        {/* 量的データのカラム選択 */}
                         <FormControl variant="outlined" sx={formControlStyles}>
                             <InputLabel id="quantitative-column-label">量的カラムを選択</InputLabel>
                             <Select
@@ -305,18 +451,20 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
                                 borderRadius: '50%',
                                 '&:hover': { backgroundColor: '#1565c0' },
                             }}
+                            onClick={handleAddQuantitativeFormula}
                         >
                             <AddIcon />
                         </IconButton>
                     </Box>
                 </Box>
 
-                {/* 論理演算子 */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-evenly', gap: 3 }}>
+                {/* 論理演算子および括弧の追加 */}
+                <Box sx={{ display: 'flex', justifyContent: 'space-evenly', gap: 1 }}>
                     <Button
                         variant="outlined"
                         color="primary"
                         sx={{ flex: 1, borderRadius: '50px', backgroundColor: 'white', fontWeight: 'bold' }}
+                        onClick={() => handleAddLogicalOperation('and')}
                     >
                         and
                     </Button>
@@ -324,12 +472,29 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
                         variant="outlined"
                         color="primary"
                         sx={{ flex: 1, borderRadius: '50px', backgroundColor: 'white', fontWeight: 'bold' }}
+                        onClick={() => handleAddLogicalOperation('or')}
                     >
                         or
                     </Button>
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        sx={{ flex: 1, borderRadius: '50px', backgroundColor: 'white', fontWeight: 'bold' }}
+                        onClick={() => handleAddParenthesis('(')}
+                    >
+                        (
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        sx={{ flex: 1, borderRadius: '50px', backgroundColor: 'white', fontWeight: 'bold' }}
+                        onClick={() => handleAddParenthesis(')')}
+                    >
+                        )
+                    </Button>
                 </Box>
             </Box>
-        </Box >
+        </Box>
     );
 };
 

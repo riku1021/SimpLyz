@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Card, CardContent, Typography, IconButton, TextField, Button } from '@mui/material';
 import { Cached as CachedIcon } from '@mui/icons-material';
 import QuantitativeEngineering from './QuantitativeEngineering';
@@ -8,10 +8,13 @@ import { showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
 import { BACKEND_URL } from '../../urlConfig';
 import useAuth from '../../hooks/useAuth';
 
-type FormulaItem = {
-	type: 'column' | 'operation' | 'number' | 'parenthesis';
-	value: string | number;
-};
+type FormulaItem =
+	| { type: 'column'; value: string }
+	| { type: 'operation'; value: string }
+	| { type: 'number'; value: number }
+	| { type: 'string'; value: string }
+	| { type: 'parenthesis'; value: '(' | ')' }
+	| { type: 'logicalOperation'; value: 'and' | 'or' };
 
 const FeatureCreation: React.FC = () => {
 	const { csvId } = useAuth();
@@ -19,6 +22,11 @@ const FeatureCreation: React.FC = () => {
 	const [formula, setFormula] = useState<FormulaItem[]>([]);
 	const [newColumnName, setNewColumnName] = useState<string>('');
 	const [preview, setPreview] = useState<string>('');
+
+	useEffect(() => {
+		const newPreview = formula.map(item => item.value.toString()).join(' ');
+		setPreview(newPreview);
+	}, [formula]);
 
 	const toggleDataType = () => {
 		setIsQuantitative(!isQuantitative);
@@ -28,7 +36,23 @@ const FeatureCreation: React.FC = () => {
 
 	const handleRemoveLastItem = () => {
 		const newFormula = [...formula];
-		newFormula.pop();
+		const lastItem = newFormula[newFormula.length - 1];
+
+		if (!lastItem) return;
+
+		const shouldRemoveOne =
+			(lastItem.type === 'parenthesis' && (lastItem.value === '(' || lastItem.value === ')')) ||
+			(lastItem.type === 'logicalOperation' && (lastItem.value === 'and' || lastItem.value === 'or'));
+
+		if (shouldRemoveOne) {
+			newFormula.pop();
+		} else {
+			const itemsToRemove = 3;
+			const currentLength = newFormula.length;
+			const removeCount = currentLength >= itemsToRemove ? itemsToRemove : currentLength;
+			newFormula.splice(-removeCount, removeCount);
+		}
+
 		setFormula(newFormula);
 	};
 
@@ -93,7 +117,7 @@ const FeatureCreation: React.FC = () => {
 
 	return (
 		<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
-			<Card sx={{ width: 600, p: 2, borderRadius: '25px' }}>
+			<Card sx={{ width: 700, p: 2, borderRadius: '25px' }}>
 				<CardContent>
 					{/* タイトルと切替ボタン */}
 					<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -185,13 +209,13 @@ const FeatureCreation: React.FC = () => {
 						/>
 					</Box>
 
-					{/* 親コンポーネントに決定ボタンを配置 */}
+					{/* 決定ボタン*/}
 					<Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
 						<Button
 							variant="contained"
 							color="primary"
 							onClick={handleSubmit}
-							sx={{ width: '100%', borderRadius: '50px' }}
+							sx={{ width: '100%', borderRadius: '50px', fontWeight: 'bold' }}
 						>
 							決定
 						</Button>

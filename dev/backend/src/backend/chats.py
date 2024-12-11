@@ -1,10 +1,11 @@
+import os
 import uuid
 from typing import Dict
 
 import requests
 from flask import jsonify
 
-GO_API_URL = "http://localhost:8080"
+GO_API_URL = os.getenv("DB_API_URL")
 
 
 def save_chat(

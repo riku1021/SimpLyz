@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { DATABASE_URL } from "../urlConfig"
 
 // 型定義
 export interface CsvDataType {
@@ -28,7 +29,7 @@ export const fetchCsvSmallData = async (
   const requestData = { user_id: userId };
   try {
     const response = await axios.post(
-      "http://localhost:8080/csvs/get",
+      `${DATABASE_URL}csvs/get`,
       requestData
     );
     console.log("Success:", response.data);
@@ -46,7 +47,7 @@ export const fetchDeletedCsvFiles = async (
   const requestData = { user_id: userId };
   try {
     const response = await axios.post(
-      "http://localhost:8080/csvs/get/deletefiles",
+      `${DATABASE_URL}csvs/get/deletefiles`,
       requestData
     );
     console.log("Success:", response.data);
@@ -62,7 +63,7 @@ export const deleteCsvFile = async (csvId: string): Promise<string> => {
   const requestData = { csv_id: csvId };
   try {
     const response = await axios.post(
-      "http://localhost:8080/csvs/delete",
+      `${DATABASE_URL}csvs/delete`,
       requestData
     );
     console.log("Success:", response.data);
@@ -77,7 +78,7 @@ export const restoreCsvFile = async (csvId: string): Promise<string> => {
   const requestData = { csv_id: csvId };
   try {
     const response = await axios.post(
-      "http://localhost:8080/csvs/restoration",
+      `${DATABASE_URL}csvs/restoration`,
       requestData
     );
     console.log("Success:", response.data);
@@ -92,7 +93,7 @@ export const deleteCsvFilePermanently = async (csvId: string): Promise<string> =
   const requestData = { csv_id: csvId };
   try {
     const response = await axios.post(
-      "http://localhost:8080/csvs/delete/permanently",
+      `${DATABASE_URL}csvs/delete/permanently`,
       requestData
     );
     console.log("Success:", response.data);

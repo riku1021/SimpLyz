@@ -1,6 +1,7 @@
 import base64
 import io
 import json
+import os
 from typing import Dict, Tuple, Union
 
 import pandas as pd
@@ -8,7 +9,7 @@ import requests
 from flask import jsonify
 from pandas import DataFrame
 
-GO_API_URL = "http://localhost:8080"
+GO_API_URL = os.getenv("DB_API_URL")
 
 
 def get_csv(csv_id: str) -> Union[Tuple[DataFrame, Dict[str, str]], Dict[str, str]]:

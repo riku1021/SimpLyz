@@ -1,4 +1,5 @@
 import axios from "axios";
+import { DATABASE_URL } from "../urlConfig"
 
 // 型定義
 export interface ChatDataType {
@@ -30,7 +31,7 @@ export const fetchGetChats = async (
   };
   try {
     const response = await axios.post(
-      "http://localhost:8080/chats/get/chat",
+      `${DATABASE_URL}chats/get/chat`,
       requestData
     );
     console.log("Success:", response.data);
@@ -64,7 +65,7 @@ export const createRoomId = async (
   };
   try {
     const response = await axios.post(
-      "http://localhost:8080/chats/save/room_id",
+      `${DATABASE_URL}chats/save/room_id`,
       requestData
     );
     console.log("Success:", response.data);
@@ -84,7 +85,7 @@ export const resetChat = async (
   };
   try {
     const response = await axios.post(
-      "http://localhost:8080/chats/reset/chat",
+      `${DATABASE_URL}chats/reset/chat`,
       requestData
     );
     console.log(response.data);

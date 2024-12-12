@@ -55,20 +55,7 @@ const QuantitativeEngineering: React.FC<QuantitativeEngineeringProps> = ({ formu
     }, [csvId]);
 
     useEffect(() => {
-        const operatorMap: Record<string, string> = {
-            addition: '+',
-            subtraction: '-',
-            multiplication: '*',
-            division: '/',
-        };
-
-        const formulaPreview = formula.map(item => {
-            if (item.type === 'operation') {
-                return operatorMap[item.value as string] || item.value;
-            }
-            return item.value;
-        }).join(' ');
-
+        const formulaPreview = formula.map(item => item.value).join(' ');
         setPreview(formulaPreview);
     }, [formula, setPreview]);
 
@@ -283,7 +270,7 @@ const QuantitativeEngineering: React.FC<QuantitativeEngineeringProps> = ({ formu
                                     sx: inputPropsStyles,
                                 }}
                             >
-                                {['+', '-', '*', '/'].map((op) => (
+                                {['+', '-', '*', '/', '%'].map((op) => (
                                     <MenuItem key={op} value={op}>
                                         {op}
                                     </MenuItem>

@@ -286,7 +286,7 @@ def make_pie(data: Dict[str, Any], df: DataFrame) -> str:
     return plot_url
 
 
-def calculate(formula_list: List, row: Series) -> int:
+def calculate_quantitative(formula_list: List, row: Series) -> int:
     """
     説明
     ----------
@@ -305,26 +305,14 @@ def calculate(formula_list: List, row: Series) -> int:
 
     """
 
-    operator_map = {
-        "+": "+",
-        "-": "-",
-        "*": "*",
-        "/": "/",
-        "(": "(",
-        ")": ")",
-    }
-
-    # 式を構築するために、演算子リストの要素を対応する記号に変換
+    # 式を構築
     converted_expression = ""
     for item in formula_list:
-        if item in operator_map:
-            # 演算子の場合は記号に置き換え
-            converted_expression += operator_map[item]
-        elif item in row:
-            # カラム名の場合は行の値を使用
+        if item in ["+", "-", "*", "/","%", "(", ")"]: # 演算子の場合
+            converted_expression += item
+        elif item in row:  # カラム名の場合
             converted_expression += str(row[item])
-        else:
-            # それ以外はそのまま追加
+        else:  # それ以外はそのまま追加
             converted_expression += str(item)
 
     # 計算式を評価
@@ -354,9 +342,12 @@ def make_feature_value(data: Dict[str, Any], df: DataFrame) -> None:
 
     formula_list = data["formula"]
     new_column_name = data["new_column_name"]
-    feature_type = data["feature_type"]
+    feature_type = data["feature_type"] # quantitative or qualitative
 
-    df[new_column_name] = df.apply(lambda row: calculate(formula_list, row), axis=1)
+    if feature_type == "quantitative":
+        df[new_column_name] = df.apply(lambda row: calculate_quantitative(formula_list, row), axis=1)
+    else:
+        df[new_column_name] = df.apply(lambda row: calculate_quantitative(formula_list, row), axis=1)
 
     return df
 

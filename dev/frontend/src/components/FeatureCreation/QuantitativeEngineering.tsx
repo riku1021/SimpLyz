@@ -187,9 +187,6 @@ const QuantitativeEngineering: React.FC<QuantitativeEngineeringProps> = ({ formu
             fontSize: "20px",
         },
         "& .MuiSelect-select": {
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
             padding: "10px 14px",
         },
     };
@@ -216,6 +213,7 @@ const QuantitativeEngineering: React.FC<QuantitativeEngineeringProps> = ({ formu
         display: 'flex',
         alignItems: 'center',
         gap: 1,
+        overflow: 'hidden',
     };
 
     return (
@@ -239,7 +237,7 @@ const QuantitativeEngineering: React.FC<QuantitativeEngineeringProps> = ({ formu
                 >
                     {/* 量的カラムの選択と追加ボタン */}
                     <Box sx={sectionBoxStyles}>
-                        <FormControl variant="outlined" fullWidth>
+                        <FormControl variant="outlined" sx={{ flex: 1 }}>
                             <InputLabel id="quantitative-column-label">量的カラムを選択</InputLabel>
                             <Select
                                 labelId="quantitative-column-label"
@@ -268,7 +266,7 @@ const QuantitativeEngineering: React.FC<QuantitativeEngineeringProps> = ({ formu
 
                     {/* 演算子の選択と追加ボタン */}
                     <Box sx={sectionBoxStyles}>
-                        <FormControl variant="outlined" fullWidth>
+                        <FormControl variant="outlined" sx={{ flex: 1 }}>
                             <InputLabel id="quantitative-operation-select-label">演算子</InputLabel>
                             <Select
                                 labelId="quantitative-operation-select-label"
@@ -303,7 +301,6 @@ const QuantitativeEngineering: React.FC<QuantitativeEngineeringProps> = ({ formu
                             variant="outlined"
                             value={currentNumber}
                             onChange={(event) => setCurrentNumber(Number(event.target.value))}
-                            fullWidth
                             sx={{
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '20px',

@@ -103,6 +103,11 @@ const QuantitativeEngineering: React.FC<QuantitativeEngineeringProps> = ({ formu
 
         const lastItem = formula[formula.length - 1];
 
+        if (lastItem.type === 'operation' && newItem.type === 'operation') {
+            showErrorAlert('追加エラー', '演算子を連続して追加することはできません。');
+            return false;
+        }
+
         const isLastItemExpression = ['column', 'number', 'parenthesis'].includes(lastItem.type) && !(lastItem.type === 'parenthesis' && lastItem.value === '(');
         const isNewItemExpression = ['column', 'number'].includes(newItem.type) || (newItem.type === 'parenthesis' && newItem.value === '(');
 

@@ -464,7 +464,7 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
                 </Box>
 
                 {/* 論理演算子および括弧の追加 */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-evenly', gap: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-evenly', gap: 1, mt: 1, mb: 1 }}>
                     <Button
                         variant="outlined"
                         color="primary"

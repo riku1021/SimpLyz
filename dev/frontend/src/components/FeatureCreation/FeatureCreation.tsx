@@ -18,7 +18,7 @@ type FormulaItem =
 
 const FeatureCreation: React.FC = () => {
 	const { csvId } = useAuth();
-	const [isQuantitative, setIsQuantitative] = useState<boolean>(true);
+	const [featureType, setFeatureType] = useState<'quantitative' | 'qualitative'>('quantitative');
 	const [formula, setFormula] = useState<FormulaItem[]>([]);
 	const [newColumnName, setNewColumnName] = useState<string>('');
 	const [preview, setPreview] = useState<string>('');
@@ -28,8 +28,8 @@ const FeatureCreation: React.FC = () => {
 		setPreview(newPreview);
 	}, [formula]);
 
-	const toggleDataType = () => {
-		setIsQuantitative(!isQuantitative);
+	const toggleFeatureType = () => {
+		setFeatureType((prevType) => (prevType === 'quantitative' ? 'qualitative' : 'quantitative'));
 		setFormula([]);
 		setPreview('');
 	};
@@ -97,7 +97,7 @@ const FeatureCreation: React.FC = () => {
 			}
 		}
 
-		if (!isQuantitative) {
+		if (featureType === 'qualitative') {
 			const lastItem = formula[formula.length - 1];
 			if (
 				lastItem?.type === 'logicalOperation' ||
@@ -125,6 +125,7 @@ const FeatureCreation: React.FC = () => {
 				csv_id: csvId,
 				formula: formula.map(item => item.value),
 				new_column_name: newColumnName,
+				feature_type: featureType,
 			});
 			showSuccessAlert('成功', '特徴量が作成されました').then(() => {
 				handleClearAll();
@@ -142,10 +143,10 @@ const FeatureCreation: React.FC = () => {
 					{/* タイトルと切替ボタン */}
 					<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 						<Typography variant="h5" gutterBottom>
-							{isQuantitative ? '特徴量の作成（量的データ）' : '特徴量の作成（質的データ）'}
+							{featureType === 'quantitative' ? '特徴量の作成（量的データ）' : '特徴量の作成（質的データ）'}
 						</Typography>
 						<IconButton
-							onClick={toggleDataType}
+							onClick={toggleFeatureType}
 							sx={{
 								backgroundColor: '#1976d2',
 								color: 'white',
@@ -179,7 +180,7 @@ const FeatureCreation: React.FC = () => {
 					</Box>
 
 					{/* 特徴量エンジニアリングコンポーネントの切り替え */}
-					{isQuantitative ? (
+					{featureType === 'quantitative' ? (
 						<QuantitativeEngineering
 							formula={formula}
 							setFormula={setFormula}
@@ -228,7 +229,7 @@ const FeatureCreation: React.FC = () => {
 						/>
 					</Box>
 
-					{/* 決定ボタン*/}
+					{/* 決定ボタン */}
 					<Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
 						<Button
 							variant="contained"

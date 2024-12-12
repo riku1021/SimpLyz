@@ -306,10 +306,10 @@ def calculate(formula_list: List, row: Series) -> int:
     """
 
     operator_map = {
-        "addition": "+",
-        "subtraction": "-",
-        "multiplication": "*",
-        "division": "/",
+        "+": "+",
+        "-": "-",
+        "*": "*",
+        "/": "/",
         "(": "(",
         ")": ")",
     }
@@ -354,6 +354,7 @@ def make_feature_value(data: Dict[str, Any], df: DataFrame) -> None:
 
     formula_list = data["formula"]
     new_column_name = data["new_column_name"]
+    feature_type = data["feature_type"]
 
     df[new_column_name] = df.apply(lambda row: calculate(formula_list, row), axis=1)
 

@@ -36,21 +36,24 @@ const FeatureCreation: React.FC = () => {
 
 	const handleRemoveLastItem = () => {
 		const newFormula = [...formula];
-		const lastItem = newFormula[newFormula.length - 1];
+		if (newFormula.length === 0) return;
 
-		if (!lastItem) return;
-
-		const shouldRemoveOne =
-			(lastItem.type === 'parenthesis' && (lastItem.value === '(' || lastItem.value === ')')) ||
-			(lastItem.type === 'logicalOperation' && (lastItem.value === 'and' || lastItem.value === 'or'));
-
-		if (shouldRemoveOne) {
+		if (featureType === 'quantitative') {
 			newFormula.pop();
 		} else {
-			const itemsToRemove = 3;
-			const currentLength = newFormula.length;
-			const removeCount = currentLength >= itemsToRemove ? itemsToRemove : currentLength;
-			newFormula.splice(-removeCount, removeCount);
+			const lastItem = newFormula[newFormula.length - 1];
+			const shouldRemoveOne =
+				(lastItem.type === 'parenthesis' && (lastItem.value === '(' || lastItem.value === ')')) ||
+				(lastItem.type === 'logicalOperation' && (lastItem.value === 'and' || lastItem.value === 'or'));
+
+			if (shouldRemoveOne) {
+				newFormula.pop();
+			} else {
+				const itemsToRemove = 3;
+				const currentLength = newFormula.length;
+				const removeCount = currentLength >= itemsToRemove ? itemsToRemove : currentLength;
+				newFormula.splice(-removeCount, removeCount);
+			}
 		}
 
 		setFormula(newFormula);
@@ -81,23 +84,23 @@ const FeatureCreation: React.FC = () => {
 			return false;
 		}
 
-		for (let i = 0; i < formula.length - 1; i++) {
-			const current = formula[i];
-			const next = formula[i + 1];
-			if (
-				current.type === 'operation' &&
-				(!next || (next.type !== 'number' && next.type !== 'column'))
-			) {
-				showErrorAlert('エラー', '演算子の後には数値またはカラムを置く必要があります');
-				return false;
+		if (featureType === 'quantitative') {
+			for (let i = 0; i < formula.length - 1; i++) {
+				const current = formula[i];
+				const next = formula[i + 1];
+				if (
+					current.type === 'operation' &&
+					(!next || (next.type !== 'number' && next.type !== 'column'))
+				) {
+					showErrorAlert('エラー', '演算子の後には数値またはカラムを置く必要があります');
+					return false;
+				}
+				if (current.type === 'operation' && current.value === 'division' && next?.value === 0) {
+					showErrorAlert('エラー', '0で割ることはできません');
+					return false;
+				}
 			}
-			if (current.type === 'operation' && current.value === 'division' && next?.value === 0) {
-				showErrorAlert('エラー', '0で割ることはできません');
-				return false;
-			}
-		}
-
-		if (featureType === 'qualitative') {
+		} else {
 			const lastItem = formula[formula.length - 1];
 			if (
 				lastItem?.type === 'logicalOperation' ||

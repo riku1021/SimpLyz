@@ -286,11 +286,11 @@ def make_pie(data: Dict[str, Any], df: DataFrame) -> str:
     return plot_url
 
 
-def calculate(formula_list: List, row: Series) -> int:
+def calculate_quantitative(formula_list: List, row: Series) -> int:
     """
     説明
     ----------
-    計算を行う関数
+    quantitativeに対応する計算を行う関数
 
     Parameter
     ----------
@@ -305,32 +305,67 @@ def calculate(formula_list: List, row: Series) -> int:
 
     """
 
-    operator_map = {
-        "addition": "+",
-        "subtraction": "-",
-        "multiplication": "*",
-        "division": "/",
-        "(": "(",
-        ")": ")",
-    }
-
-    # 式を構築するために、演算子リストの要素を対応する記号に変換
+    # 式を構築
     converted_expression = ""
     for item in formula_list:
-        if item in operator_map:
-            # 演算子の場合は記号に置き換え
-            converted_expression += operator_map[item]
-        elif item in row:
-            # カラム名の場合は行の値を使用
+        if item in ["+", "-", "*", "/","%", "(", ")"]: # 演算子の場合
+            converted_expression += item
+        elif item in row:  # カラム名の場合
             converted_expression += str(row[item])
-        else:
-            # それ以外はそのまま追加
+        else:  # それ以外はそのまま追加
             converted_expression += str(item)
 
     # 計算式を評価
     result = eval(converted_expression)
 
     return result
+
+def calculate_qualitative(formula_list: List, row: Series) -> bool:
+    """
+    qualitativeに対応する計算を行う関数
+
+    Parameters
+    ----------
+    formula_list : List
+        条件式を構成するリスト
+    row : Series
+        データフレームの行を表すシリーズ型
+
+    Returns
+    ----------
+    bool
+        条件式の評価結果（True/False）
+    """
+
+    # 条件式を構築
+    converted_expression = ""
+    for i, item in enumerate(formula_list):
+        if item in ["==", "!=", "<", ">","<=", ">="]:
+            # 左側（カラム名）と右側（値）の確認
+            left = formula_list[i - 1]   # "=="の左側
+            right = formula_list[i + 1]  # "=="の右側
+            
+            # 左側はカラム名であるべき
+            if left not in row:
+                raise ValueError(f"'{left}' is not a valid column name in the data.")
+            
+            # データ型に基づく処理
+            left_value = row[left]
+            if isinstance(left_value, (int, float)) and not isinstance(right, (int, float)):
+                raise TypeError(f"Expected numeric value on the right side of '==' for column '{left}', got '{right}'")
+            if isinstance(left_value, str) and not isinstance(right, str):
+                raise TypeError(f"Expected string value on the right side of '==' for column '{left}', got '{right}'")
+            
+        if item in ["==", "!=", "<", ">","<=", ">=", "and", "or", "(", ")"]:
+            converted_expression += f" {item} "
+        elif item in row:
+            converted_expression += f"'{row[item]}'" if isinstance(row[item], str) else str(row[item])
+        else:
+            converted_expression += f"'{item}'" if isinstance(item, str) else str(item)
+
+    # 条件式を評価
+    result = eval(converted_expression)
+    return "True" if result else "False"
 
 
 def make_feature_value(data: Dict[str, Any], df: DataFrame) -> None:
@@ -354,8 +389,12 @@ def make_feature_value(data: Dict[str, Any], df: DataFrame) -> None:
 
     formula_list = data["formula"]
     new_column_name = data["new_column_name"]
+    feature_type = data["feature_type"] # quantitative or qualitative
 
-    df[new_column_name] = df.apply(lambda row: calculate(formula_list, row), axis=1)
+    if feature_type == "quantitative":
+        df[new_column_name] = df.apply(lambda row: calculate_quantitative(formula_list, row), axis=1)
+    else:
+        df[new_column_name] = df.apply(lambda row: calculate_qualitative(formula_list, row), axis=1)
 
     return df
 

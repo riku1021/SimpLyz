@@ -34,7 +34,6 @@ export const fetchGetChats = async (
       `${DATABASE_URL}chats/get/chat`,
       requestData
     );
-    console.log("Success:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error:", error);
@@ -68,7 +67,6 @@ export const createRoomId = async (
       `${DATABASE_URL}chats/save/room_id`,
       requestData
     );
-    console.log("Success:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error:", error);
@@ -88,7 +86,6 @@ export const resetChat = async (
       `${DATABASE_URL}chats/reset/chat`,
       requestData
     );
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error("Error:", error);

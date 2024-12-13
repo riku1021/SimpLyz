@@ -1,12 +1,12 @@
 import React from 'react';
 import GuideSection from '../GuideScreen';
-import MissingValueImputationExplanationImage from '../../../assets/images/MissingValueImputationExplanation.png';
+import ManagementFileImage from '../../../assets/images/ManagementFileImage.png';
 
 const ManagementFileExplanation: React.FC = () => {
     return (
         <GuideSection
             title="ファイル管理ページ"
-            imageSrc={MissingValueImputationExplanationImage}
+            imageSrc={ManagementFileImage}
             description={[
                 `欠損値のあるデータをアップロードできます。
                 ああああああああああああああああああああああ

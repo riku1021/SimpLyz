@@ -1,12 +1,12 @@
 import React from 'react';
 import GuideSection from '../GuideScreen';
-import MissingValueImputationExplanationImage from '../../../assets/images/MissingValueImputationExplanation.png';
+import MissingValueImputationImage from '../../../assets/images/MissingValueImputationImage.png';
 
 const MissingValueImputationExplanation: React.FC = () => {
     return (
         <GuideSection
             title="欠損値補完ページ"
-            imageSrc={MissingValueImputationExplanationImage}
+            imageSrc={MissingValueImputationImage}
             description={[
                 `欠損値のあるデータをアップロードできます。
                 ああああああああああああああああああああああ

@@ -1,12 +1,12 @@
 import React from 'react';
 import GuideSection from '../GuideScreen';
-import MissingValueImputationExplanationImage from '../../../assets/images/MissingValueImputationExplanation.png';
+import FeatureCreationQuantitativeImage from '../../../assets/images/FeatureCreationQuantitativeImage.png';
 
-const FeatureCreationExplanation: React.FC = () => {
+const FeatureCreationQuantitativeExplanation: React.FC = () => {
     return (
         <GuideSection
-            title="特徴量作成ページ"
-            imageSrc={MissingValueImputationExplanationImage}
+            title="特徴量作成ページ（量的データ）"
+            imageSrc={FeatureCreationQuantitativeImage}
             description={[
                 `欠損値のあるデータをアップロードできます。
                 ああああああああああああああああああああああ
@@ -19,4 +19,4 @@ const FeatureCreationExplanation: React.FC = () => {
     );
 };
 
-export default FeatureCreationExplanation;
+export default FeatureCreationQuantitativeExplanation;

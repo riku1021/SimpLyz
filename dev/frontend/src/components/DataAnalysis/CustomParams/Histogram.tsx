@@ -10,6 +10,7 @@ import {
   Grid,
   Typography,
   SelectChangeEvent,
+  Box,
 } from "@mui/material";
 import { BACKEND_URL } from "../../../urlConfig";
 import useAuth from "../../../hooks/useAuth";
@@ -103,6 +104,8 @@ const Histogram: React.FC<HistogramProps> = ({ setImage }) => {
 
     if (variable && target) {
       fetchImage();
+    } else {
+      setImage("null");
     }
   }, [csvId, variable, target, setImage]);
 
@@ -156,51 +159,68 @@ const Histogram: React.FC<HistogramProps> = ({ setImage }) => {
           }}
         >
           <CardContent>
-            <Typography variant="h5" sx={{ marginBottom: 2 }} gutterBottom>
-              Parameters
-            </Typography>
-            <Grid container direction="column" spacing={2}>
-              <Grid item>
-                <FormControl variant="outlined" sx={formControlStyles}>
-                  <InputLabel>Variable</InputLabel>
-                  <Select
-                    value={variable}
-                    onChange={handleChangeVariable}
-                    label="Variable"
-                    sx={selectStyles}
-                    inputProps={{
-                      sx: inputPropsStyles,
-                    }}
-                  >
-                    {variableList.map((value, idx) => (
-                      <MenuItem key={idx} value={value}>
-                        {value}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item>
-                <FormControl variant="outlined" sx={formControlStyles}>
-                  <InputLabel>Target</InputLabel>
-                  <Select
-                    value={target}
-                    onChange={handleChangeTarget}
-                    label="Target"
-                    sx={selectStyles}
-                    inputProps={{
-                      sx: inputPropsStyles,
-                    }}
-                  >
-                    {targetList.map((value, idx) => (
-                      <MenuItem key={idx} value={value}>
-                        {value}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
+            {variableList.length < 1 ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <Typography variant="h5" gutterBottom>
+                  データがありません
+                </Typography>
+              </Box>
+            ) : (
+              <>
+                <Typography variant="h5" sx={{ marginBottom: 2 }} gutterBottom>
+                  Parameters
+                </Typography>
+                <Grid container direction="column" spacing={2}>
+                  <Grid item>
+                    <FormControl variant="outlined" sx={formControlStyles}>
+                      <InputLabel>Variable</InputLabel>
+                      <Select
+                        value={variable}
+                        onChange={handleChangeVariable}
+                        label="Variable"
+                        sx={selectStyles}
+                        inputProps={{
+                          sx: inputPropsStyles,
+                        }}
+                      >
+                        {variableList.map((value, idx) => (
+                          <MenuItem key={idx} value={value}>
+                            {value}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item>
+                    <FormControl variant="outlined" sx={formControlStyles}>
+                      <InputLabel>Target</InputLabel>
+                      <Select
+                        value={target}
+                        onChange={handleChangeTarget}
+                        label="Target"
+                        sx={selectStyles}
+                        inputProps={{
+                          sx: inputPropsStyles,
+                        }}
+                      >
+                        {targetList.map((value, idx) => (
+                          <MenuItem key={idx} value={value}>
+                            {value}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                </Grid>
+              </>
+            )}
+            
           </CardContent>
         </Card>
       </Grid>

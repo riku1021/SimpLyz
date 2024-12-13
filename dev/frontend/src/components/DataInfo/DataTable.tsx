@@ -76,8 +76,8 @@ const DataTable: React.FC<DataTableProps> = ({ title, tableData, type, onTypeCha
 							alignItems: 'center',
 						}}
 					>
-					<Typography variant="h5" gutterBottom>
-						{"データがありません。"}
+						<Typography variant="h5" gutterBottom>
+							{"データがありません。"}
 						</Typography>
 					</Box>
 				) : (

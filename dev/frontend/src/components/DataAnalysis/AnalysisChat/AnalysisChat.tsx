@@ -84,7 +84,6 @@ const AnalysisChat: React.FC<AnalysisChatProps> = ({ image }) => {
               regression,
               dimension
             );
-            console.log(response);
             const chats = response.chats;
             if (chats.length > 0) {
               // roomIdの取得
@@ -95,11 +94,9 @@ const AnalysisChat: React.FC<AnalysisChatProps> = ({ image }) => {
                 text: chat.message,
               }));
               setMessages(newMessage);
-              console.log(chats.length);
               setIsChartAnalysisMode(false);
             } else {
               dispatch(changeRoomId(""));
-              console.log(chats.length);
             }
           }
         } catch (error) {
@@ -207,7 +204,7 @@ const AnalysisChat: React.FC<AnalysisChatProps> = ({ image }) => {
     // golang
     try {
       if (typeof csvId === "string") {
-        const response = await createRoomId(
+        await createRoomId(
           newRoomId,
           csvId,
           chartType,
@@ -217,7 +214,6 @@ const AnalysisChat: React.FC<AnalysisChatProps> = ({ image }) => {
           regression,
           dimension
         );
-        console.log(response.StatusMessage);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -254,8 +250,7 @@ const AnalysisChat: React.FC<AnalysisChatProps> = ({ image }) => {
     ).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await resetChat(roomId);
-          console.log(response.StatusMessage);
+          await resetChat(roomId);
           setIsChartAnalysisMode(true);
           setMessages([]);
         } catch (error) {

@@ -10,6 +10,7 @@ import {
   Grid,
   Typography,
   SelectChangeEvent,
+  Box,
 } from "@mui/material";
 import { BACKEND_URL } from "../../../urlConfig";
 import useAuth from "../../../hooks/useAuth";
@@ -101,6 +102,8 @@ const Scatter: React.FC<ScatterProps> = ({ setImage }) => {
 
     if (variable1 && variable2 && target) {
       fetchImage();
+    } else {
+      setImage("null");
     }
   }, [csvId, variable1, variable2, target, reg, dimension, setImage]);
 
@@ -179,114 +182,131 @@ const Scatter: React.FC<ScatterProps> = ({ setImage }) => {
           }}
         >
           <CardContent>
-            <Typography variant="h5" sx={{ marginBottom: 2 }} gutterBottom>
-              Parameters
-            </Typography>
-            <Grid container direction="column" spacing={2}>
-              <Grid item>
-                <FormControl variant="outlined" sx={formControlStyles}>
-                  <InputLabel>Vertical</InputLabel>
-                  <Select
-                    value={variable1}
-                    onChange={handleChangeVariable1}
-                    label="Vertical"
-                    sx={selectStyles}
-                    inputProps={{
-                      sx: inputPropsStyles,
-                    }}
-                  >
-                    {variableList.map(
-                      (value, idx) =>
-                        value !== variable2 && (
+            {variableList.length < 2 ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <Typography variant="h5" gutterBottom>
+                  データがありません
+                </Typography>
+              </Box>
+            ) : (
+              <>
+                <Typography variant="h5" sx={{ marginBottom: 2 }} gutterBottom>
+                  Parameters
+                </Typography>
+                <Grid container direction="column" spacing={2}>
+                  <Grid item>
+                    <FormControl variant="outlined" sx={formControlStyles}>
+                      <InputLabel>Vertical</InputLabel>
+                      <Select
+                        value={variable1}
+                        onChange={handleChangeVariable1}
+                        label="Vertical"
+                        sx={selectStyles}
+                        inputProps={{
+                          sx: inputPropsStyles,
+                        }}
+                      >
+                        {variableList.map(
+                          (value, idx) =>
+                            value !== variable2 && (
+                              <MenuItem key={idx} value={value}>
+                                {value}
+                              </MenuItem>
+                            )
+                        )}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item>
+                    <FormControl variant="outlined" sx={formControlStyles}>
+                      <InputLabel>Horizontal</InputLabel>
+                      <Select
+                        value={variable2}
+                        onChange={handleChangeVariable2}
+                        label="Horizontal"
+                        sx={selectStyles}
+                        inputProps={{
+                          sx: inputPropsStyles,
+                        }}
+                      >
+                        {variableList.map(
+                          (value, idx) =>
+                            value !== variable1 && (
+                              <MenuItem key={idx} value={value}>
+                                {value}
+                              </MenuItem>
+                            )
+                        )}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item>
+                    <FormControl variant="outlined" sx={formControlStyles}>
+                      <InputLabel>Target</InputLabel>
+                      <Select
+                        value={target}
+                        onChange={handleChangeTarget}
+                        label="Target"
+                        sx={selectStyles}
+                        inputProps={{
+                          sx: inputPropsStyles,
+                        }}
+                      >
+                        {targetList.map((value, idx) => (
                           <MenuItem key={idx} value={value}>
                             {value}
                           </MenuItem>
-                        )
-                    )}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item>
-                <FormControl variant="outlined" sx={formControlStyles}>
-                  <InputLabel>Horizontal</InputLabel>
-                  <Select
-                    value={variable2}
-                    onChange={handleChangeVariable2}
-                    label="Horizontal"
-                    sx={selectStyles}
-                    inputProps={{
-                      sx: inputPropsStyles,
-                    }}
-                  >
-                    {variableList.map(
-                      (value, idx) =>
-                        value !== variable1 && (
-                          <MenuItem key={idx} value={value}>
-                            {value}
-                          </MenuItem>
-                        )
-                    )}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item>
-                <FormControl variant="outlined" sx={formControlStyles}>
-                  <InputLabel>Target</InputLabel>
-                  <Select
-                    value={target}
-                    onChange={handleChangeTarget}
-                    label="Target"
-                    sx={selectStyles}
-                    inputProps={{
-                      sx: inputPropsStyles,
-                    }}
-                  >
-                    {targetList.map((value, idx) => (
-                      <MenuItem key={idx} value={value}>
-                        {value}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item>
-                <FormControl variant="outlined" sx={formControlStyles}>
-                  <InputLabel>Regression</InputLabel>
-                  <Select
-                    value={reg.toString()}
-                    onChange={handleChangeReg}
-                    label="Regression"
-                    sx={selectStyles}
-                    inputProps={{
-                      sx: inputPropsStyles,
-                    }}
-                  >
-                    <MenuItem value="false">false</MenuItem>
-                    <MenuItem value="true">true</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              {reg && (
-                <Grid item>
-                  <FormControl variant="outlined" sx={formControlStyles}>
-                    <InputLabel>Dimension</InputLabel>
-                    <Select
-                      value={dimension.toString()}
-                      onChange={handleChangeDimension}
-                      label="Dimension"
-                      sx={selectStyles}
-                      inputProps={{
-                        sx: inputPropsStyles,
-                      }}
-                    >
-                      <MenuItem value="1">1</MenuItem>
-                      <MenuItem value="2">2</MenuItem>
-                      <MenuItem value="3">3</MenuItem>
-                    </Select>
-                  </FormControl>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item>
+                    <FormControl variant="outlined" sx={formControlStyles}>
+                      <InputLabel>Regression</InputLabel>
+                      <Select
+                        value={reg.toString()}
+                        onChange={handleChangeReg}
+                        label="Regression"
+                        sx={selectStyles}
+                        inputProps={{
+                          sx: inputPropsStyles,
+                        }}
+                      >
+                        <MenuItem value="false">false</MenuItem>
+                        <MenuItem value="true">true</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  {reg && (
+                    <Grid item>
+                      <FormControl variant="outlined" sx={formControlStyles}>
+                        <InputLabel>Dimension</InputLabel>
+                        <Select
+                          value={dimension.toString()}
+                          onChange={handleChangeDimension}
+                          label="Dimension"
+                          sx={selectStyles}
+                          inputProps={{
+                            sx: inputPropsStyles,
+                          }}
+                        >
+                          <MenuItem value="1">1</MenuItem>
+                          <MenuItem value="2">2</MenuItem>
+                          <MenuItem value="3">3</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  )}
                 </Grid>
-              )}
-            </Grid>
+              </>
+            )}
+            
           </CardContent>
         </Card>
       </Grid>

@@ -40,7 +40,7 @@ const GuideSection: React.FC<GuideSectionProps> = ({ title, imageSrc, descriptio
                 />
                 <Typography variant="h6" component="ol" sx={{ marginTop: 3 }}>
                     {description.map((desc, index) => (
-                        <li key={index} style={{ marginBottom: '40px' }}>
+                        <li key={index} style={{ marginBottom: '40px', whiteSpace: 'pre-line' }}>
                             {desc}
                         </li>
                     ))}

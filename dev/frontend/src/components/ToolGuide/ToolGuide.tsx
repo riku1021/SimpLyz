@@ -1,6 +1,11 @@
 import { Box } from '@mui/material';
-import ManagementFileExplanation from './ManagementFileExplanation';
-import MissingValueImputationExplanation from './MissingValueImputationExplanation';
+import ManagementFileExplanation from './ToolPages/ManagementFileExplanation';
+import DataInfoExplanation from './ToolPages/DataInfoExplanation';
+import ColumnDetailExplanation from './ToolPages/ColumnDetailExplanation';
+import MissingValueImputationExplanation from './ToolPages/MissingValueImputationExplanation';
+import FeatureCreationExplanation from './ToolPages/FeatureCreationExplanation';
+import DataAnalysisExplanation from './ToolPages/DataAnalysisExplanation';
+import UserInfoExplanation from './ToolPages/UserInfoExplanation';
 
 const ToolGuide: React.FC = () => {
     return (
@@ -16,7 +21,12 @@ const ToolGuide: React.FC = () => {
             }}
         >
             <ManagementFileExplanation />
+            <DataInfoExplanation />
+            <ColumnDetailExplanation />
             <MissingValueImputationExplanation />
+            <FeatureCreationExplanation />
+            <DataAnalysisExplanation />
+            <UserInfoExplanation />
         </Box>
     );
 };

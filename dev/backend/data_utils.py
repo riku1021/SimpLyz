@@ -31,6 +31,8 @@ from sklearn.metrics import (
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 
+Divide_By_Zero = False
+
 
 def format_value(value):
     if isinstance(value, float):
@@ -305,20 +307,32 @@ def calculate_quantitative(formula_list: List, row: Series) -> int:
 
     """
 
+    # 0除算があるかどうか
+    global Divide_By_Zero
+
     # 式を構築
+    befor_item = ""
     converted_expression = ""
     for item in formula_list:
-        if item in ["+", "-", "*", "/","%", "(", ")"]: # 演算子の場合
+        if item in ["+", "-", "*", "/", "%", "(", ")"]:  # 演算子の場合
             converted_expression += item
         elif item in row:  # カラム名の場合
+            if befor_item == "/" and row[item] == 0:  # 0除算が起こるの場合
+                Divide_By_Zero = True
+                return None
             converted_expression += str(row[item])
         else:  # それ以外はそのまま追加
+            if befor_item == "/" and item == 0:  # 0除算が起こるの場合
+                Divide_By_Zero = True
+                return None
             converted_expression += str(item)
+        befor_item = item
 
     # 計算式を評価
     result = eval(converted_expression)
 
     return result
+
 
 def calculate_qualitative(formula_list: List, row: Series) -> bool:
     """
@@ -340,26 +354,34 @@ def calculate_qualitative(formula_list: List, row: Series) -> bool:
     # 条件式を構築
     converted_expression = ""
     for i, item in enumerate(formula_list):
-        if item in ["==", "!=", "<", ">","<=", ">="]:
+        if item in ["==", "!=", "<", ">", "<=", ">="]:
             # 左側（カラム名）と右側（値）の確認
-            left = formula_list[i - 1]   # "=="の左側
+            left = formula_list[i - 1]  # "=="の左側
             right = formula_list[i + 1]  # "=="の右側
-            
+
             # 左側はカラム名であるべき
             if left not in row:
                 raise ValueError(f"'{left}' is not a valid column name in the data.")
-            
+
             # データ型に基づく処理
             left_value = row[left]
-            if isinstance(left_value, (int, float)) and not isinstance(right, (int, float)):
-                raise TypeError(f"Expected numeric value on the right side of '==' for column '{left}', got '{right}'")
+            if isinstance(left_value, (int, float)) and not isinstance(
+                right, (int, float)
+            ):
+                raise TypeError(
+                    f"Expected numeric value on the right side of '==' for column '{left}', got '{right}'"
+                )
             if isinstance(left_value, str) and not isinstance(right, str):
-                raise TypeError(f"Expected string value on the right side of '==' for column '{left}', got '{right}'")
-            
-        if item in ["==", "!=", "<", ">","<=", ">=", "and", "or", "(", ")"]:
+                raise TypeError(
+                    f"Expected string value on the right side of '==' for column '{left}', got '{right}'"
+                )
+
+        if item in ["==", "!=", "<", ">", "<=", ">=", "and", "or", "(", ")"]:
             converted_expression += f" {item} "
         elif item in row:
-            converted_expression += f"'{row[item]}'" if isinstance(row[item], str) else str(row[item])
+            converted_expression += (
+                f"'{row[item]}'" if isinstance(row[item], str) else str(row[item])
+            )
         else:
             converted_expression += f"'{item}'" if isinstance(item, str) else str(item)
 
@@ -385,18 +407,25 @@ def make_feature_value(data: Dict[str, Any], df: DataFrame) -> None:
 
     """
 
-    # df = get_df()
+    # 0除算があるかどうか
+    global Divide_By_Zero
+
+    Divide_By_Zero = False
 
     formula_list = data["formula"]
     new_column_name = data["new_column_name"]
-    feature_type = data["feature_type"] # quantitative or qualitative
+    feature_type = data["feature_type"]  # quantitative or qualitative
 
     if feature_type == "quantitative":
-        df[new_column_name] = df.apply(lambda row: calculate_quantitative(formula_list, row), axis=1)
+        df[new_column_name] = df.apply(
+            lambda row: calculate_quantitative(formula_list, row), axis=1
+        )
     else:
-        df[new_column_name] = df.apply(lambda row: calculate_qualitative(formula_list, row), axis=1)
+        df[new_column_name] = df.apply(
+            lambda row: calculate_qualitative(formula_list, row), axis=1
+        )
 
-    return df
+    return df, Divide_By_Zero
 
 
 def prepare_data(

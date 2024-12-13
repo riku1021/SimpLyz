@@ -258,7 +258,7 @@ def setup_routes(app):
         qualitative_list = read_qualitative(df=df)
 
         return jsonify({"qualitative_variables": qualitative_list})
-    
+
     @app.route("/get_qualitative_with_values", methods=["POST"])
     def get_qualitative_with_values():
         """
@@ -293,8 +293,7 @@ def setup_routes(app):
 
         # 質的変数とユニーク値の辞書作成
         qualitative_dict = {
-            col: df[col].dropna().unique().tolist()
-            for col in qualitative_columns
+            col: df[col].dropna().unique().tolist() for col in qualitative_columns
         }
 
         return jsonify({"qualitative_variables": qualitative_dict})
@@ -652,6 +651,7 @@ def setup_routes(app):
         # csv取得
         json_data = request.get_json()
         csv_id = json_data["csv_id"]
+        first = json_data["first"]
         data = get_csv(csv_id=csv_id)
 
         if type(data) == dict:
@@ -662,7 +662,10 @@ def setup_routes(app):
         # dfの型適応
         df = set_dtypes(df=df, dtypes=dtypes)
 
-        df = make_feature_value(json_data, df=df)
+        df, Divide_By_Zero = make_feature_value(json_data, df=df)
+
+        if Divide_By_Zero and first:  # ゼロ除算がある場合
+            return jsonify({"message": "judge"})
 
         # postgresqlに保存
         message = update_csv(csv_id=csv_id, df=df)

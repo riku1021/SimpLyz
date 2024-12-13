@@ -34,9 +34,9 @@ type DataTableProps = {
 const DataTable: React.FC<DataTableProps> = ({ title, tableData, type, onTypeChange }) => {
 	const navigate = useNavigate();
 
-	if (!tableData || tableData.length === 0) {
-		return null;
-	}
+	// if (!tableData || tableData.length === 0) {
+	// 	return null;
+	// }
 
 	const commonKeys = Object.keys(tableData[0]?.common || {});
 	const specificKeys = Object.keys(tableData[0]?.data || {});
@@ -68,25 +68,24 @@ const DataTable: React.FC<DataTableProps> = ({ title, tableData, type, onTypeCha
 						<CachedIcon />
 					</IconButton>
 				</Box>
-				<TableContainer component={Paper} sx={{ overflowX: 'auto', borderRadius: '25px', maxHeight: 'calc(100vh - 200px)' }}>
-					<Table sx={{ minWidth: 1500 }}>
-						<TableHead>
-							<TableRow>
-								<TableCell
-									align="center"
-									sx={{
-										fontWeight: 'bold',
-										position: 'sticky',
-										top: 0,
-										backgroundColor: '#F4F4F4',
-										zIndex: 1,
-									}}
-								>
-									カラム名
-								</TableCell>
-								{commonKeys.map((key, idx) => (
+				{tableData.length === 0 ? (
+					<Box
+						sx={{
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+						}}
+					>
+					<Typography variant="h5" gutterBottom>
+						{"データがありません。"}
+						</Typography>
+					</Box>
+				) : (
+					<TableContainer component={Paper} sx={{ overflowX: 'auto', borderRadius: '25px', maxHeight: 'calc(100vh - 200px)' }}>
+						<Table sx={{ minWidth: 1500 }}>
+							<TableHead>
+								<TableRow>
 									<TableCell
-										key={idx}
 										align="center"
 										sx={{
 											fontWeight: 'bold',
@@ -96,53 +95,69 @@ const DataTable: React.FC<DataTableProps> = ({ title, tableData, type, onTypeCha
 											zIndex: 1,
 										}}
 									>
-										{key}
+										カラム名
 									</TableCell>
-								))}
-								{specificKeys.map((key, idx) => (
-									<TableCell
-										key={idx}
-										align="center"
-										sx={{
-											fontWeight: 'bold',
-											position: 'sticky',
-											top: 0,
-											backgroundColor: '#F4F4F4',
-											zIndex: 1,
-										}}
-									>
-										{key}
-									</TableCell>
-								))}
-							</TableRow>
-						</TableHead>
-						<TableBody>
-							{tableData.map((row, idx) => (
-								<TableRow key={idx}>
-									<TableCell align="center">
-										<Button
-											onClick={() => navigate(`/data-info/${row.column_name}/${type}`)}
-											variant="outlined"
-											sx={{ width: '180px', borderRadius: '10px', textTransform: 'none' }}
+									{commonKeys.map((key, idx) => (
+										<TableCell
+											key={idx}
+											align="center"
+											sx={{
+												fontWeight: 'bold',
+												position: 'sticky',
+												top: 0,
+												backgroundColor: '#F4F4F4',
+												zIndex: 1,
+											}}
 										>
-											{row.column_name}
-										</Button>
-									</TableCell>
-									{commonKeys.map((key, idx2) => (
-										<TableCell key={idx2} align="center">
-											{row.common[key]}
+											{key}
 										</TableCell>
 									))}
-									{specificKeys.map((key, idx2) => (
-										<TableCell key={idx2} align="center">
-											{row.data[key]}
+									{specificKeys.map((key, idx) => (
+										<TableCell
+											key={idx}
+											align="center"
+											sx={{
+												fontWeight: 'bold',
+												position: 'sticky',
+												top: 0,
+												backgroundColor: '#F4F4F4',
+												zIndex: 1,
+											}}
+										>
+											{key}
 										</TableCell>
 									))}
 								</TableRow>
-							))}
-						</TableBody>
-					</Table>
-				</TableContainer>
+							</TableHead>
+							<TableBody>
+								{tableData.map((row, idx) => (
+									<TableRow key={idx}>
+										<TableCell align="center">
+											<Button
+												onClick={() => navigate(`/data-info/${row.column_name}/${type}`)}
+												variant="outlined"
+												sx={{ width: '180px', borderRadius: '10px', textTransform: 'none' }}
+											>
+												{row.column_name}
+											</Button>
+										</TableCell>
+										{commonKeys.map((key, idx2) => (
+											<TableCell key={idx2} align="center">
+												{row.common[key]}
+											</TableCell>
+										))}
+										{specificKeys.map((key, idx2) => (
+											<TableCell key={idx2} align="center">
+												{row.data[key]}
+											</TableCell>
+										))}
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+					</TableContainer>
+				)}
+				
 			</CardContent>
 		</Card>
 	);

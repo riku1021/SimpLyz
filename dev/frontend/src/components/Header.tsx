@@ -17,7 +17,8 @@ import {
 	QueryStats as QueryStatsIcon,
 	AccountTree as AccountTreeIcon,
 	Create as CreateIcon,
-	AccountCircle as AccountCircleIcon
+	AccountCircle as AccountCircleIcon,
+	HelpOutline as HelpOutlineIcon
 } from '@mui/icons-material';
 import { useState, ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -149,6 +150,22 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
 							<QueryStatsIcon fontSize="medium" />
 							<Typography variant="caption" fontWeight="bold">データ分析</Typography>
 						</Box>
+						<Box
+							onClick={() => handleNavigate('/tool-guide')}
+							sx={{
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'center',
+								cursor: 'pointer',
+								padding: '10px 20px',
+								'&:hover': {
+									backgroundColor: 'rgba(0, 0, 0, 0.1)',
+								},
+							}}
+						>
+							<HelpOutlineIcon fontSize="medium" />
+							<Typography variant="caption" fontWeight="bold">使い方</Typography>
+						</Box>
 					</Box>
 				</Toolbar>
 			</AppBar>
@@ -239,6 +256,19 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
 						>
 							<ListItemIcon><AccountCircleIcon /></ListItemIcon>
 							<ListItemText primary="ユーザー情報" primaryTypographyProps={{ fontWeight: 'bold' }} />
+						</ListItemButton>
+						<ListItemButton
+							onClick={() => handleNavigate('/tool-guide')}
+							sx={{
+								backgroundColor: isActive('/tool-guide') ? '#DEEBF7' : 'inherit',
+								'&:hover': {
+									backgroundColor: isActive('tool-guide') ? '#DEEBF7' : 'rgba(0, 0, 0, 0.04)',
+								},
+								borderRadius: '50px'
+							}}
+						>
+							<ListItemIcon><HelpOutlineIcon /></ListItemIcon>
+							<ListItemText primary="使い方" primaryTypographyProps={{ fontWeight: 'bold' }} />
 						</ListItemButton>
 					</List>
 				</Box>

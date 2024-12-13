@@ -13,6 +13,7 @@ import FeatureCreation from "./components/FeatureCreation/FeatureCreation";
 import MissingValueImputation from "./components/MissingValueImputation/MissingValueImputation";
 import DataAnalysis from "./components/DataAnalysis/DataAnalysis";
 import UserInfo from "./components/UserInfo/UserInfo";
+import ToolGuide from "./components/ToolGuide/ToolGuide";
 import NotFound from "./components/NotFound/NotFound";
 // import Redux from "./components/Redux/Redux";
 // import Test from "./database/Test";
@@ -39,6 +40,7 @@ const App: React.FC = () => {
           <Route path="/feature-creation" element={<FeatureCreation />} />
           <Route path="/data-analysis" element={<DataAnalysis />} />
           <Route path="/user-info" element={<UserInfo />} />
+          <Route path="/tool-guide" element={<ToolGuide />} />
           {/* データベース・テスト用 */}
           {/* <Route path="/test-db" element={<Test />} /> */}
           {/* <Route path="redux" element={<Redux />} /> */}

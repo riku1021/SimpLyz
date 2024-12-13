@@ -4,7 +4,7 @@ import { Cached as CachedIcon } from '@mui/icons-material';
 import QuantitativeEngineering from './QuantitativeEngineering';
 import QualitativeEngineering from './QualitativeEngineering';
 import axios from 'axios';
-import { showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
+import { showConfirmationAlert, showErrorAlert, showSuccessAlert } from '../../utils/alertUtils';
 import { BACKEND_URL } from '../../urlConfig';
 import useAuth from '../../hooks/useAuth';
 
@@ -124,15 +124,37 @@ const FeatureCreation: React.FC = () => {
 		}
 
 		try {
-			await axios.post(`${BACKEND_URL}/make_feature`, {
+			const results = await axios.post(`${BACKEND_URL}/make_feature`, {
 				csv_id: csvId,
+				first: true,
 				formula: formula.map(item => item.value),
 				new_column_name: newColumnName,
 				feature_type: featureType,
 			});
-			showSuccessAlert('成功', '特徴量が作成されました').then(() => {
-				handleClearAll();
-			});
+			if (results.data["message"]) {
+				if (results.data["message"] == "judge") {
+					showConfirmationAlert("0除算確認", "0除算の部分を欠損値として補完し、強制的に特徴量を作成しますか？", "はい", "いいえ").then(
+						async (result) => {
+							if (result.isConfirmed) {
+								await axios.post(`${BACKEND_URL}/make_feature`, {
+									csv_id: csvId,
+									first: false,
+									formula: formula.map(item => item.value),
+									new_column_name: newColumnName,
+									feature_type: featureType,
+								});
+								showSuccessAlert('成功', '特徴量が作成されました').then(() => {
+									handleClearAll();
+								});
+							}
+						}
+					)
+				} else {
+					showSuccessAlert('成功', '特徴量が作成されました').then(() => {
+						handleClearAll();
+					});
+				}
+			}
 		} catch (error) {
 			showErrorAlert('エラー', '特徴量の作成に失敗しました');
 			console.error('Failed to create feature:', error);

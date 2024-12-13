@@ -14,7 +14,8 @@ import {
 import { Add as AddIcon } from '@mui/icons-material';
 import { BACKEND_URL } from '../../urlConfig';
 import useAuth from '../../hooks/useAuth';
-import { showErrorAlert } from '../../utils/alertUtils';
+import { showConfirmationAlert, showErrorAlert } from '../../utils/alertUtils';
+import { useNavigate } from 'react-router-dom';
 
 type FormulaItem =
     | { type: 'column'; value: string }
@@ -33,6 +34,7 @@ type QualitativeEngineeringProps = {
 const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula, setFormula, setPreview }) => {
     const { csvId } = useAuth();
 
+    const [missColumns, setMissColumns] = useState<string[]>([]);
     const [qualitativeData, setQualitativeData] = useState<Record<string, string[]>>({});
     const [quantitativeColumns, setQuantitativeColumns] = useState<string[]>([]);
     const [selectedColumn, setSelectedColumn] = useState<string>('');
@@ -41,6 +43,8 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
     const [selectedValue, setSelectedValue] = useState<string>('');
     const [currentColumn, setCurrentColumn] = useState<string>('');
     const [currentNumber, setCurrentNumber] = useState<number>(0);
+
+    const navigate = useNavigate();
 
     // 質的データとユニークな値を取得
     const fetchQualitativeData = async () => {
@@ -72,17 +76,26 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
         }
     };
 
+    // 欠損値のカラムを取得
+    const fetchMissColumns = async () => {
+        try {
+            const response = await axios.post(`${BACKEND_URL}/get_miss_columns`, {
+                csv_id: csvId
+            });
+            const missColumn = [...response.data.quantitative_miss_list, ...response.data.qualitative_miss_list]
+            setMissColumns(missColumn);
+            
+        } catch (error) {
+            console.error('Failed to fetch miss columns:', error);
+            showErrorAlert('データ取得エラー', '欠損値カラムの取得に失敗しました。');
+        }
+    }
+
     useEffect(() => {
         fetchQualitativeData();
         fetchQuantitativeColumns();
+        fetchMissColumns();
     }, [csvId]);
-
-    const handleColumnChange = (event: SelectChangeEvent<string>) => {
-        const column = event.target.value;
-        setSelectedColumn(column);
-        const firstValue = qualitativeData[column][0];
-        setSelectedValue(firstValue);
-    };
 
     const handleQualitativeOperationChange = (event: SelectChangeEvent<string>) => {
         setSelectedQualitativeOperation(event.target.value);
@@ -269,6 +282,17 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
         updatePreview(newFormula);
     };
 
+    const handleOpenModal = (column: string) => {
+        console.log(column);
+        showConfirmationAlert("欠損値確認", "データに欠損値がある為、選択できません。欠損値を補完するページに遷移しますか？", "はい", "いいえ").then(
+            (result) => {
+                if (result.isConfirmed) {
+                    navigate("/miss-input")
+                }
+            }
+        )
+    }
+
     return (
         <Box sx={{ mt: 2 }}>
             <Box
@@ -297,7 +321,18 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
                             <Select
                                 labelId="column-select-label"
                                 value={selectedColumn}
-                                onChange={handleColumnChange}
+                                onChange={(event) => {
+                                    const selectedColumn = event.target.value;
+                                    if (missColumns.includes(selectedColumn)) {
+                                        event.preventDefault(); // 無効な項目が選ばれた場合、選択を防ぐ
+                                        handleOpenModal(selectedColumn); // モーダルを開く処理
+                                    } else {
+                                        setSelectedColumn(selectedColumn);
+                                        const firstValue = qualitativeData[selectedColumn][0];
+                                        setSelectedValue(firstValue);
+                                    }
+                                    
+                                }}
                                 label="質的カラムを選択"
                                 sx={selectStyles}
                                 inputProps={{
@@ -305,7 +340,14 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
                                 }}
                             >
                                 {Object.keys(qualitativeData).map((column) => (
-                                    <MenuItem key={column} value={column}>
+                                    <MenuItem
+                                        key={column}
+                                        value={column}
+                                        sx={{
+                                            color: missColumns.includes(column) ? 'red' : 'black', // 条件で文字色を設定
+                                            opacity: missColumns.includes(column) ? '0.5' : '1'
+                                        }}
+                                    >
                                         {column}
                                     </MenuItem>
                                 ))}
@@ -388,7 +430,15 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
                             <Select
                                 labelId="quantitative-column-label"
                                 value={currentColumn}
-                                onChange={(event) => setCurrentColumn(event.target.value)}
+                                onChange={(event) => {
+                                    const selectedValue = event.target.value;
+                                    if (missColumns.includes(selectedValue)) {
+                                        event.preventDefault(); // 無効な項目が選ばれた場合、選択を防ぐ
+                                        handleOpenModal(selectedValue); // モーダルを開く処理
+                                    } else {
+                                        setCurrentColumn(selectedValue); // 有効な項目は状態を変更
+                                    }
+                                }}
                                 label="量的カラムを選択"
                                 sx={selectStyles}
                                 inputProps={{
@@ -396,7 +446,14 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
                                 }}
                             >
                                 {quantitativeColumns.map((column) => (
-                                    <MenuItem key={column} value={column}>
+                                    <MenuItem
+                                        key={column}
+                                        value={column}
+                                        sx={{
+                                            color: missColumns.includes(column) ? 'red' : 'black', // 条件で文字色を設定
+                                            opacity: missColumns.includes(column) ? '0.5' : '1'
+                                        }}
+                                    >
                                         {column}
                                     </MenuItem>
                                 ))}

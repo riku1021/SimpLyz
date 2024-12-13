@@ -10,6 +10,7 @@ import {
   Grid,
   Typography,
   SelectChangeEvent,
+  Box,
 } from "@mui/material";
 import { BACKEND_URL } from "../../../urlConfig";
 import useAuth from "../../../hooks/useAuth";
@@ -101,6 +102,8 @@ const Boxhidediagram: React.FC<BoxhidediagramProps> = ({ setImage }) => {
 
     if (variable1 && variable2) {
       fetchImage();
+    } else {
+      setImage("null");
     }
   }, [csvId, variable1, variable2, setImage]);
 
@@ -154,57 +157,74 @@ const Boxhidediagram: React.FC<BoxhidediagramProps> = ({ setImage }) => {
           }}
         >
           <CardContent>
-            <Typography variant="h5" sx={{ marginBottom: 2 }} gutterBottom>
-              Parameters
-            </Typography>
-            <Grid container direction="column" spacing={2}>
-              <Grid item>
-                <FormControl variant="outlined" sx={formControlStyles}>
-                  <InputLabel>Vertical</InputLabel>
-                  <Select
-                    value={variable1}
-                    onChange={changeVariable1}
-                    label="Vertical"
-                    sx={selectStyles}
-                    inputProps={{
-                      sx: inputPropsStyles,
-                    }}
-                  >
-                    {variableList1.map(
-                      (value, idx) =>
-                        value !== variable2 && (
-                          <MenuItem key={idx} value={value}>
-                            {value}
-                          </MenuItem>
-                        )
-                    )}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item>
-                <FormControl variant="outlined" sx={formControlStyles}>
-                  <InputLabel>Horizontal</InputLabel>
-                  <Select
-                    value={variable2}
-                    onChange={changeVariable2}
-                    label="Horizontal"
-                    sx={selectStyles}
-                    inputProps={{
-                      sx: inputPropsStyles,
-                    }}
-                  >
-                    {variableList2.map(
-                      (value, idx) =>
-                        value !== variable1 && (
-                          <MenuItem key={idx} value={value}>
-                            {value}
-                          </MenuItem>
-                        )
-                    )}
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
+            {(variableList1.length < 1 || variableList2.length < 1) ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <Typography variant="h5" gutterBottom>
+                  データがありません
+                </Typography>
+              </Box>
+            ) : (
+              <>
+                <Typography variant="h5" sx={{ marginBottom: 2 }} gutterBottom>
+                  Parameters
+                </Typography>
+                <Grid container direction="column" spacing={2}>
+                  <Grid item>
+                    <FormControl variant="outlined" sx={formControlStyles}>
+                      <InputLabel>Vertical</InputLabel>
+                      <Select
+                        value={variable1}
+                        onChange={changeVariable1}
+                        label="Vertical"
+                        sx={selectStyles}
+                        inputProps={{
+                          sx: inputPropsStyles,
+                        }}
+                      >
+                        {variableList1.map(
+                          (value, idx) =>
+                            value !== variable2 && (
+                              <MenuItem key={idx} value={value}>
+                                {value}
+                              </MenuItem>
+                            )
+                        )}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item>
+                    <FormControl variant="outlined" sx={formControlStyles}>
+                      <InputLabel>Horizontal</InputLabel>
+                      <Select
+                        value={variable2}
+                        onChange={changeVariable2}
+                        label="Horizontal"
+                        sx={selectStyles}
+                        inputProps={{
+                          sx: inputPropsStyles,
+                        }}
+                      >
+                        {variableList2.map(
+                          (value, idx) =>
+                            value !== variable1 && (
+                              <MenuItem key={idx} value={value}>
+                                {value}
+                              </MenuItem>
+                            )
+                        )}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                </Grid>
+              </>
+            )}
+            
           </CardContent>
         </Card>
       </Grid>

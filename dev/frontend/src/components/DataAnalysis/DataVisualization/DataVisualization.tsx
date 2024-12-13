@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { CardContent, Box, CircularProgress } from "@mui/material";
+import { CardContent, Box, CircularProgress, Typography } from "@mui/material";
 
 type DataVisualizationProps = {
   image: string;
@@ -41,10 +41,22 @@ const DataVisualization: React.FC<DataVisualizationProps> = ({ image }) => {
           width: "100%",
         }}
       >
-        {image ? (
+        {(image && image === "null") ? (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <Typography variant="h5" gutterBottom>
+              画像データがありません
+            </Typography>
+          </Box>
+        ) : image ? (
           <img
             src={`data:image/png;base64,${image}`}
-            alt="Seaborn Plot"
+            alt="Plot"
             style={{
               width: isPortrait ? "auto" : "100%",
               height: isPortrait ? "100%" : "auto",

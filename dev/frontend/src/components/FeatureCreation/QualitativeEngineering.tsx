@@ -54,10 +54,18 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
             });
             const data = response.data.qualitative_variables;
             setQualitativeData(data);
-            const firstColumn = Object.keys(data)[0];
-            const firstValue = data[firstColumn][0];
-            setSelectedColumn(firstColumn);
-            setSelectedValue(firstValue);
+            if (Object.keys(data).length > 0) {
+                const firstColumn = Object.keys(data)[0];
+                if (data[firstColumn] && Array.isArray(data[firstColumn])) {
+                    const firstValue = data[firstColumn][0];
+                    setSelectedColumn(firstColumn);
+                    setSelectedValue(firstValue);
+                }
+            }
+            // const firstColumn = Object.keys(data)[0];
+            // const firstValue = data[firstColumn][0];
+            // setSelectedColumn(firstColumn);
+            // setSelectedValue(firstValue);
         } catch (error) {
             console.error("Error fetching qualitative data:", error);
         }
@@ -305,220 +313,231 @@ const QualitativeEngineering: React.FC<QualitativeEngineeringProps> = ({ formula
                 }}
             >
                 {/* 質的データを用いた式作成 */}
-                <Box
-                    sx={{
-                        backgroundColor: '#FFFFFF',
-                        borderRadius: '50px',
-                        padding: 2,
-                        mt: 1,
-                        mb: 1,
-                    }}
-                >
-                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                        {/* 質的データのカラム選択 */}
-                        <FormControl variant="outlined" sx={formControlStyles}>
-                            <InputLabel id="column-select-label">質的カラムを選択</InputLabel>
-                            <Select
-                                labelId="column-select-label"
-                                value={selectedColumn}
-                                onChange={(event) => {
-                                    const selectedColumn = event.target.value;
-                                    if (missColumns.includes(selectedColumn)) {
-                                        event.preventDefault(); // 無効な項目が選ばれた場合、選択を防ぐ
-                                        handleOpenModal(selectedColumn); // モーダルを開く処理
-                                    } else {
-                                        setSelectedColumn(selectedColumn);
-                                        const firstValue = qualitativeData[selectedColumn][0];
-                                        setSelectedValue(firstValue);
-                                    }
-                                    
-                                }}
-                                label="質的カラムを選択"
-                                sx={selectStyles}
-                                inputProps={{
-                                    sx: inputPropsStyles,
-                                }}
-                            >
-                                {Object.keys(qualitativeData).map((column) => (
-                                    <MenuItem
-                                        key={column}
-                                        value={column}
-                                        sx={{
-                                            color: missColumns.includes(column) ? 'red' : 'black', // 条件で文字色を設定
-                                            opacity: missColumns.includes(column) ? '0.5' : '1'
-                                        }}
-                                    >
-                                        {column}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                {Object.keys(qualitativeData).length > 1 ? (
+                    <Box
+                        sx={{
+                            backgroundColor: '#FFFFFF',
+                            borderRadius: '50px',
+                            padding: 2,
+                            mt: 1,
+                            mb: 1,
+                        }}
+                    >
+                        
+                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                            
+                            <FormControl variant="outlined" sx={formControlStyles}>
+                                <InputLabel id="column-select-label">質的カラムを選択</InputLabel>
+                                <Select
+                                    labelId="column-select-label"
+                                    value={selectedColumn}
+                                    onChange={(event) => {
+                                        const selectedColumn = event.target.value;
+                                        if (missColumns.includes(selectedColumn)) {
+                                            event.preventDefault(); // 無効な項目が選ばれた場合、選択を防ぐ
+                                            handleOpenModal(selectedColumn); // モーダルを開く処理
+                                        } else {
+                                            setSelectedColumn(selectedColumn);
+                                            const firstValue = qualitativeData[selectedColumn][0];
+                                            setSelectedValue(firstValue);
+                                        }
+                                        
+                                    }}
+                                    label="質的カラムを選択"
+                                    sx={selectStyles}
+                                    inputProps={{
+                                        sx: inputPropsStyles,
+                                    }}
+                                >
+                                    {Object.keys(qualitativeData).map((column) => (
+                                        <MenuItem
+                                            key={column}
+                                            value={column}
+                                            sx={{
+                                                color: missColumns.includes(column) ? 'red' : 'black', // 条件で文字色を設定
+                                                opacity: missColumns.includes(column) ? '0.5' : '1'
+                                            }}
+                                        >
+                                            {column}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
 
-                        {/* 質的データの演算子選択 */}
-                        <FormControl variant="outlined" sx={{ width: '70px' }}>
-                            <InputLabel id="qualitative-operation-select-label">演算子</InputLabel>
-                            <Select
-                                labelId="qualitative-operation-select-label"
-                                value={selectedQualitativeOperation}
-                                onChange={handleQualitativeOperationChange}
-                                label="演算子"
-                                sx={selectStyles}
-                                inputProps={{
-                                    sx: inputPropsStyles,
-                                }}
-                            >
-                                {['==', '!='].map((op) => (
-                                    <MenuItem key={op} value={op}>
-                                        {op}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                            {/* 質的データの演算子選択 */}
+                            <FormControl variant="outlined" sx={{ width: '70px' }}>
+                                <InputLabel id="qualitative-operation-select-label">演算子</InputLabel>
+                                <Select
+                                    labelId="qualitative-operation-select-label"
+                                    value={selectedQualitativeOperation}
+                                    onChange={handleQualitativeOperationChange}
+                                    label="演算子"
+                                    sx={selectStyles}
+                                    inputProps={{
+                                        sx: inputPropsStyles,
+                                    }}
+                                >
+                                    {['==', '!='].map((op) => (
+                                        <MenuItem key={op} value={op}>
+                                            {op}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
 
-                        {/* ユニークな値選択 */}
-                        <FormControl variant="outlined" sx={formControlStyles}>
-                            <InputLabel id="value-select-label">値を選択</InputLabel>
-                            <Select
-                                labelId="value-select-label"
-                                value={selectedValue}
-                                onChange={handleValueChange}
-                                label="値を選択"
-                                sx={selectStyles}
-                                inputProps={{
-                                    sx: inputPropsStyles,
-                                }}
-                            >
-                                {qualitativeData[selectedColumn]?.map((value) => (
-                                    <MenuItem key={value} value={value}>
-                                        {value}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                            {/* ユニークな値選択 */}
+                            <FormControl variant="outlined" sx={formControlStyles}>
+                                <InputLabel id="value-select-label">値を選択</InputLabel>
+                                <Select
+                                    labelId="value-select-label"
+                                    value={selectedValue}
+                                    onChange={handleValueChange}
+                                    label="値を選択"
+                                    sx={selectStyles}
+                                    inputProps={{
+                                        sx: inputPropsStyles,
+                                    }}
+                                >
+                                    {qualitativeData[selectedColumn]?.map((value) => (
+                                        <MenuItem key={value} value={value}>
+                                            {value}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
 
-                        <IconButton
-                            sx={{
-                                width: '40px',
-                                height: '40px',
-                                display: 'flex',
-                                backgroundColor: '#1976d2',
-                                color: 'white',
-                                borderRadius: '50%',
-                                '&:hover': { backgroundColor: '#1565c0' },
-                            }}
-                            onClick={handleAddQualitativeFormula}
-                        >
-                            <AddIcon />
-                        </IconButton>
+                            <IconButton
+                                sx={{
+                                    width: '40px',
+                                    height: '40px',
+                                    display: 'flex',
+                                    backgroundColor: '#1976d2',
+                                    color: 'white',
+                                    borderRadius: '50%',
+                                    '&:hover': { backgroundColor: '#1565c0' },
+                                }}
+                                onClick={handleAddQualitativeFormula}
+                            >
+                                <AddIcon />
+                            </IconButton>
+                        </Box>
                     </Box>
-                </Box>
+                ) : (
+                    <></>
+                )}
 
                 {/* 量的データを用いた式作成 */}
-                <Box
-                    sx={{
-                        backgroundColor: '#FFFFFF',
-                        borderRadius: '50px',
-                        padding: 2,
-                        mt: 1,
-                        mb: 1,
-                    }}
-                >
-                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                        {/* 量的データのカラム選択 */}
-                        <FormControl variant="outlined" sx={formControlStyles}>
-                            <InputLabel id="quantitative-column-label">量的カラムを選択</InputLabel>
-                            <Select
-                                labelId="quantitative-column-label"
-                                value={currentColumn}
-                                onChange={(event) => {
-                                    const selectedValue = event.target.value;
-                                    if (missColumns.includes(selectedValue)) {
-                                        event.preventDefault(); // 無効な項目が選ばれた場合、選択を防ぐ
-                                        handleOpenModal(selectedValue); // モーダルを開く処理
-                                    } else {
-                                        setCurrentColumn(selectedValue); // 有効な項目は状態を変更
-                                    }
-                                }}
-                                label="量的カラムを選択"
-                                sx={selectStyles}
-                                inputProps={{
-                                    sx: inputPropsStyles,
-                                }}
-                            >
-                                {quantitativeColumns.map((column) => (
-                                    <MenuItem
-                                        key={column}
-                                        value={column}
-                                        sx={{
-                                            color: missColumns.includes(column) ? 'red' : 'black', // 条件で文字色を設定
-                                            opacity: missColumns.includes(column) ? '0.5' : '1'
-                                        }}
-                                    >
-                                        {column}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                {quantitativeColumns.length > 1 ? (
+                    <Box
+                        sx={{
+                            backgroundColor: '#FFFFFF',
+                            borderRadius: '50px',
+                            padding: 2,
+                            mt: 1,
+                            mb: 1,
+                        }}
+                    >
+                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                            {/* 量的データのカラム選択 */}
 
-                        {/* 量的データの演算子選択 */}
-                        <FormControl variant="outlined" sx={{ width: '70px' }}>
-                            <InputLabel id="quantitative-operation-select-label">演算子</InputLabel>
-                            <Select
-                                labelId="quantitative-operation-select-label"
-                                value={selectedQuantitativeOperation}
-                                onChange={handleQuantitativeOperationChange}
-                                label="演算子"
-                                sx={selectStyles}
-                                inputProps={{
-                                    sx: inputPropsStyles,
-                                }}
-                            >
-                                {['==', '!=', '<', '>', '<=', '>='].map((op) => (
-                                    <MenuItem key={op} value={op}>
-                                        {op}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                            <FormControl variant="outlined" sx={formControlStyles}>
+                                <InputLabel id="quantitative-column-label">量的カラムを選択</InputLabel>
+                                <Select
+                                    labelId="quantitative-column-label"
+                                    value={currentColumn}
+                                    onChange={(event) => {
+                                        const selectedValue = event.target.value;
+                                        if (missColumns.includes(selectedValue)) {
+                                            event.preventDefault(); // 無効な項目が選ばれた場合、選択を防ぐ
+                                            handleOpenModal(selectedValue); // モーダルを開く処理
+                                        } else {
+                                            setCurrentColumn(selectedValue); // 有効な項目は状態を変更
+                                        }
+                                    }}
+                                    label="量的カラムを選択"
+                                    sx={selectStyles}
+                                    inputProps={{
+                                        sx: inputPropsStyles,
+                                    }}
+                                >
+                                    {quantitativeColumns.map((column) => (
+                                        <MenuItem
+                                            key={column}
+                                            value={column}
+                                            sx={{
+                                                color: missColumns.includes(column) ? 'red' : 'black', // 条件で文字色を設定
+                                                opacity: missColumns.includes(column) ? '0.5' : '1'
+                                            }}
+                                        >
+                                            {column}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
 
-                        {/* 数値の入力 */}
-                        <TextField
-                            type="number"
-                            label="数値を入力"
-                            variant="outlined"
-                            value={currentNumber}
-                            onChange={(event) => setCurrentNumber(Number(event.target.value))}
-                            sx={{
-                                flex: 1,
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: '50px',
-                                    '& fieldset': {
+                            {/* 量的データの演算子選択 */}
+                            <FormControl variant="outlined" sx={{ width: '70px' }}>
+                                <InputLabel id="quantitative-operation-select-label">演算子</InputLabel>
+                                <Select
+                                    labelId="quantitative-operation-select-label"
+                                    value={selectedQuantitativeOperation}
+                                    onChange={handleQuantitativeOperationChange}
+                                    label="演算子"
+                                    sx={selectStyles}
+                                    inputProps={{
+                                        sx: inputPropsStyles,
+                                    }}
+                                >
+                                    {['==', '!=', '<', '>', '<=', '>='].map((op) => (
+                                        <MenuItem key={op} value={op}>
+                                            {op}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+
+                            {/* 数値の入力 */}
+                            <TextField
+                                type="number"
+                                label="数値を入力"
+                                variant="outlined"
+                                value={currentNumber}
+                                onChange={(event) => setCurrentNumber(Number(event.target.value))}
+                                sx={{
+                                    flex: 1,
+                                    '& .MuiOutlinedInput-root': {
                                         borderRadius: '50px',
+                                        '& fieldset': {
+                                            borderRadius: '50px',
+                                        },
                                     },
-                                },
-                                '& .MuiInputBase-input': {
-                                    fontSize: '20px',
-                                    padding: '10px 14px',
-                                },
-                            }}
-                        />
+                                    '& .MuiInputBase-input': {
+                                        fontSize: '20px',
+                                        padding: '10px 14px',
+                                    },
+                                }}
+                            />
 
-                        <IconButton
-                            sx={{
-                                width: '40px',
-                                height: '40px',
-                                display: 'flex',
-                                backgroundColor: '#1976d2',
-                                color: 'white',
-                                borderRadius: '50%',
-                                '&:hover': { backgroundColor: '#1565c0' },
-                            }}
-                            onClick={handleAddQuantitativeFormula}
-                        >
-                            <AddIcon />
-                        </IconButton>
+                            <IconButton
+                                sx={{
+                                    width: '40px',
+                                    height: '40px',
+                                    display: 'flex',
+                                    backgroundColor: '#1976d2',
+                                    color: 'white',
+                                    borderRadius: '50%',
+                                    '&:hover': { backgroundColor: '#1565c0' },
+                                }}
+                                onClick={handleAddQuantitativeFormula}
+                            >
+                                <AddIcon />
+                            </IconButton>
+                        </Box>
                     </Box>
-                </Box>
+                ) : (
+                    <></>
+                )}
+                
 
                 {/* 論理演算子および括弧の追加 */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-evenly', gap: 1, mt: 1, mb: 1 }}>

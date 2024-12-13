@@ -258,48 +258,53 @@ const QuantitativeEngineering: React.FC<QuantitativeEngineeringProps> = ({ formu
                     }}
                 >
                     {/* 量的カラムの選択と追加ボタン */}
-                    <Box sx={sectionBoxStyles}>
-                        <FormControl variant="outlined" sx={{ flex: 1 }}>
-                            <InputLabel id="quantitative-column-label">量的カラムを選択</InputLabel>
-                            <Select
-                                labelId="quantitative-column-label"
-                                value={currentColumn}
-                                onChange={(event) => {
-                                    const selectedValue = event.target.value;
-                                    if (quantitativeMissColumns.includes(selectedValue)) {
-                                        event.preventDefault(); // 無効な項目が選ばれた場合、選択を防ぐ
-                                        handleOpenModal(selectedValue); // モーダルを開く処理
-                                    } else {
-                                        setCurrentColumn(selectedValue); // 有効な項目は状態を変更
-                                    }
-                                }}
-                                label="量的カラムを選択"
-                                sx={selectStyles}
-                                inputProps={{
-                                    sx: inputPropsStyles,
-                                }}
+                    {quantitativeColumns.length > 1 ? (
+                        <Box sx={sectionBoxStyles}>
+                            <FormControl variant="outlined" sx={{ flex: 1 }}>
+                                <InputLabel id="quantitative-column-label">量的カラムを選択</InputLabel>
+                                <Select
+                                    labelId="quantitative-column-label"
+                                    value={currentColumn}
+                                    onChange={(event) => {
+                                        const selectedValue = event.target.value;
+                                        if (quantitativeMissColumns.includes(selectedValue)) {
+                                            event.preventDefault(); // 無効な項目が選ばれた場合、選択を防ぐ
+                                            handleOpenModal(selectedValue); // モーダルを開く処理
+                                        } else {
+                                            setCurrentColumn(selectedValue); // 有効な項目は状態を変更
+                                        }
+                                    }}
+                                    label="量的カラムを選択"
+                                    sx={selectStyles}
+                                    inputProps={{
+                                        sx: inputPropsStyles,
+                                    }}
+                                >
+                                    {quantitativeColumns.map((column) => (
+                                        <MenuItem
+                                            key={column}
+                                            value={column}
+                                            sx={{
+                                                color: quantitativeMissColumns.includes(column) ? 'red' : 'black', // 条件で文字色を設定
+                                                opacity: quantitativeMissColumns.includes(column) ? '0.5' : '1'
+                                            }}
+                                        >
+                                            {column}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <IconButton
+                                sx={buttonStyles}
+                                onClick={handleAddColumn}
                             >
-                                {quantitativeColumns.map((column) => (
-                                    <MenuItem
-                                        key={column}
-                                        value={column}
-                                        sx={{
-                                            color: quantitativeMissColumns.includes(column) ? 'red' : 'black', // 条件で文字色を設定
-                                            opacity: quantitativeMissColumns.includes(column) ? '0.5' : '1'
-                                        }}
-                                    >
-                                        {column}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        <IconButton
-                            sx={buttonStyles}
-                            onClick={handleAddColumn}
-                        >
-                            <AddIcon />
-                        </IconButton>
-                    </Box>
+                                <AddIcon />
+                            </IconButton>
+                        </Box>
+                    ) : (
+                        <></>
+                    )}
+                    
 
                     {/* 演算子の選択と追加ボタン */}
                     <Box sx={sectionBoxStyles}>

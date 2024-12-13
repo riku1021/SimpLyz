@@ -1,12 +1,12 @@
 import React from 'react';
 import GuideSection from '../GuideScreen';
-import DataInfoImage from '../../../assets/images/DataInfoImage.png';
+import FeatureCreationQualitativeImage from '../../../assets/images/FeatureCreationQualitativeImage.png';
 
-const DataInfoExplanation: React.FC = () => {
+const FeatureCreationQualitativeExplanation: React.FC = () => {
     return (
         <GuideSection
-            title="データ情報ページ"
-            imageSrc={DataInfoImage}
+            title="特徴量作成ページ（質的データ）"
+            imageSrc={FeatureCreationQualitativeImage}
             description={[
                 `欠損値のあるデータをアップロードできます。
                 ああああああああああああああああああああああ
@@ -19,4 +19,4 @@ const DataInfoExplanation: React.FC = () => {
     );
 };
 
-export default DataInfoExplanation;
+export default FeatureCreationQualitativeExplanation;

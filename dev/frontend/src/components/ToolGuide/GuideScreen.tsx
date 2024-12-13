@@ -13,11 +13,13 @@ const GuideSection: React.FC<GuideSectionProps> = ({ title, imageSrc, descriptio
             <Typography
                 variant="h4"
                 sx={{
+                    marginLeft: '80px',
                     borderLeft: '8px solid',
                     borderColor: '#1976d2',
                     paddingLeft: 1.5,
                     display: 'flex',
                     alignItems: 'center',
+                    pb: 2
                 }}
                 gutterBottom
             >
@@ -25,7 +27,7 @@ const GuideSection: React.FC<GuideSectionProps> = ({ title, imageSrc, descriptio
             </Typography>
             <Box
                 sx={{
-                    width: '80%',
+                    width: '70%',
                     margin: '0 auto',
                 }}
             >

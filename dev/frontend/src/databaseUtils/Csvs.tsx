@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { DATABASE_URL } from "../urlConfig"
+import { saveAs } from "file-saver";
 
 // 型定義
 export interface CsvDataType {
@@ -57,6 +58,28 @@ export const fetchDeletedCsvFiles = async (
     throw new Error("データ取得に失敗しました");
   }
 };
+
+// CSVファイルをダウンロードするAPI
+export const downloadCsvFile = async (
+  csvId: string, fileName: string
+): Promise<string> => {
+  try {
+    const response = await axios.get<Blob>(`${DATABASE_URL}download_csv/${csvId}`, {
+      responseType: "blob",
+    });
+
+    // HTTPステータスコードを確認
+    if (response.status !== 200) {
+      const errorText = await response.data.text();
+      throw new Error(`Failed to download CSV: ${errorText}`);
+    }
+
+    saveAs(response.data, fileName);
+    return "Success";
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
 
 // CSVファイル削除API
 export const deleteCsvFile = async (csvId: string): Promise<string> => {

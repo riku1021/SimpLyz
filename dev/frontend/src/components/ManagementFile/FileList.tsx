@@ -18,6 +18,7 @@ import {
   DeleteOutline as DeleteIcon,
   InsertDriveFile as InsertDriveFileIcon,
   RestorePage as RestorePageIcon,
+  GetApp as GetAppIcon
 } from "@mui/icons-material";
 import {
   showConfirmationAlert,
@@ -26,6 +27,7 @@ import {
 } from "../../utils/alertUtils";
 import {
   deleteCsvFile,
+  downloadCsvFile,
   deleteCsvFilePermanently,
   restoreCsvFile,
   CsvDataType,
@@ -52,6 +54,26 @@ const FileList: React.FC<FileListProps> = ({
   const handleSelect = (csvId: string) => {
     setSelectedCsvId(csvId);
     localStorage.setItem("selectedCsvId", csvId);
+  };
+
+  const handleDownload = (csvId: string, fileName: string) => {
+    showConfirmationAlert("ダウンロード確認", "このファイルをダウンロードしますか？", "はい", "いいえ").then(
+      async (result) => {
+        if (result.isConfirmed) {
+          try {
+            const message = await downloadCsvFile(csvId, fileName);
+            if (message === "Success") {
+              showSuccessAlert("ダウンロード成功", "");
+            } else {
+              showErrorAlert("ダウンロード失敗", "CSVファイルのダウンロードに失敗しました。");
+            }
+          } catch (error) {
+            showErrorAlert("ダウンロード失敗", "CSVファイルのダウンロードに失敗しました。");
+            console.log(error);
+          }
+        }
+      }
+    );
   };
 
   const handleDelete = (csvId: string) => {
@@ -171,6 +193,10 @@ const FileList: React.FC<FileListProps> = ({
                   <TableCell
                     align="center"
                     sx={{ fontWeight: "bold", fontSize: "18px" }}
+                  ></TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{ fontWeight: "bold", fontSize: "18px" }}
                   >
                     ファイル名
                   </TableCell>
@@ -208,6 +234,11 @@ const FileList: React.FC<FileListProps> = ({
                 {displayList.length > 0 ? (
                   displayList.map((csv, index) => (
                     <TableRow key={index}>
+                      <TableCell>
+                        <IconButton onClick={() => handleDownload(csv.csv_id, csv.file_name)}>
+                          <GetAppIcon sx={{ fontSize: "30px" }} />
+                        </IconButton>
+                      </TableCell>
                       {isTrashMode && (
                         <TableCell align="center">
                           <IconButton

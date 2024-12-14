@@ -82,6 +82,32 @@ func GetCsv(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, gin.H{"file": fileData})
 }
 
+func DownloadCsv(c *gin.Context, db *gorm.DB) {
+	// パラメータから csv_id を取得
+	csvID := c.Param("csv_id")
+
+	// データベースから特定の csv_id に基づいて CSV ファイルを検索
+	var csvFile Csv
+	result := db.First(&csvFile, "csv_id = ?", csvID)
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "CSV file not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch CSV file"})
+		}
+		return
+	}
+
+	// ファイルデータを取得
+	// csvData := []byte(csvFile.CsvFile) // CsvFileは文字列またはバイナリとして保存されていると仮定
+
+	// ヘッダーを設定してCSVを直接送信
+	c.Header("Content-Description", "File Transfer")
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.csv\"", csvFile.FileName))
+	c.Header("Content-Type", "text/csv; charset=utf-8")
+	c.Data(http.StatusOK, "text/csv; charset=utf-8", []byte(csvFile.CsvFile))
+}
+
 // csvファイルをアップロードする関数
 func UploadCsv(c *gin.Context, db *gorm.DB) {
 	// csvファイルの取得

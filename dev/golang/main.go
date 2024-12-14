@@ -160,9 +160,14 @@ func main() {
 		csvs.UploadCsv(c, db)
 	})
 
-	// CSV ファイルを取得するエンドポイント
+	// CSV ファイルを取得するAPI
 	r.GET("/get_csv/:csv_id", func(c *gin.Context) {
 		csvs.GetCsv(c, db)
+	})
+
+	// CSV ファイルをダウンロードするAPI
+	r.GET("/download_csv/:csv_id", func(c *gin.Context) {
+		csvs.DownloadCsv(c, db)
 	})
 
 	// CSVファイルの情報を取得するAPI

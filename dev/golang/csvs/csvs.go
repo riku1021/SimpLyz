@@ -99,13 +99,13 @@ func DownloadCsv(c *gin.Context, db *gorm.DB) {
 	}
 
 	// ファイルデータを取得
-	csvData := []byte(csvFile.CsvFile) // CsvFileは文字列またはバイナリとして保存されていると仮定
+	// csvData := []byte(csvFile.CsvFile) // CsvFileは文字列またはバイナリとして保存されていると仮定
 
 	// ヘッダーを設定してCSVを直接送信
 	c.Header("Content-Description", "File Transfer")
-	c.Header("Content-Disposition", "attachment; filename=output.csv")
-	c.Header("Content-Type", "text/csv")
-	c.Data(http.StatusOK, "text/csv", csvData)
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.csv\"", csvFile.FileName))
+	c.Header("Content-Type", "text/csv; charset=utf-8")
+	c.Data(http.StatusOK, "text/csv; charset=utf-8", []byte(csvFile.CsvFile))
 }
 
 // csvファイルをアップロードする関数

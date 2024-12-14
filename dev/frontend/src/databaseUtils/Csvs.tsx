@@ -64,10 +64,16 @@ export const downloadCsvFile = async (
   csvId: string, fileName: string
 ): Promise<string> => {
   try {
-    const response = await axios.get<Blob>(`/download_csv/${csvId}`, {
+    const response = await axios.get<Blob>(`${DATABASE_URL}download_csv/${csvId}`, {
       responseType: "blob",
     });
-    console.log(`response.data: ${response.data}`)
+
+    // HTTPステータスコードを確認
+    if (response.status !== 200) {
+      const errorText = await response.data.text();
+      throw new Error(`Failed to download CSV: ${errorText}`);
+    }
+
     saveAs(response.data, fileName);
     return "Success";
   } catch (error) {
